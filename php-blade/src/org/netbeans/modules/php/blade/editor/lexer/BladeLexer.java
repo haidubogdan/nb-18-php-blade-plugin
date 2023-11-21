@@ -65,34 +65,57 @@ public class BladeLexer extends AbstractAntlrLexerBridge<BladeAntlrColoringLexer
     @Override
     protected Token<BladeTokenId> mapToken(org.antlr.v4.runtime.Token antlrToken) {
         //debug text
-        String text = antlrToken.getText();
+        //String text = antlrToken.getText();
         int type = antlrToken.getType();
         //System.out.println(text + " " + type);
         switch (type) {
-            case BladeAntlrColoringLexer.HTML_TEXT:
+            case BladeAntlrColoringLexer.BLADE_COMMENT:
+                return token(BLADE_COMMENT);
+            case BladeAntlrColoringLexer.HTML:
                 return token(HTML);
-            case BladeAntlrColoringLexer.BLADE_ESCAPED_ECHO_START:
-            case BladeAntlrColoringLexer.BLADE_ESCAPED_ECHO_END:
-                return token(BLADE_ECHO_DELIMITOR);
-            //case BladeAntlrColoringLexer.BLADE_DIRECTIVE_CONDITIONALS_START:    
-            case BladeAntlrColoringLexer.BLADE_DIRECTIVE:
-            //case BladeAntlrColoringLexer.BLADE_DIRECTIVE_ELSE:
-            //case BladeAntlrColoringLexer.BLADE_DIRECTIVE_ENDIF:
-            case BladeAntlrColoringLexer.BLADE_DIRECTIVE_NO_EXPRESSION:    
-                return token(BLADE_DIRECTIVE);
-            case BladeAntlrColoringLexer.BLADE_PHP_CONTENT:
-            case BladeAntlrColoringLexer.IF_VARIABLE:
-            case BladeAntlrColoringLexer.PHP_ENTITY_NAME:
-            case BladeAntlrColoringLexer.SINGLE_QUOTED_STRING:
-            case BladeAntlrColoringLexer.DOUBLE_QUOTED_STRING:  
-            case BladeAntlrColoringLexer.PHP_EXPRESSION_WS:
-            case BladeAntlrColoringLexer.OPEN_IF_LPAREN:
-            case BladeAntlrColoringLexer.CLOSE_IF_RPAREN:
-            case BladeAntlrColoringLexer.IF_LPAREN:
-            case BladeAntlrColoringLexer.IF_RPAREN:
-            case BladeAntlrColoringLexer.PHP_OPERATORS:
+            case BladeAntlrColoringLexer.PHP_INLINE:
+                return token(PHP_INLINE);
+            case BladeAntlrColoringLexer.PHP_EXPRESSION:
                 return token(PHP_BLADE_EXPRESSION);
-            case BladeAntlrColoringLexer.ERROR:    
+            case BladeAntlrColoringLexer.BLADE_PHP_INLINE:
+                return token(PHP_BLADE_INLINE_CODE);
+            case BladeAntlrColoringLexer.D_IF:
+            case BladeAntlrColoringLexer.D_ELSEIF:
+            case BladeAntlrColoringLexer.D_ELSE:
+            case BladeAntlrColoringLexer.D_ENDIF:
+            case BladeAntlrColoringLexer.D_SWITCH:
+            case BladeAntlrColoringLexer.D_CASE:
+            case BladeAntlrColoringLexer.D_ENDSWITCH:
+            case BladeAntlrColoringLexer.D_EACH:
+            case BladeAntlrColoringLexer.D_FOREACH:
+            case BladeAntlrColoringLexer.D_ENDFOREACH:
+            case BladeAntlrColoringLexer.D_FOR:
+            case BladeAntlrColoringLexer.D_ENDFOR:
+            case BladeAntlrColoringLexer.D_WHILE:
+            case BladeAntlrColoringLexer.D_ENDWHILE:
+            case BladeAntlrColoringLexer.D_CONTINUE:
+            case BladeAntlrColoringLexer.D_BREAK:
+            case BladeAntlrColoringLexer.D_INCLUDE:
+            case BladeAntlrColoringLexer.D_INCLUDE_IF:
+            case BladeAntlrColoringLexer.D_INCLUDE_WHEN:
+            case BladeAntlrColoringLexer.D_INCLUDE_FIRST:
+            case BladeAntlrColoringLexer.D_INCLUDE_UNLESS:
+            case BladeAntlrColoringLexer.D_PHP:
+            case BladeAntlrColoringLexer.D_ENDPHP:
+            case BladeAntlrColoringLexer.D_AWARE:
+            case BladeAntlrColoringLexer.D_CUSTOM:
+                return token(BLADE_DIRECTIVE);
+            case BladeAntlrColoringLexer.ESCAPED_ECHO_START:
+            case BladeAntlrColoringLexer.NE_ECHO_START:
+                return token(BLADE_ECHO_DELIMITOR);
+            case BladeAntlrColoringLexer.ESCAPED_ECHO_END:
+            case BladeAntlrColoringLexer.NE_ECHO_END:
+                return token(BLADE_ECHO_DELIMITOR);
+            case BladeAntlrColoringLexer.BLADE_PHP_ECHO_EXPR:
+                return token(PHP_BLADE_ECHO_EXPR);
+            case BladeAntlrColoringLexer.ERROR:
+            case BladeAntlrColoringLexer.WS_EXPR:
+                return token(WS_D);
             default:
                 return token(OTHER);
         }

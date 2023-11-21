@@ -5,16 +5,16 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.netbeans.junit.NbTestCase;
-import static org.netbeans.modules.php.blade.syntax.antlr4.BladeAntlrColoringLexer.*;
 
 /**
  *
  * @author bhaidu
  */
-public class BladeAntlrColoringLexerTestBase extends NbTestCase {
+public class BladeAntlrParserTestBase extends NbTestCase {
 
-    public BladeAntlrColoringLexerTestBase(String testName) {
+    public BladeAntlrParserTestBase(String testName) {
         super(testName);
     }
 
@@ -45,8 +45,16 @@ public class BladeAntlrColoringLexerTestBase extends NbTestCase {
 
     protected String getTestResult(String filename) throws Exception {
         String content = BladeUtils.getFileContent(new File(getDataDir(), "testfiles/" + filename));
-        CommonTokenStream tokenStream = BladeUtils.getColoringTokenStream(content);
-        System.out.print("\n---Lexer scan for <<" + filename + ">>\n\n");
+        CommonTokenStream tokenStream = BladeUtils.getTokenStream(content);
+        System.out.print("\n---Psrser scan for <<" + filename + ">>\n\n");
+        BladeAntlrParser parser = new BladeAntlrParser(tokenStream);
+        ParseTreeListener listener = new BladeAntlrParserBaseListener(){
+            
+        };
+        parser.addParseListener(listener);
+        parser.file();
+        System.out.println(parser.getBuildParseTree());
+        
         return createResult(tokenStream);
     }
 
@@ -55,18 +63,9 @@ public class BladeAntlrColoringLexerTestBase extends NbTestCase {
 
         for (Token token : tokenStream.getTokens()) {
             switch (token.getType()) {
-                case HTML:
-                    result.append("HTML ");
-                    break;
-                case ESCAPED_ECHO_END:
-                    result.append("ESCAPED_ECHO_END ");
-                    break;
-                case PHP_EXPRESSION:
-                    result.append("PHP_EXPRESSION ");
-                    break;
-                case BLADE_PHP_INLINE:
-                    result.append("BLADE_PHP_INLINE ");
-                    break;
+//                case BLADE_ESCAPED_CONTENT:
+//                    result.append("BLADE_ESCAPED_CONTENT ");
+//                    break;
             }
 
             String text = replaceLinesAndTabs(token.getText());

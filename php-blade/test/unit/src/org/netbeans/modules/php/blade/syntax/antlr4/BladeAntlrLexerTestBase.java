@@ -55,9 +55,9 @@ public class BladeAntlrLexerTestBase extends NbTestCase {
 
         for (Token token : tokenStream.getTokens()) {
             switch (token.getType()) {
-                case BLADE_ESCAPED_CONTENT:
-                    result.append("BLADE_ESCAPED_CONTENT ");
-                    break;
+//                case BLADE_ESCAPED_CONTENT:
+//                    result.append("BLADE_ESCAPED_CONTENT ");
+//                    break;
             }
 
             String text = replaceLinesAndTabs(token.getText());

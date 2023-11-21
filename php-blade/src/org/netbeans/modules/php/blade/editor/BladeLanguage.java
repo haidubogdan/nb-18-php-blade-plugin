@@ -62,6 +62,7 @@ import static org.netbeans.modules.php.blade.editor.BladeLanguage.ACTIONS;
 import org.netbeans.modules.php.blade.editor.lexer.BladeLexer;
 import org.netbeans.modules.php.blade.editor.lexer.BladeTokenId;
 import org.netbeans.modules.php.blade.editor.lexer.BladeTokenId.BladeLanguageHierarchy;
+import org.netbeans.modules.php.blade.editor.parser.BladeParser;
 import org.openide.*;
 import org.openide.util.*;
 
@@ -98,8 +99,8 @@ public class BladeLanguage extends DefaultLanguageConfig {
         super();
     }
 
-    public static final String ACTIONS = "Loaders/" + BladeLanguage.BLADE_MIME_TYPE + "/Actions"; //NOI18N
-    public static final String BLADE_MIME_TYPE = "text/x-blade"; //NOI18N
+    public static final String ACTIONS = "Loaders/" + BladeLanguage.MIME_TYPE + "/Actions"; //NOI18N
+    public static final String MIME_TYPE = "text/x-blade"; //NOI18N
 
     @Override
     public Language<BladeTokenId> getLexerLanguage() {
@@ -115,16 +116,17 @@ public class BladeLanguage extends DefaultLanguageConfig {
     public String getPreferredExtension() {
         return "blade.php"; // NOI18N
     }
+    
+//
+//    @Override
+//    public boolean isUsingCustomEditorKit() {
+//        return false;
+//    }
 
     @Override
-    public boolean isUsingCustomEditorKit() {
-        return false;
+    public Parser getParser() {
+        return new BladeParser();
     }
-
-//    @Override
-//    public Parser getParser() {
-//        return new BladeParser();
-//    }
 
 //    @Override
 //    public boolean hasStructureScanner() {
@@ -219,7 +221,7 @@ public class BladeLanguage extends DefaultLanguageConfig {
 
                 @Override
                 protected String mimeType() {
-                    return BladeLanguage.BLADE_MIME_TYPE;
+                    return BladeLanguage.MIME_TYPE;
                 }
 
                 @Override
@@ -233,7 +235,7 @@ public class BladeLanguage extends DefaultLanguageConfig {
     @MultiViewElement.Registration(
             displayName = "#Source",
             persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
-            mimeType = BladeLanguage.BLADE_MIME_TYPE,
+            mimeType = BladeLanguage.MIME_TYPE,
             preferredID = "blade.source",
             position = 100
     )

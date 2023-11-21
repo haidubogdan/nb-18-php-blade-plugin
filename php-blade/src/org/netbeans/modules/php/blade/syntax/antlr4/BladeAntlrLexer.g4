@@ -6,72 +6,181 @@ lexer grammar BladeAntlrLexer;
 
 options { superClass = LexerAdaptor; }
  
-tokens { TOKEN_REF ,
- RULE_REF , LEXER_CHAR_SET,
- PHP_EXPRESSION_WS,
- PHP_ENTITY_NAME,
- PHP_OPERATORS,
- DOUBLE_QUOTED_STRING,
- SINGLE_QUOTED_STRING   
- }
+tokens { TOKEN_REF,
+ RULE_REF,
+ LEXER_CHAR_SET,
+ PHP_EXPRESSION,
+ BLADE_PHP_ECHO_EXPR,
+ ERROR
+}
 
- //display
-ESCAPED_DOUBLE_CURLY : '@{{';
-BLADE_ESCAPED_ECHO_START : '{{' ->pushMode(INSIDE_ESCAPED_ECHO);   
+fragment
+NameString : [a-zA-Z_\u0080-\ufffe][a-zA-Z0-9_\u0080-\ufffe]*;    
     
-//directives
-ESCAPED_DIRECTIVE : '@@' ->type(HTML_TEXT);
+BLADE_COMMENT : '{{--' .*? '--}}';
 
-BLADE_IF : '@if' ->pushMode(INSIDE_BLADE_IF_EXPRESSION);
-BLADE_ELSE : '@else';
-BLADE_ELSEIF : '@elseif';
-BLADE_ENDIF : '@endif';
+PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? '?>';
 
-//php
-PHP_OPEN : PHP_OPEN_FRAGMENT;
-//html
-HTML_TEXT : HTML_TEXT_FRAGMENT+;
+EMAIL_SUBSTRING : ('@' NameString '.')->type(HTML);
 
-WS :[\t ]+->type(HTML_TEXT);
-OTHER : . ->type(HTML_TEXT);
+//escapes
+D_ESCAPES 
+    : (
+      '@@'
+    | '@media'
+    | '@layer'
+    | '@tailwind'
+    | '@apply' 
+    | '@-webkit-keyframes' 
+    | '@keyframes'
+    )->type(HTML);
 
-//GENERAL FRAGMENTS
-fragment ESC_DOUBLE_QUOTED_STRING : [\\"];
-fragment DOUBLE_QUOTED_STRING_FRAGMENT : '"' (ESC_DOUBLE_QUOTED_STRING | . )*? '"';
-fragment SINGLE_QUOTED_STRING_FRAGMENT : '\'' (~('\'' | '\\') | '\\' . )* '\'';
-fragment NAME_STRING : [a-zA-Z_\u0080-\ufffe][a-zA-Z0-9_\u0080-\ufffe]*;
+//conditionals
+D_IF : '@if'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ELSEIF : '@elseif'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ELSE : '@else';
+D_ENDIF : '@endif';
+D_SWITCH : '@switch'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_CASE : '@case'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ENDSWITCH : '@endswitch';
 
-//php fragments
-fragment PHP_OPEN_FRAGMENT : '<?php';
-//html fragments
-fragment HTML_TEXT_FRAGMENT : '<' (.)+? ~('@' | '<' | '?');
+//loops
+D_EACH : '@each'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_FOREACH : '@foreach'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ENDFOREACH : '@endforeach';
+D_FOR : '@for'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ENDFOR : '@endfor';
+D_FORELSE : '@forelse'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ENDFORELSE : '@endforelse';
+D_WHILE : '@while'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ENDWHILE : '@endwhile';
+D_CONTINUE : '@continue'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_BREAK : '@break'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
-mode INSIDE_ESCAPED_ECHO;
+//includes
+D_INCLUDE : '@include'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_INCLUDE_IF : '@includeIf'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_INCLUDE_WHEN : '@includeWhen'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_INCLUDE_FIRST : '@includeFirst'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_INCLUDE_UNLESS : '@includeUnless'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
-BLADE_ESCAPED_CONTENT : (.)+? { this._input.LA(1) == '}' }?;
+//layout
+D_EXTENDS : '@extends'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_JS : '@js'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_SECTION : '@section'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_HAS_SECTION : '@hasSection'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_SECTION_MISSING : '@sectionMissing'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ENDSECTION : '@endsection';
+D_YIELD : '@yield'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_PARENT : '@parent';
+D_SHOW : '@show';
+D_OVERWRITE : '@overwrite';
+D_STOP : '@stop';
+D_ONCE : '@once';
+D_ENDONCE : '@endonce';
+D_PUSH : '@push'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ENDPUSH : '@endpush';
+D_PUSH_ONCE : '@pushOnce'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ENDPUSH_ONCE : '@endPushOnce';
+D_PROPS : '@props'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
-BLADE_ESCAPED_ECHO_END : ('}}')->popMode;
+//forms
+D_CSRF  : '@csrf';
+D_METHOD : '@method'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ERROR : '@error'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ENDERROR : '@enderror';
 
-ERROR_BLADE_ESCAPED : . ->type(HTML_TEXT);
+//env
+D_PRODUCTION : '@production';
+D_ENDPRODUCTION : '@endproduction';
 
-mode INSIDE_BLADE_IF_EXPRESSION;
+//styles, attributes
+D_CLASS : '@class'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_STYLE : '@style'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_SELECTED : '@selected'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_DISABLED : '@disabled'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_READONLY : '@readonly'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_REQUIRED : '@required'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_AWARE : '@aware'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
-IF_DOUBLE_QUOTED_STRING : DOUBLE_QUOTED_STRING_FRAGMENT ->type(DOUBLE_QUOTED_STRING);
-IF_SINGLE_QUOTED_STRING : SINGLE_QUOTED_STRING_FRAGMENT->type(SINGLE_QUOTED_STRING);
+//misc
+D_EMPTY : '@empty'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ENDEMPTY : '@endempty';
+D_JSON  : '@json'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_INJECT : '@inject'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_DD : '@dd'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
-OPEN_IF_LPAREN: {this.roundParenBalance == 0}? '(' {this.increaseRoundParenBalance();};
-CLOSE_IF_RPAREN: {this.roundParenBalance == 1}? ')' {this.decreaseRoundParenBalance();}->popMode;
-IF_LPAREN: {this.roundParenBalance > 0}? '('  {this.increaseRoundParenBalance();};
-IF_RPAREN: {this.roundParenBalance > 0}? ')' {this.decreaseRoundParenBalance();};
+D_PHP : '@php'->pushMode(BLADE_INLINE_PHP);
 
-IF_PHP_OPERATORS: ('.' | ':' | '->') ->type(PHP_OPERATORS);
+//todo all content between verbatim and verbatim should be rendered as html
+D_VERBATIM : '@verbatim';
+D_ENDVERBATIM : '@endverbatim';
 
-IF_VARIABLE: '$' NAME_STRING;
+//we will decide that a custom directive has expression to avoid email matching
+D_CUSTOM : ('@' NameString {this._input.LA(1) == '(' || 
+        (this._input.LA(1) == ' ' && this._input.LA(2) == '(')}? ) ->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
-IF_PHP_ENTITY_NAME: NAME_STRING->type(PHP_ENTITY_NAME);
+//display
+ESCAPE_ECHO : '@{' ->type(HTML);
+ESCAPED_ECHO_START : '{{' ->pushMode(ESCAPED_ECHO);
+NE_ECHO_START : '{!!' ->pushMode(NE_ECHO);
 
-IF_WS : [\t ]->type(PHP_EXPRESSION_WS);
+HTML : ~[<?@{!]+;
 
-OTHER_BLADE_IF_EXPRESSION : . ;
+OTHER : . ->type(HTML);
 
-  
+mode ESCAPED_ECHO;
+
+ESCAPED_ECHO_END : ('}}')->popMode;
+ESCAPED_ECHO_EXPR : ~[{}]+ ->type(BLADE_PHP_ECHO_EXPR);
+ESCAPED_ECHO_EXPR_MORE : . ->more;
+EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
+
+//not escaped blade echo
+mode NE_ECHO;
+
+NE_ECHO_END : ('!!}')->popMode;
+NE_ECHO_EXPR : ~[!{}]+ ->type(BLADE_PHP_ECHO_EXPR);
+NE_ECHO_EXPR_MORE : . ->more;
+EXIT_NE_ECHO_EOF : EOF->type(ERROR),popMode;
+
+mode LOOK_FOR_PHP_EXPRESSION;
+
+WS_EXPR : [ ]+ {this._input.LA(1) == '('}? ->pushMode(INSIDE_PHP_EXPRESSION);
+OPEN_EXPR_PAREN_MORE : '(' ->more,pushMode(INSIDE_PHP_EXPRESSION);
+
+L_OTHER : . ->type(HTML), popMode;
+
+mode INSIDE_PHP_EXPRESSION;
+
+OPEN_EXPR_PAREN : {this.roundParenBalance == 0}? '(' {this.increaseRoundParenBalance();} ->more;
+CLOSE_EXPR_PAREN : {this.roundParenBalance == 1}? ')' 
+    {this.decreaseRoundParenBalance();}->type(PHP_EXPRESSION),mode(DEFAULT_MODE);
+
+LPAREN : {this.roundParenBalance > 0}? '(' {this.increaseRoundParenBalance();}->more;
+RPAREN : {this.roundParenBalance > 0}? ')' {this.decreaseRoundParenBalance();}->more;
+
+//in case of lexer restart context
+EXIT_RPAREN : ')' {this.roundParenBalance == 0}?->type(PHP_EXPRESSION),mode(DEFAULT_MODE);
+
+PHP_EXPRESSION_MORE : . ->more;
+
+EXIT_EOF : EOF->type(ERROR),popMode;
+
+mode BLADE_INLINE_PHP;
+
+D_ENDPHP : '@endphp'->popMode;
+
+//hack to merge all php inputs into one token
+BLADE_PHP_INLINE : . {
+        this._input.LA(1) == '@' &&
+        this._input.LA(2) == 'e' &&
+        this._input.LA(3) == 'n' &&
+        this._input.LA(4) == 'd' &&
+        this._input.LA(5) == 'p' &&
+        this._input.LA(6) == 'h' &&
+        this._input.LA(7) == 'p'
+      }? ;
+BLADE_PHP_INLINE_MORE : . ->more;
+
+EXIT_INLINE_PHP_EOF : EOF->type(ERROR),popMode; 

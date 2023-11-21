@@ -60,10 +60,15 @@ import org.openide.util.Lookup;
  * @author bogdan
  */
 public enum BladeTokenId implements TokenId {
+    BLADE_COMMENT("comment"),
     BLADE_DIRECTIVE("blade_directive"),
     BLADE_ECHO_DELIMITOR("blade_echo_delimiters"),
     HTML("html"),
+    WS_D("html"),
     PHP_BLADE_EXPRESSION("php"),
+    PHP_BLADE_ECHO_EXPR("php"),
+    PHP_BLADE_INLINE_CODE("php"),
+    PHP_INLINE("php"),
     OTHER("error");
     private final String category;
 
@@ -90,10 +95,15 @@ public enum BladeTokenId implements TokenId {
         protected LanguageEmbedding<? extends TokenId> embedding(Token<BladeTokenId> token,
                 LanguagePath languagePath, InputAttributes inputAttributes) {
             switch (token.id()) {
+                case PHP_INLINE:
+                    Language<? extends TokenId> phpLanguageCode = PHPTokenId.language();
+                    return phpLanguageCode != null ? LanguageEmbedding.create(phpLanguageCode, 0, 0, false) : null;
+                case PHP_BLADE_ECHO_EXPR:
                 case PHP_BLADE_EXPRESSION:
+                case PHP_BLADE_INLINE_CODE:    
                     //Language lang1 = Language.find("text/x-php5");
                     Language<? extends TokenId> phpLanguage = PHPTokenId.languageInPHP();
-                    return phpLanguage != null ? LanguageEmbedding.create(phpLanguage, 0, 0, true) : null;
+                    return phpLanguage != null ? LanguageEmbedding.create(phpLanguage, 0, 0, false) : null;
                 case HTML:
                     LanguageEmbedding<?> lang;
 
