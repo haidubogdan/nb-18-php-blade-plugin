@@ -120,10 +120,13 @@ D_ENDVERBATIM : '@endverbatim';
 D_CUSTOM : ('@' NameString {this._input.LA(1) == '(' || 
         (this._input.LA(1) == ' ' && this._input.LA(2) == '(')}? ) ->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
+D_UNKNOWN : '@' NameString->type(HTML);
 //display
 ESCAPE_ECHO : '@{' ->type(HTML);
 ESCAPED_ECHO_START : '{{' ->pushMode(ESCAPED_ECHO);
 NE_ECHO_START : '{!!' ->pushMode(NE_ECHO);
+
+AT : '@';
 
 HTML : ~[<?@{!]+;
 

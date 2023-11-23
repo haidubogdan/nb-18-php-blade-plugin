@@ -100,6 +100,8 @@ public class BladeLexer extends AbstractAntlrLexerBridge<BladeAntlrColoringLexer
             case BladeAntlrColoringLexer.D_INCLUDE_WHEN:
             case BladeAntlrColoringLexer.D_INCLUDE_FIRST:
             case BladeAntlrColoringLexer.D_INCLUDE_UNLESS:
+            case BladeAntlrColoringLexer.D_SECTION:
+            case BladeAntlrColoringLexer.D_ENDSECTION:
             case BladeAntlrColoringLexer.D_PHP:
             case BladeAntlrColoringLexer.D_ENDPHP:
             case BladeAntlrColoringLexer.D_AWARE:

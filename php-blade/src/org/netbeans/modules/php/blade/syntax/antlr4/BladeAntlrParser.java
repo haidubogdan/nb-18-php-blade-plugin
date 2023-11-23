@@ -32,9 +32,9 @@ public class BladeAntlrParser extends Parser {
 		D_ENDPRODUCTION=55, D_CLASS=56, D_STYLE=57, D_SELECTED=58, D_DISABLED=59, 
 		D_READONLY=60, D_REQUIRED=61, D_AWARE=62, D_EMPTY=63, D_ENDEMPTY=64, D_JSON=65, 
 		D_INJECT=66, D_DD=67, D_PHP=68, D_VERBATIM=69, D_ENDVERBATIM=70, D_CUSTOM=71, 
-		ESCAPED_ECHO_START=72, NE_ECHO_START=73, HTML=74, ESCAPED_ECHO_END=75, 
-		NE_ECHO_END=76, WS_EXPR=77, D_ENDPHP=78, BLADE_PHP_INLINE=79, ESCAPE_ECHO=80, 
-		OPEN_EXPR_PAREN_MORE=81;
+		ESCAPED_ECHO_START=72, NE_ECHO_START=73, AT=74, HTML=75, ESCAPED_ECHO_END=76, 
+		NE_ECHO_END=77, WS_EXPR=78, D_ENDPHP=79, BLADE_PHP_INLINE=80, ESCAPE_ECHO=81, 
+		OPEN_EXPR_PAREN_MORE=82;
 	public static final int
 		RULE_file = 0, RULE_general_statement = 1, RULE_inline_statement = 2, 
 		RULE_extends = 3, RULE_block_statement = 4, RULE_section = 5, RULE_section_inline = 6, 
@@ -61,8 +61,8 @@ public class BladeAntlrParser extends Parser {
 			"'@endproduction'", "'@class'", "'@style'", "'@selected'", "'@disabled'", 
 			"'@readonly'", "'@required'", "'@aware'", "'@empty'", "'@endempty'", 
 			"'@json'", "'@inject'", "'@dd'", "'@php'", "'@verbatim'", "'@endverbatim'", 
-			null, "'{{'", "'{!!'", null, null, null, null, "'@endphp'", null, "'@{'", 
-			"'('"
+			null, "'{{'", "'{!!'", "'@'", null, null, null, null, "'@endphp'", null, 
+			"'@{'", "'('"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -80,7 +80,7 @@ public class BladeAntlrParser extends Parser {
 			"D_ENDERROR", "D_PRODUCTION", "D_ENDPRODUCTION", "D_CLASS", "D_STYLE", 
 			"D_SELECTED", "D_DISABLED", "D_READONLY", "D_REQUIRED", "D_AWARE", "D_EMPTY", 
 			"D_ENDEMPTY", "D_JSON", "D_INJECT", "D_DD", "D_PHP", "D_VERBATIM", "D_ENDVERBATIM", 
-			"D_CUSTOM", "ESCAPED_ECHO_START", "NE_ECHO_START", "HTML", "ESCAPED_ECHO_END", 
+			"D_CUSTOM", "ESCAPED_ECHO_START", "NE_ECHO_START", "AT", "HTML", "ESCAPED_ECHO_END", 
 			"NE_ECHO_END", "WS_EXPR", "D_ENDPHP", "BLADE_PHP_INLINE", "ESCAPE_ECHO", 
 			"OPEN_EXPR_PAREN_MORE"
 		};
@@ -185,7 +185,7 @@ public class BladeAntlrParser extends Parser {
 					setState(19); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-				} while ( ((((_la - 32)) & ~0x3f) == 0 && ((1L << (_la - 32)) & 4398046511109L) != 0) );
+				} while ( ((((_la - 32)) & ~0x3f) == 0 && ((1L << (_la - 32)) & 8796093022213L) != 0) );
 				}
 				break;
 			case EOF:
@@ -454,7 +454,7 @@ public class BladeAntlrParser extends Parser {
 			setState(43);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (((((_la - 32)) & ~0x3f) == 0 && ((1L << (_la - 32)) & 4398046511109L) != 0)) {
+			while (((((_la - 32)) & ~0x3f) == 0 && ((1L << (_la - 32)) & 8796093022213L) != 0)) {
 				{
 				{
 				setState(40);
@@ -582,7 +582,7 @@ public class BladeAntlrParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\u0004\u0001Q9\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002\u0002"+
+		"\u0004\u0001R9\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002\u0002"+
 		"\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004\u0002\u0005"+
 		"\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0001\u0000"+
 		"\u0004\u0000\u0012\b\u0000\u000b\u0000\f\u0000\u0013\u0001\u0000\u0003"+
@@ -613,7 +613,7 @@ public class BladeAntlrParser extends Parser {
 		"\u0000\u0000+)\u0001\u0000\u0000\u0000+,\u0001\u0000\u0000\u0000,.\u0001"+
 		"\u0000\u0000\u0000-+\u0001\u0000\u0000\u0000./\u0005%\u0000\u0000/\u000b"+
 		"\u0001\u0000\u0000\u000001\u0005\"\u0000\u000012\u0005\u0004\u0000\u0000"+
-		"2\r\u0001\u0000\u0000\u000035\u0005J\u0000\u000043\u0001\u0000\u0000\u0000"+
+		"2\r\u0001\u0000\u0000\u000035\u0005K\u0000\u000043\u0001\u0000\u0000\u0000"+
 		"56\u0001\u0000\u0000\u000064\u0001\u0000\u0000\u000067\u0001\u0000\u0000"+
 		"\u00007\u000f\u0001\u0000\u0000\u0000\u0006\u0013\u0016\u001b\u001f+6";
 	public static final ATN _ATN =

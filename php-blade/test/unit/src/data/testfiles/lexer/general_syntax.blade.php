@@ -1,4 +1,6 @@
-
+<?php
+i
+?>
 
 @php
 
@@ -8,7 +10,7 @@ $test = "mytest@value"
 @endphp
 
 <div>
-    xx
+    <?php echo xx ;?>
 </div>
 
 @if($x)
