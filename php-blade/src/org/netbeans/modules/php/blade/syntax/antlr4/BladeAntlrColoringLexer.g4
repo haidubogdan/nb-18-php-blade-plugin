@@ -112,8 +112,7 @@ D_DD : '@dd'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
 D_PHP : '@php'->pushMode(BLADE_INLINE_PHP);
 
-//todo all content between verbatim and verbatim should be rendered as html
-D_VERBATIM : '@verbatim';
+D_VERBATIM : '@verbatim' ->pushMode(VERBATIM_MODE);
 D_ENDVERBATIM : '@endverbatim';
 
 //we will decide that a custom directive has expression to avoid email matching
@@ -184,3 +183,21 @@ BLADE_PHP_INLINE : . {
 BLADE_PHP_INLINE_MORE : . ->more;
 
 EXIT_INLINE_PHP_EOF : EOF->type(ERROR),popMode;
+
+mode VERBATIM_MODE;
+
+D_ENDVERBATIM_IN_MODE : '@endverbatim'->type(D_ENDVERBATIM), popMode;
+
+//hack to merge all php inputs into one token
+VERBATIM_HTML : . {
+        this._input.LA(1) == '@' &&
+        this._input.LA(2) == 'e' &&
+        this._input.LA(3) == 'n' &&
+        this._input.LA(4) == 'd' &&
+        this._input.LA(5) == 'v' &&
+        this._input.LA(6) == 'e' &&
+        this._input.LA(7) == 'r'
+      }? ->type(HTML);
+VERBATIM_HTML_MORE : . ->more;
+
+EXIT_VERBATIM_MOD_EOF : EOF->type(ERROR),popMode;

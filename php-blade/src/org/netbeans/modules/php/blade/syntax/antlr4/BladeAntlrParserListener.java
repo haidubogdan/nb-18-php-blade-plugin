@@ -60,6 +60,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitBlock_statement(BladeAntlrParser.Block_statementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#non_blade_statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterNon_blade_statement(BladeAntlrParser.Non_blade_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#non_blade_statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitNon_blade_statement(BladeAntlrParser.Non_blade_statementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#section}.
 	 * @param ctx the parse tree
 	 */
@@ -79,6 +89,116 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSection_inline(BladeAntlrParser.Section_inlineContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#if}.
+	 * @param ctx the parse tree
+	 */
+	void enterIf(BladeAntlrParser.IfContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#if}.
+	 * @param ctx the parse tree
+	 */
+	void exitIf(BladeAntlrParser.IfContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#elseif}.
+	 * @param ctx the parse tree
+	 */
+	void enterElseif(BladeAntlrParser.ElseifContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#elseif}.
+	 * @param ctx the parse tree
+	 */
+	void exitElseif(BladeAntlrParser.ElseifContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#else}.
+	 * @param ctx the parse tree
+	 */
+	void enterElse(BladeAntlrParser.ElseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#else}.
+	 * @param ctx the parse tree
+	 */
+	void exitElse(BladeAntlrParser.ElseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#yield}.
+	 * @param ctx the parse tree
+	 */
+	void enterYield(BladeAntlrParser.YieldContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#yield}.
+	 * @param ctx the parse tree
+	 */
+	void exitYield(BladeAntlrParser.YieldContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#include}.
+	 * @param ctx the parse tree
+	 */
+	void enterInclude(BladeAntlrParser.IncludeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#include}.
+	 * @param ctx the parse tree
+	 */
+	void exitInclude(BladeAntlrParser.IncludeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#custom_directive}.
+	 * @param ctx the parse tree
+	 */
+	void enterCustom_directive(BladeAntlrParser.Custom_directiveContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#custom_directive}.
+	 * @param ctx the parse tree
+	 */
+	void exitCustom_directive(BladeAntlrParser.Custom_directiveContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#php_blade}.
+	 * @param ctx the parse tree
+	 */
+	void enterPhp_blade(BladeAntlrParser.Php_bladeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#php_blade}.
+	 * @param ctx the parse tree
+	 */
+	void exitPhp_blade(BladeAntlrParser.Php_bladeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#echo}.
+	 * @param ctx the parse tree
+	 */
+	void enterEcho(BladeAntlrParser.EchoContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#echo}.
+	 * @param ctx the parse tree
+	 */
+	void exitEcho(BladeAntlrParser.EchoContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#echo_ne}.
+	 * @param ctx the parse tree
+	 */
+	void enterEcho_ne(BladeAntlrParser.Echo_neContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#echo_ne}.
+	 * @param ctx the parse tree
+	 */
+	void exitEcho_ne(BladeAntlrParser.Echo_neContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#php_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterPhp_expression(BladeAntlrParser.Php_expressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#php_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitPhp_expression(BladeAntlrParser.Php_expressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#verbatim_block}.
+	 * @param ctx the parse tree
+	 */
+	void enterVerbatim_block(BladeAntlrParser.Verbatim_blockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#verbatim_block}.
+	 * @param ctx the parse tree
+	 */
+	void exitVerbatim_block(BladeAntlrParser.Verbatim_blockContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#html}.
 	 * @param ctx the parse tree

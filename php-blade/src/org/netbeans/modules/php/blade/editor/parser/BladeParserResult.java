@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import org.antlr.v4.runtime.ANTLRErrorListener;
+import org.antlr.v4.runtime.BaseErrorListener;
 
 import org.netbeans.modules.csl.spi.DefaultError;
 import org.netbeans.modules.csl.api.Error;
@@ -15,12 +17,16 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.netbeans.modules.csl.api.Severity;
 import org.netbeans.modules.php.blade.syntax.antlr4.BladeAntlrLexer;
 import org.netbeans.modules.php.blade.syntax.antlr4.BladeAntlrParser;
 import org.netbeans.modules.php.blade.syntax.antlr4.BladeAntlrParserBaseListener;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -52,7 +58,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     public BladeParserResult get() {
         if (!finished) {
             BladeAntlrParser parser = createParser(getSnapshot());
-//            parser.addErrorListener(createErrorListener());
+            parser.addErrorListener(createErrorListener());
 //            parser.addParseListener(createFoldListener());
             parser.addParseListener(createElementsListener());
 //            parser.addParseListener(createImportListener());
@@ -69,15 +75,20 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         parser.file();
     }
 
-
     protected ParseTreeListener createElementsListener() {
 
-
         return new BladeAntlrParserBaseListener() {
-            
+            @Override
+            public void enterFile(BladeAntlrParser.FileContext ctx) {
+                int x = 1;
+            }
+
+            @Override
+            public void exitFile(BladeAntlrParser.FileContext ctx) {
+                int y = 1;
+            }
         };
     }
-
 
     @Override
     protected boolean processingFinished() {
@@ -92,6 +103,25 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     @Override
     protected void invalidate() {
         //references.clear();
+    }
+
+    protected ANTLRErrorListener createErrorListener() {
+        return new BaseErrorListener() {
+            @Override
+            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
+                int errorPosition = 0;
+                if (offendingSymbol instanceof Token) {
+                    Token offendingToken = (Token) offendingSymbol;
+                    errorPosition = offendingToken.getStartIndex();
+                }
+                errors.add(new BladeError(null, msg, null, getFileObject(), errorPosition, errorPosition, Severity.ERROR));
+            }
+
+        };
+    }
+
+    protected final FileObject getFileObject() {
+        return getSnapshot().getSource().getFileObject();
     }
 
     public enum ReferenceType {
