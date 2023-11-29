@@ -16,5 +16,9 @@ public class BladeAntrlLexerTest extends BladeAntlrLexerTestBase {
     public void test_general_syntax() throws Exception {
         performTest("lexer/general_syntax.blade.php");
     }
-
+    
+    @Test
+    public void test_layout_directives() throws Exception {
+        performTest("lexer/layout_directives.blade.php");
+    }
 }

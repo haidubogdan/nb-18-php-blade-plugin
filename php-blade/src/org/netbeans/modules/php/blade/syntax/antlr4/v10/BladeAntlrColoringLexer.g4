@@ -1,7 +1,7 @@
 lexer grammar BladeAntlrColoringLexer;
 
 @header{
-  package org.netbeans.modules.php.blade.syntax.antlr4;
+  package org.netbeans.modules.php.blade.syntax.antlr4.v10;
 }
 
 options { superClass = LexerAdaptor; }
@@ -17,6 +17,9 @@ tokens { TOKEN_REF,
 fragment
 NameString : [a-zA-Z_\u0080-\ufffe][a-zA-Z0-9_\u0080-\ufffe]*;    
     
+fragment
+NEKUDO_WHITELIST_MATCH : '::' | '?:' | ' : ';
+
 BLADE_COMMENT : '{{--' .*? '--}}';
 
 PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? '?>';
@@ -131,7 +134,10 @@ OTHER : . ->type(HTML);
 mode ESCAPED_ECHO;
 
 ESCAPED_ECHO_END : ('}}')->popMode;
-ESCAPED_ECHO_EXPR : ~[{}]+ ->type(BLADE_PHP_ECHO_EXPR);
+//hack due to a netbeans php embedding issue when adding or deleting ':' chars
+ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
+ECHO_PHP_FREEZE_SYNTAX : ':' ->type(ERROR);
+ESCAPED_ECHO_EXPR : ~[:{}]+ ->type(BLADE_PHP_ECHO_EXPR);
 ESCAPED_ECHO_EXPR_MORE : . ->more;
 EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
 
@@ -139,14 +145,17 @@ EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
 mode NE_ECHO;
 
 NE_ECHO_END : ('!!}')->popMode;
-NE_ECHO_EXPR : ~[!{}]+ ->type(BLADE_PHP_ECHO_EXPR);
+//hack due to a netbeans php embedding issue when adding or deleting ':' chars
+NE_ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
+NE_ECHO_PHP_FREEZE_SYNTAX : ':' ->type(ERROR);
+NE_ECHO_EXPR : ~[:!{}]+ ->type(BLADE_PHP_ECHO_EXPR);
 NE_ECHO_EXPR_MORE : . ->more;
 EXIT_NE_ECHO_EOF : EOF->type(ERROR),popMode;
 
 mode LOOK_FOR_PHP_EXPRESSION;
 
 WS_EXPR : [ ]+ {this._input.LA(1) == '('}? ->pushMode(INSIDE_PHP_EXPRESSION);
-OPEN_EXPR_PAREN_MORE : '(' ->more,pushMode(INSIDE_PHP_EXPRESSION);
+OPEN_EXPR_PAREN_MORE : '(' {this.increaseRoundParenBalance();} ->more,pushMode(INSIDE_PHP_EXPRESSION);
 
 L_OTHER : . ->type(HTML), popMode;
 
@@ -161,6 +170,11 @@ RPAREN : {this.roundParenBalance > 0}? ')' {this.decreaseRoundParenBalance();}->
 
 //in case of lexer restart context
 EXIT_RPAREN : ')' {this.roundParenBalance == 0}?->type(PHP_EXPRESSION),mode(DEFAULT_MODE);
+
+//hack due to a netbeans php embedding issue when adding or deleting ':' chars
+DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
+
+PHP_FREEZE_SYNTAX : ':' ->type(ERROR);
 
 PHP_EXPRESSION_MORE : . ->more;
 

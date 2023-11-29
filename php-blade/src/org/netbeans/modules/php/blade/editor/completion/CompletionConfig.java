@@ -1,7 +1,7 @@
 /*
 Licensed to the Apache Software Foundation (ASF)
  */
-package org.netbeans.modules.php.blade.editor;
+package org.netbeans.modules.php.blade.editor.completion;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,9 +35,10 @@ import org.snakeyaml.engine.v2.scanner.StreamReader;
  * 
  * @author bogdan
  */
-public class YamlConfig {
+public class CompletionConfig {
 
     private final static LoadSettings SETTINGS = LoadSettings.builder().build();
+    public final static String COMPLETION_CONFIG_V10 = "org/netbeans/modules/php/blade/resources/v10/directives_list.yml";
 
     public static HashMap<String, HashMap> getConfigMapping(String filePath) {
         ScannerImpl scanner;
@@ -120,8 +121,8 @@ public class YamlConfig {
     }
 
     public static String getResourceContent(String filePath) throws Exception {
-        ClassLoader cl = YamlConfig.class.getClassLoader();
-        InputStream stream = cl.getResourceAsStream("org/netbeans/modules/php/blade/resources/directives_list.yml");
+        ClassLoader cl = CompletionConfig.class.getClassLoader();
+        InputStream stream = cl.getResourceAsStream(COMPLETION_CONFIG_V10);
         StringBuilder sb = new StringBuilder();
         for (int ch; (ch = stream.read()) != -1;) {
             sb.append((char) ch);

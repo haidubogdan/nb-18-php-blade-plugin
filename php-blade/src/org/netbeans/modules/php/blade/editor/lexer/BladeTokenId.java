@@ -83,7 +83,7 @@ public enum BladeTokenId implements TokenId {
 
     public static abstract class BladeLanguageHierarchy extends LanguageHierarchy<BladeTokenId> {
 
-        private WeakHashMap<Token, LanguageEmbedding<?>> tokenLangCache
+        private final WeakHashMap<BladeTokenId, LanguageEmbedding<?>> tokenLangCache
                 = new WeakHashMap<>();
 
         @Override
@@ -100,15 +100,14 @@ public enum BladeTokenId implements TokenId {
                     return phpLanguageCode != null ? LanguageEmbedding.create(phpLanguageCode, 0, 0, false) : null;
                 case PHP_BLADE_ECHO_EXPR:
                 case PHP_BLADE_EXPRESSION:
-                case PHP_BLADE_INLINE_CODE:    
-                    //Language lang1 = Language.find("text/x-php5");
+                case PHP_BLADE_INLINE_CODE:
                     Language<? extends TokenId> phpLanguage = PHPTokenId.languageInPHP();
                     return phpLanguage != null ? LanguageEmbedding.create(phpLanguage, 0, 0, false) : null;
                 case HTML:
                     LanguageEmbedding<?> lang;
 
-                    if (tokenLangCache.containsKey(token)) {
-                        lang = tokenLangCache.get(token);
+                    if (tokenLangCache.containsKey(token.id())) {
+                        lang = tokenLangCache.get(token.id());
                     } else {
                         Language<? extends TokenId> htmlLanguage = null;
 
@@ -122,6 +121,7 @@ public enum BladeTokenId implements TokenId {
                         }
 
                         lang = htmlLanguage != null ? LanguageEmbedding.create(htmlLanguage, 0, 0, true) : null;
+                        tokenLangCache.put(token.id(), lang);
                     }
 
                     return lang;

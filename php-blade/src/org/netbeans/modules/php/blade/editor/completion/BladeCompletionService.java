@@ -9,9 +9,8 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
 import org.netbeans.api.editor.document.EditorDocumentUtils;
 import org.netbeans.modules.csl.api.CodeCompletionHandler.QueryType;
-import org.netbeans.modules.php.blade.editor.YamlConfig;
-import org.netbeans.modules.php.blade.syntax.antlr4.BladeAntlrLexer;
-import static org.netbeans.modules.php.blade.syntax.antlr4.BladeAntlrLexer.*;
+import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
+import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
 import static org.netbeans.spi.editor.completion.CompletionProvider.COMPLETION_QUERY_TYPE;
 import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 import org.openide.filesystems.FileObject;
@@ -131,7 +130,7 @@ public class BladeCompletionService {
     public static HashMap<String, HashMap> getDirectiveCompletionList() {
 
         if (yamlCompletionConfig == null) {
-            yamlCompletionConfig = YamlConfig.getConfigMapping("directives_list.yml");
+            yamlCompletionConfig = CompletionConfig.getConfigMapping("directives_list.yml");
         }
 
         return yamlCompletionConfig;

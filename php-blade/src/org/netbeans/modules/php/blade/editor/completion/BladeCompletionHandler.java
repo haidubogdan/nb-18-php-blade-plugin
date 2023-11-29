@@ -24,12 +24,13 @@ import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.ParameterInfo;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.csl.spi.support.CancelSupport;
-import org.netbeans.modules.php.blade.syntax.antlr4.BladeAntlrLexer;
+import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 import org.openide.filesystems.FileObject;
 
 /**
- *
+ * should be removed or swapped with blade completion provider
+ * 
  * @author bogdan
  */
 public class BladeCompletionHandler implements CodeCompletionHandler2 {

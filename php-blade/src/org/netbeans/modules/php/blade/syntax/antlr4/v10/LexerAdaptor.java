@@ -1,7 +1,7 @@
 /*
 Licensed to the Apache Software Foundation (ASF)
  */
-package org.netbeans.modules.php.blade.syntax.antlr4;
+package org.netbeans.modules.php.blade.syntax.antlr4.v10;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Lexer;
@@ -17,6 +17,8 @@ public abstract class LexerAdaptor extends Lexer {
 
     private int _currentRuleType = Token.INVALID_TYPE;
     public int roundParenBalance = 0;
+    public int squareParenBalance = 0;
+    public int curlyParenBalance = 0;
     public int exitIfModePosition = 0;
 
     public LexerAdaptor(CharStream input) {
@@ -87,7 +89,12 @@ public abstract class LexerAdaptor extends Lexer {
                this._input.LA(2) == ch2 &&
                this._input.LA(3) == ch3;
     }
-    
+
+    public boolean hasNoBladeParamOpenBracket(){
+        return this.roundParenBalance == 1 &&
+                this.squareParenBalance == 0 &&
+                this.curlyParenBalance == 0;
+    }
 //    public boolean endsWith(String text){
 //        if (this._input.size() < text.length()){
 //            return false;

@@ -6,7 +6,7 @@ import java.net.URL;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.netbeans.junit.NbTestCase;
-import static org.netbeans.modules.php.blade.syntax.antlr4.BladeAntlrColoringLexer.*;
+import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrColoringLexer.*;
 
 /**
  *

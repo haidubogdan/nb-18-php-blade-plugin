@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import org.antlr.v4.runtime.*;
+import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrColoringLexer;
+import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 
 /**
  *

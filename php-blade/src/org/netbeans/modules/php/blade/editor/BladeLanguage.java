@@ -41,7 +41,6 @@
  */
 package org.netbeans.modules.php.blade.editor;
 
-import org.netbeans.*;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.csl.spi.DefaultLanguageConfig;
@@ -57,16 +56,14 @@ import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
-import org.netbeans.modules.*;
-import org.netbeans.modules.csl.api.CodeCompletionHandler;
+import org.netbeans.modules.csl.api.DeclarationFinder;
+import org.netbeans.modules.csl.spi.CommentHandler;
 import static org.netbeans.modules.php.blade.editor.BladeLanguage.ACTIONS;
 import org.netbeans.modules.php.blade.editor.completion.BladeCompletionHandler;
 import org.netbeans.modules.php.blade.editor.lexer.BladeLexer;
 import org.netbeans.modules.php.blade.editor.lexer.BladeTokenId;
 import org.netbeans.modules.php.blade.editor.lexer.BladeTokenId.BladeLanguageHierarchy;
 import org.netbeans.modules.php.blade.editor.parser.BladeParser;
-import org.openide.*;
-import org.openide.util.*;
 
 /**
  *
@@ -118,12 +115,6 @@ public class BladeLanguage extends DefaultLanguageConfig {
     public String getPreferredExtension() {
         return "blade.php"; // NOI18N
     }
-    
-//
-//    @Override
-//    public boolean isUsingCustomEditorKit() {
-//        return false;
-//    }
 
     @Override
     public Parser getParser() {
@@ -140,10 +131,10 @@ public class BladeLanguage extends DefaultLanguageConfig {
 //        return new BladeStructureScanner();
 //    }
 //
-//    @Override
-//    public CommentHandler getCommentHandler() {
-//        return new BladeCommentHandler();
-//    }
+    @Override
+    public CommentHandler getCommentHandler() {
+        return new BladeCommentHandler();
+    }
 
 //    @Override
 //    public boolean hasHintsProvider() {
@@ -170,10 +161,10 @@ public class BladeLanguage extends DefaultLanguageConfig {
 //        return new BladeFormatter();
 //    }
 //
-//    @Override
-//    public DeclarationFinder getDeclarationFinder() {
-//        return new BladeDeclarationFinder();
-//    }
+    @Override
+    public DeclarationFinder getDeclarationFinder() {
+        return new BladeDeclarationFinder();
+    }
 //
 //    @Override
 //    public boolean hasOccurrencesFinder() {

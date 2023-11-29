@@ -43,7 +43,7 @@ package org.netbeans.modules.php.blade.editor.lexer;
 
 import org.netbeans.api.lexer.Token;
 import static org.netbeans.modules.php.blade.editor.lexer.BladeTokenId.*;
-import org.netbeans.modules.php.blade.syntax.antlr4.BladeAntlrColoringLexer;
+import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrColoringLexer;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 import org.netbeans.spi.lexer.antlr4.AbstractAntlrLexerBridge;
 
@@ -100,7 +100,8 @@ public class BladeLexer extends AbstractAntlrLexerBridge<BladeAntlrColoringLexer
             case BladeAntlrColoringLexer.D_INCLUDE_WHEN:
             case BladeAntlrColoringLexer.D_INCLUDE_FIRST:
             case BladeAntlrColoringLexer.D_INCLUDE_UNLESS:
-            case BladeAntlrColoringLexer.D_SECTION:
+            case BladeAntlrColoringLexer.D_SECTION:    
+            case BladeAntlrColoringLexer.D_EXTENDS:
             case BladeAntlrColoringLexer.D_ENDSECTION:
             case BladeAntlrColoringLexer.D_YIELD:
             case BladeAntlrColoringLexer.D_PHP:

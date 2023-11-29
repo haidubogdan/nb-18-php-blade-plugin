@@ -6,7 +6,7 @@ import java.net.URL;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.netbeans.junit.NbTestCase;
-import static org.netbeans.modules.php.blade.syntax.antlr4.BladeAntlrLexer.*;
+import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
 
 /**
  *
@@ -55,8 +55,8 @@ public class BladeAntlrLexerTestBase extends NbTestCase {
 
         for (Token token : tokenStream.getTokens()) {
             switch (token.getType()) {
-//                case BLADE_ESCAPED_CONTENT:
-//                    result.append("BLADE_ESCAPED_CONTENT ");
+//                case BL_PARAM_RPAREN:
+//                    result.append("BL_PARAM_RPAREN ");
 //                    break;
             }
 
