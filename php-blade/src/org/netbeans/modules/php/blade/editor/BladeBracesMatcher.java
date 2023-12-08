@@ -20,17 +20,15 @@ import org.netbeans.spi.editor.bracesmatching.BracesMatcherFactory;
 import org.netbeans.spi.editor.bracesmatching.MatcherContext;
 
 /**
- * level of code satisfaction - 70%
- * issues with
- * - variable naming
- * - repeatability
- * 
+ * level of code satisfaction - 70% issues with - variable naming -
+ * repeatability
+ *
  * @author bogdan
  */
 public class BladeBracesMatcher implements BracesMatcher {
 
     public enum BraceDirectionType {
-        END_TO_START, START_TO_END, CURLY_START, CURLY_END, STOP
+        END_TO_START, START_TO_END, CURLY_END_TO_START, CURLY_START_TO_END, STOP
     }
     private final MatcherContext context;
     private Token originToken;
@@ -62,17 +60,17 @@ public class BladeBracesMatcher implements BracesMatcher {
             String tokenText = originToken.getText();
 
             if (!tokenText.startsWith("@")
-                    || !tokenText.startsWith("{")
-                    || !tokenText.endsWith("}")){
+                    && !tokenText.startsWith("{")
+                    && !tokenText.endsWith("}")) {
                 return result;
             }
-            
+
             BraceDirectionType directionType = findBraceDirectionType(tokenText);
-            
-            if (directionType == null || directionType.equals(BraceDirectionType.STOP)){
+
+            if (directionType == null || directionType.equals(BraceDirectionType.STOP)) {
                 return result;
             }
-            
+
             result = new int[]{start, end + 1};
         } finally {
             document.readUnlock();
@@ -90,12 +88,16 @@ public class BladeBracesMatcher implements BracesMatcher {
         BraceDirectionType directionType = findBraceDirectionType(tokenText);
 
         switch (directionType) {
+            case CURLY_START_TO_END:
+                return findCloseTag();
+            case CURLY_END_TO_START:
+                return findOpenTag();
             case START_TO_END:
                 return findDirectiveEnd(tokenText);
             case END_TO_START:
                 return findOriginForDirectiveEnd(tokenText);
-
         }
+
         return result;
     }
 
@@ -116,19 +118,62 @@ public class BladeBracesMatcher implements BracesMatcher {
     public BraceDirectionType findBraceDirectionType(String tokenText) {
         boolean isCloseTag = Arrays.asList(BladeTagsUtils.outputCloseTags()).indexOf(tokenText) >= 0;
 
-        if (isCloseTag || tokenText.startsWith("@end")) {
+        if (isCloseTag) {
+            return BraceDirectionType.CURLY_END_TO_START;
+        }
+
+        if (tokenText.startsWith("@end")) {
             return BraceDirectionType.END_TO_START;
         }
-        
+
         boolean isStartTag = Arrays.asList(BladeTagsUtils.outputStartTags()).indexOf(tokenText) >= 0;
 
-        if (isStartTag || BladeDirectivesUtils.directiveStart2EndPair(tokenText) != null) {
+        if (isStartTag) {
+            return BraceDirectionType.CURLY_START_TO_END;
+        }
+
+        if (BladeDirectivesUtils.directiveStart2EndPair(tokenText) != null) {
             return BraceDirectionType.START_TO_END;
         }
 
         return BraceDirectionType.STOP;
     }
 
+    public int[] findOpenTag() {
+        int matchTokenType = BladeAntlrUtils.getTagPairTokenType(originToken.getType());
+        List<Integer> skipableTokenTypes = new ArrayList<>();
+        skipableTokenTypes.add(BLADE_PHP_ECHO_EXPR);
+        Token startToken = BladeAntlrUtils.findBackward(context.getDocument(),
+                originToken,
+                matchTokenType,
+                skipableTokenTypes);
+
+        if (startToken != null) {
+            int start = startToken.getStartIndex();
+            int end = startToken.getStopIndex();
+            return new int[]{start, end + 1};
+        }
+
+        return null;
+    }
+
+    public int[] findCloseTag() {
+        int matchTokenType = BladeAntlrUtils.getTagPairTokenType(originToken.getType());
+        List<Integer> skipableTokenTypes = new ArrayList<>();
+        skipableTokenTypes.add(BLADE_PHP_ECHO_EXPR);
+        Token endToken = BladeAntlrUtils.findForward(context.getDocument(),
+                originToken,
+                matchTokenType,
+                skipableTokenTypes);
+
+        if (endToken != null) {
+            int start = endToken.getStartIndex();
+            int end = endToken.getStopIndex();
+            return new int[]{start, end + 1};
+        }
+
+        return null;
+    }
 
     public int[] findDirectiveEnd(String directive) {
         String[] pair = BladeDirectivesUtils.directiveStart2EndPair(directive);
@@ -183,11 +228,6 @@ public class BladeBracesMatcher implements BracesMatcher {
 
         return null;
     }
-//
-//    public static class BracePair {
-//        String origin;
-//        String[] endMatch; 
-//    }
 
     @MimeRegistration(service = BracesMatcherFactory.class, mimeType = BladeLanguage.MIME_TYPE)
     public static final class Factory implements BracesMatcherFactory {
