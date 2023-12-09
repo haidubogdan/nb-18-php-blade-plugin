@@ -1,5 +1,13 @@
 // Generated from BladeAntlrParser.g4 by ANTLR 4.13.0
 
+  /**
+   * Parser generated for netbeans blade editor
+   * Some elements have been simplified to optimize parser speed
+   * For example
+   * - switch statement have a loos validation
+   * - generic block statement "@isset" | "@unless" are grouped togehter
+   * - the start match and end match will be checked in the parser
+   */
   package org.netbeans.modules.php.blade.syntax.antlr4.v10;
 
 import org.antlr.v4.runtime.tree.ParseTreeListener;
@@ -120,6 +128,36 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitElse(BladeAntlrParser.ElseContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#conditional_block}.
+	 * @param ctx the parse tree
+	 */
+	void enterConditional_block(BladeAntlrParser.Conditional_blockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#conditional_block}.
+	 * @param ctx the parse tree
+	 */
+	void exitConditional_block(BladeAntlrParser.Conditional_blockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#auth_block}.
+	 * @param ctx the parse tree
+	 */
+	void enterAuth_block(BladeAntlrParser.Auth_blockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#auth_block}.
+	 * @param ctx the parse tree
+	 */
+	void exitAuth_block(BladeAntlrParser.Auth_blockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#switch}.
+	 * @param ctx the parse tree
+	 */
+	void enterSwitch(BladeAntlrParser.SwitchContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#switch}.
+	 * @param ctx the parse tree
+	 */
+	void exitSwitch(BladeAntlrParser.SwitchContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#while}.
 	 * @param ctx the parse tree
 	 */
@@ -130,6 +168,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitWhile(BladeAntlrParser.WhileContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#for}.
+	 * @param ctx the parse tree
+	 */
+	void enterFor(BladeAntlrParser.ForContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#for}.
+	 * @param ctx the parse tree
+	 */
+	void exitFor(BladeAntlrParser.ForContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#foreach}.
 	 * @param ctx the parse tree
 	 */
@@ -139,6 +187,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitForeach(BladeAntlrParser.ForeachContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#forelse}.
+	 * @param ctx the parse tree
+	 */
+	void enterForelse(BladeAntlrParser.ForelseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#forelse}.
+	 * @param ctx the parse tree
+	 */
+	void exitForelse(BladeAntlrParser.ForelseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#yield}.
 	 * @param ctx the parse tree
@@ -279,6 +337,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitVerbatim_block(BladeAntlrParser.Verbatim_blockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#loop_action}.
+	 * @param ctx the parse tree
+	 */
+	void enterLoop_action(BladeAntlrParser.Loop_actionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#loop_action}.
+	 * @param ctx the parse tree
+	 */
+	void exitLoop_action(BladeAntlrParser.Loop_actionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#html}.
 	 * @param ctx the parse tree

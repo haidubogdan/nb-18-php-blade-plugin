@@ -58,7 +58,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     volatile boolean indexLoaded = false;
 
     public enum ReferenceType {
-        YIELD, INCLUDE, EXTENDS
+        YIELD, SECTION, INCLUDE, EXTENDS
     }
 
     public BladeParserResult(Snapshot snapshot) {
@@ -115,23 +115,31 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     protected ParseTreeListener createDeclarationReferencesListener() {
 
         return new BladeAntlrParserBaseListener() {
-            @Override
-            public void exitInclude(BladeAntlrParser.IncludeContext ctx) {
-                BladeAntlrParser.Blade_params_expressionContext bladeParamExpression = ctx.blade_params_expression();
-                addOccurenceForDeclaration(bladeParamExpression);
-            }
 
             @Override
             public void exitExtends(BladeAntlrParser.ExtendsContext ctx) {
-               BladeAntlrParser.Blade_params_expressionContext bladeParamExpression = ctx.blade_params_expression();
-                addOccurenceForDeclaration(bladeParamExpression);
+                BladeAntlrParser.Blade_params_expressionContext bladeParamExpression = ctx.blade_params_expression();
+                addOccurenceForDeclaration(bladeParamExpression, ReferenceType.EXTENDS);
+            }
+
+            @Override
+            public void exitInclude(BladeAntlrParser.IncludeContext ctx) {
+                BladeAntlrParser.Blade_params_expressionContext bladeParamExpression = ctx.blade_params_expression();
+                addOccurenceForDeclaration(bladeParamExpression, ReferenceType.INCLUDE);
+            }
+
+            @Override
+            public void exitSection(BladeAntlrParser.SectionContext ctx) {
+                BladeAntlrParser.Bl_sg_default_paramContext bladeParamExpression = ctx.bl_sg_default_param();
+                addOccurenceForDeclaration(bladeParamExpression, ReferenceType.SECTION);
             }
 
             /**
-            * storing occurences for declaration finder
-            * the occurence will contain the type, range and identifier (blade path) 
-            */
-            private void addOccurenceForDeclaration(BladeAntlrParser.Blade_params_expressionContext bladeParamExpression) {
+             * storing occurences for declaration finder the occurence will
+             * contain the type, range and identifier (blade path)
+             */
+            private void addOccurenceForDeclaration(BladeAntlrParser.Blade_params_expressionContext bladeParamExpression,
+                    ReferenceType type) {
                 if (bladeParamExpression == null) {
                     return;
                 }
@@ -161,10 +169,45 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
                 includeFilePaths.add(bladeParamText);
 
                 OffsetRange range = new OffsetRange(paramString.getStartIndex(), paramString.getStopIndex());
-                Reference ref = new Reference(ReferenceType.INCLUDE, bladeParamText, range);
+                Reference ref = new Reference(type, bladeParamText, range);
                 occurancesForDeclaration.put(range, ref);
             }
+
+            private void addOccurenceForDeclaration(BladeAntlrParser.Bl_sg_default_paramContext bladeParamExpression,
+                    ReferenceType type) {
+                if (bladeParamExpression == null) {
+                    return;
+                }
+
+                if (bladeParamExpression.blade_parameter() == null || bladeParamExpression.blade_parameter().isEmpty()) {
+                    return;
+                }
+
+                BladeAntlrParser.Blade_parameterContext bladeParam = bladeParamExpression.blade_parameter();
+
+                if (bladeParam == null) {
+                    return;
+                }
+
+                if (bladeParam.BL_PARAM_STRING(0) == null) {
+                    return;
+                }
+
+                Token paramString = bladeParam.BL_PARAM_STRING(0).getSymbol();
+                String bladeParamText = paramString.getText();
+                bladeParamText = bladeParamText.substring(1, bladeParamText.length() - 1);
+
+                if (bladeParamText.isEmpty()) {
+                    return;
+                }
+
+                OffsetRange range = new OffsetRange(paramString.getStartIndex(), paramString.getStopIndex());
+                Reference ref = new Reference(type, bladeParamText, range);
+                occurancesForDeclaration.put(range, ref);
+            }
+
         };
+
     }
 
     protected ParseTreeListener createExtendsListener() {

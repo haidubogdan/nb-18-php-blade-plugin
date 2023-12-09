@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
+import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.parsing.spi.indexing.Context;
@@ -17,6 +18,7 @@ import org.netbeans.modules.parsing.spi.indexing.support.IndexDocument;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
+import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.ReferenceType;
 import org.openide.util.Exceptions;
 
 /**
@@ -47,11 +49,11 @@ public class BladeIndexer extends EmbeddingIndexer {
             support.removeDocuments(indxbl);
             IndexDocument document = support.createDocument(indxbl);
 
-            if (!parserResult.getYieldReferences().isEmpty()){
+            if (!parserResult.getYieldReferences().isEmpty()) {
                 storeYieldReferences(parserResult.getYieldReferences(), document);
             }
-            
-            if (!parserResult.includeFilePaths.isEmpty()){
+
+            if (!parserResult.includeFilePaths.isEmpty()) {
                 storeIncludePaths(parserResult.includeFilePaths, document);
             }
 
@@ -76,16 +78,37 @@ public class BladeIndexer extends EmbeddingIndexer {
             document.addPair(YIELD_REFERENCE, sb.toString(), true, true);
         }
     }
-    
+
+    public static Reference extractYieldDataFromIndex(String index) {
+        String[] mainElements = index.split("#");
+
+        if (mainElements.length == 0) {
+            return null;
+        }
+
+        String name = mainElements[0];
+        String offsets[] = mainElements[1].split(";");
+        int start = 0;
+        int end = 1;
+
+        //corrupted data?
+        if (offsets.length == 0) {
+            start = Integer.getInteger(offsets[0]);
+            end = Integer.getInteger(offsets[1]);
+        }
+
+        return new Reference(ReferenceType.YIELD, name, new OffsetRange(start, end));
+    }
+
     private void storeIncludePaths(Set<String> paths, IndexDocument document) {
-        
+
         for (String path : paths) {
             StringBuilder sb = new StringBuilder();
             sb.append(path); //NOI18N
             document.addPair(INCLUDE_PATH, sb.toString(), true, true);
         }
     }
-    
+
     @MimeRegistration(mimeType = BladeLanguage.MIME_TYPE, service = EmbeddingIndexerFactory.class) //NOI18N
     public static class Factory extends EmbeddingIndexerFactory {
 

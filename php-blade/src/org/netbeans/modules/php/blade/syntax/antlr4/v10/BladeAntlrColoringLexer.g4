@@ -6,9 +6,12 @@ lexer grammar BladeAntlrColoringLexer;
 
 options { superClass = LexerAdaptor; }
 
+channels {PHP_CODE}
+
 tokens { TOKEN_REF,
  RULE_REF,
  LEXER_CHAR_SET,
+ DIRECTIVE,
  PHP_EXPRESSION,
  BLADE_PHP_ECHO_EXPR,
  ERROR
@@ -16,7 +19,16 @@ tokens { TOKEN_REF,
 
 fragment
 NameString : [a-zA-Z_\u0080-\ufffe][a-zA-Z0-9_\u0080-\ufffe]*;    
-    
+
+fragment ESC_DOUBLE_QUOTED_STRING 
+    : [\\"];
+
+fragment DOUBLE_QUOTED_STRING_FRAGMENT 
+    : '"' (ESC_DOUBLE_QUOTED_STRING | . )*? '"';
+
+fragment SINGLE_QUOTED_STRING_FRAGMENT 
+    : '\'' (~('\'' | '\\') | '\\' . )* '\'';
+  
 fragment
 NEKUDO_WHITELIST_MATCH : '::' | '?:' | ' : ';
 
@@ -31,6 +43,13 @@ D_ESCAPES
     : (
       '@@'
     | '@media'
+    | '@charset'
+    | '@import'
+    | '@namespace'
+    | '@document'
+    | '@font-face'
+    | '@page'
+    | '@supports'
     | '@layer'
     | '@tailwind'
     | '@apply' 
@@ -39,84 +58,88 @@ D_ESCAPES
     )->type(HTML);
 
 //conditionals
-D_IF : '@if'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_ELSEIF : '@elseif'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_ELSE : '@else';
-D_ENDIF : '@endif';
-D_SWITCH : '@switch'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_CASE : '@case'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_ENDSWITCH : '@endswitch';
+D_IF : '@if'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_ELSEIF : '@elseif'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_ELSE : '@else'->type(DIRECTIVE);
+D_ENDIF : '@endif'->type(DIRECTIVE);
+D_SWITCH : '@switch'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_CASE : '@case'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_ENDSWITCH : '@endswitch'->type(DIRECTIVE);
+D_UNLESS : '@unless'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_ENDUNLESS : '@endunless'->type(DIRECTIVE);
 
 //loops
-D_EACH : '@each'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_FOREACH : '@foreach'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_ENDFOREACH : '@endforeach';
-D_FOR : '@for'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_ENDFOR : '@endfor';
-D_FORELSE : '@forelse'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_ENDFORELSE : '@endforelse';
-D_WHILE : '@while'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_ENDWHILE : '@endwhile';
-D_CONTINUE : '@continue'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_BREAK : '@break'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_EACH : '@each'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_FOREACH : '@foreach'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_ENDFOREACH : '@endforeach'->type(DIRECTIVE);
+D_FOR : '@for'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_ENDFOR : '@endfor'->type(DIRECTIVE);
+D_FORELSE : '@forelse'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_ENDFORELSE : '@endforelse'->type(DIRECTIVE);
+D_WHILE : '@while'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_ENDWHILE : '@endwhile'->type(DIRECTIVE);
+D_CONTINUE : '@continue'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_BREAK : '@break'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 
 //includes
-D_INCLUDE : '@include'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_INCLUDE_IF : '@includeIf'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_INCLUDE_WHEN : '@includeWhen'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_INCLUDE_FIRST : '@includeFirst'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_INCLUDE_UNLESS : '@includeUnless'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_INCLUDE : '@include'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_INCLUDE_IF : '@includeIf'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_INCLUDE_WHEN : '@includeWhen'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_INCLUDE_FIRST : '@includeFirst'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_INCLUDE_UNLESS : '@includeUnless'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 
 //layout
-D_EXTENDS : '@extends'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_JS : '@js'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_SECTION : '@section'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_HAS_SECTION : '@hasSection'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_SECTION_MISSING : '@sectionMissing'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_ENDSECTION : '@endsection';
-D_YIELD : '@yield'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_PARENT : '@parent';
-D_SHOW : '@show';
-D_OVERWRITE : '@overwrite';
-D_STOP : '@stop';
-D_ONCE : '@once';
-D_ENDONCE : '@endonce';
-D_PUSH : '@push'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_EXTENDS : '@extends'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_JS : '@js'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_SECTION : '@section'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_HAS_SECTION : '@hasSection'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_SECTION_MISSING : '@sectionMissing'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_ENDSECTION : '@endsection'->type(DIRECTIVE);
+D_YIELD : '@yield'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_PARENT : '@parent'->type(DIRECTIVE);
+D_SHOW : '@show'->type(DIRECTIVE);
+D_OVERWRITE : '@overwrite'->type(DIRECTIVE);
+D_ONCE : '@once'->type(DIRECTIVE);
+D_ENDONCE : '@endonce'->type(DIRECTIVE);
+D_PUSH : '@push'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 D_ENDPUSH : '@endpush';
-D_PUSH_ONCE : '@pushOnce'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_PUSH_ONCE : '@pushOnce'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 D_ENDPUSH_ONCE : '@endPushOnce';
-D_PROPS : '@props'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_PROPS : '@props'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 
 //forms
-D_CSRF  : '@csrf';
-D_METHOD : '@method'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_ERROR : '@error'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_ENDERROR : '@enderror';
+D_METHOD : '@method'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_ERROR : '@error'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_ENDERROR : '@enderror'->type(DIRECTIVE);
 
 //env
-D_PRODUCTION : '@production';
-D_ENDPRODUCTION : '@endproduction';
+D_PRODUCTION : '@production'->type(DIRECTIVE);
+D_ENDPRODUCTION : '@endproduction'->type(DIRECTIVE);
 
 //styles, attributes
-D_CLASS : '@class'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_STYLE : '@style'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_SELECTED : '@selected'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_DISABLED : '@disabled'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_READONLY : '@readonly'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_REQUIRED : '@required'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_AWARE : '@aware'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_CLASS : '@class'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_STYLE : '@style'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_AWARE : '@aware'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 
 //misc
-D_EMPTY : '@empty'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_ENDEMPTY : '@endempty';
-D_JSON  : '@json'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_INJECT : '@inject'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_DD : '@dd'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_EMPTY : '@empty'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_ENDEMPTY : '@endempty'->type(DIRECTIVE);
+D_JSON  : '@json'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_INJECT : '@inject'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_DD : '@dd'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 
 D_PHP : '@php'->pushMode(BLADE_INLINE_PHP);
 
 D_VERBATIM : '@verbatim' ->pushMode(VERBATIM_MODE);
 D_ENDVERBATIM : '@endverbatim';
+
+//starting the optimisation
+//D_WITH_EXPR: ''
+//lazy end match
+D_WITH_EXPR : ('@break' | '@continue' | '@selected' | '@disabled' | '@readonly' |
+               '@required')->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
+D_SIMPLE : ('@stop' | '@csrf' | '@default')->type(DIRECTIVE);
+D_END : ('@end' NameString) ->type(DIRECTIVE);
 
 //we will decide that a custom directive has expression to avoid email matching
 D_CUSTOM : ('@' NameString {this._input.LA(1) == '(' || 
@@ -174,6 +197,10 @@ EXIT_RPAREN : ')' {this.roundParenBalance == 0}?->type(PHP_EXPRESSION),mode(DEFA
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
 DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
 
+//no string interpolation for the moment
+//freeze issue
+EXPR_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT)->more;
+
 PHP_FREEZE_SYNTAX : ':' ->type(ERROR);
 
 PHP_EXPRESSION_MORE : . ->more;
@@ -193,7 +220,7 @@ BLADE_PHP_INLINE : . {
         this._input.LA(5) == 'p' &&
         this._input.LA(6) == 'h' &&
         this._input.LA(7) == 'p'
-      }? ;
+      }?->channel(PHP_CODE) ;
 BLADE_PHP_INLINE_MORE : . ->more;
 
 EXIT_INLINE_PHP_EOF : EOF->type(ERROR),popMode;

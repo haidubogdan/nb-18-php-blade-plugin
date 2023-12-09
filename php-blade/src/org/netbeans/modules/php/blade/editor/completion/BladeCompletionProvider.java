@@ -20,7 +20,7 @@ import org.netbeans.modules.php.blade.csl.elements.CompletionElement;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
 import org.netbeans.modules.php.blade.editor.completion.BladeCompletionProposal.OutputCompletionItem;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
-import org.netbeans.modules.php.blade.editor.indexing.BladeIndex.IndexedReference;
+import org.netbeans.modules.php.blade.editor.indexing.BladeIndex.IndexedReferenceId;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
@@ -294,8 +294,8 @@ public class BladeCompletionProvider implements CompletionProvider {
         int insertOffset = caretOffset - prefixIdentifier.length();
         try {
             bladeIndex = BladeIndex.get(project);
-            List<IndexedReference> indexedReferences = bladeIndex.getYieldIds(prefixIdentifier);
-            for (IndexedReference indexReference : indexedReferences) {
+            List<IndexedReferenceId> indexedReferences = bladeIndex.getYieldIds(prefixIdentifier);
+            for (IndexedReferenceId indexReference : indexedReferences) {
                 addYieldIdCompletionItem(indexReference.getIdenfiier(), indexReference.getOriginFile(),
                         insertOffset, resultSet);
             }
@@ -328,7 +328,7 @@ public class BladeCompletionProvider implements CompletionProvider {
         Project project = FileOwnerQuery.getOwner(fo);
         try {
             bladeIndex = BladeIndex.get(project);
-            bladeIndex.getYieldReferences(prefix);
+            bladeIndex.getYieldIndexedReferencesIds(prefix);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }

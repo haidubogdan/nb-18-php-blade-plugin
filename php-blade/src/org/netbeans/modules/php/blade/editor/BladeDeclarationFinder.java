@@ -23,6 +23,9 @@ import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.api.HtmlFormatter;
 import org.netbeans.modules.csl.api.Modifier;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
+import org.netbeans.modules.php.blade.csl.elements.YieldIdElement;
+import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
+import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
@@ -109,16 +112,35 @@ public class BladeDeclarationFinder implements DeclarationFinder {
             case INCLUDE:
                 String bladePath = reference.name;
                 FileObject includedFile = PathUtils.findFileObjectForBladePath(currentFile, bladePath);
-                
-                if (includedFile == null){
+
+                if (includedFile == null) {
                     return DeclarationLocation.NONE;
                 }
-                
+
                 PathElement elHandle = new PathElement(reference.name, includedFile);
                 DeclarationLocation dln = new DeclarationFinder.DeclarationLocation(includedFile, 0, elHandle);
- 
+
                 dln.addAlternative(new AlternativeLocationImpl(dln));
                 return dln;
+            case SECTION:
+                String yieldId = reference.name;
+                List<BladeIndex.IndexedReference> yields = QueryUtils.getYieldReferences(yieldId, currentFile);
+                if (yields == null) {
+                    return DeclarationLocation.NONE;
+                }
+
+                DeclarationLocation dlyield = DeclarationLocation.NONE;
+
+                for (BladeIndex.IndexedReference yieldReference : yields) {
+                    String yieldReferenceId = yieldReference.getReference().name;
+                    YieldIdElement yieldIdHandle = new YieldIdElement(yieldReferenceId, yieldReference.getOriginFile());
+                    int startOccurence = yieldReference.getReference().defOffset.getStart();
+                    dlyield = new DeclarationFinder.DeclarationLocation(yieldReference.getOriginFile(), startOccurence, yieldIdHandle);
+                    dlyield.addAlternative(new AlternativeLocationImpl(dlyield));
+                }
+
+                return dlyield;
+
         }
 
         return DeclarationLocation.NONE;

@@ -34,7 +34,9 @@ Check for formating and code optimisation
 ## Declaration finder
 
 - blade paths reference file 70% (handle multiple references location) !
-- blade yield ids 0%
+- blade yield ids 80%
+- stacks + push ?
+- components
 
 ! we will have to wait for the Project Custom Blade path config
 
@@ -50,11 +52,21 @@ tags are not paired
 
 80%
 
+Could simplify lexer coloring for directives after we have a full parser
+
 should lookout for the freezing nekudo
 
 verbatim should embed php code
 
 extract all css directives
+
+## ANTLR
+
+see if we can have optimisaiton using channels
+might use a common .g4 file for some tokens for (coloring and lexer)
+try to see optimisation on the grammar (coloring + lexer)
+see if alias can help us with simple param extraction on listener
+might simplify generic block statment parsing which are not relevant for data extractio ex: block statements like @can, @isset ...
 
 ## Unit tests
 
@@ -71,6 +83,11 @@ The msin issue is the FileObject geName and getExt methods on .blade.php
 ## linked documentation in markdown ?
 
 might check how it would work / parse
+
+## plugins ?
+
+livewire
+
 
 ---
 

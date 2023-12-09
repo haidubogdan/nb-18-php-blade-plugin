@@ -19,7 +19,7 @@ tokens { TOKEN_REF,
  ERROR
 }
  
-channels { COMMENT }
+channels { COMMENT, PHP_CODE }
 
 //
     
@@ -56,6 +56,13 @@ D_ESCAPES
     : (
       '@@'
     | '@media'
+    | '@charset'
+    | '@import'
+    | '@namespace'
+    | '@document'
+    | '@font-face'
+    | '@page'
+    | '@supports'
     | '@layer'
     | '@tailwind'
     | '@apply' 
@@ -70,7 +77,14 @@ D_ELSE : '@else';
 D_ENDIF : '@endif';
 D_SWITCH : '@switch'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_CASE : '@case'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_DEFAULT : '@default';
 D_ENDSWITCH : '@endswitch';
+
+D_EMPTY : '@empty'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ENDEMPTY : '@endempty';
+
+D_COND_BLOCK_START : ('@unless' | '@isset')->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_COND_BLOCK_END : ('@endunless' | '@endisset');
 
 //loops
 D_EACH : '@each'->pushMode(LOOK_FOR_PHP_EXPRESSION);
@@ -82,8 +96,8 @@ D_FORELSE : '@forelse'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_ENDFORELSE : '@endforelse';
 D_WHILE : '@while'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_ENDWHILE : '@endwhile';
-D_CONTINUE : '@continue'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_BREAK : '@break'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_LOOP_ACTION : ('@continue')->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
 //includes
 D_INCLUDE : '@include'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
@@ -91,6 +105,7 @@ D_INCLUDE_IF : '@includeIf'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_INCLUDE_WHEN : '@includeWhen'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_INCLUDE_FIRST : '@includeFirst'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_INCLUDE_UNLESS : '@includeUnless'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
+
 
 //layout
 D_EXTENDS : '@extends'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
@@ -121,24 +136,25 @@ D_ENDERROR : '@enderror';
 //env
 D_PRODUCTION : '@production';
 D_ENDPRODUCTION : '@endproduction';
+D_ENV : '@env'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
+D_ENDENV : '@endenv';
+
+//auth and roles
+D_AUTH_START : ('@auth' | '@guest')->pushMode(LOOK_FOR_BLADE_PARAMETERS);
+D_AUTH_END : ('@endauth' | '@endguest');
 
 //styles, attributes
 D_CLASS : '@class'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_STYLE : '@style'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_CHECKED : '@checked'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_SELECTED : '@selected'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_DISABLED : '@disabled'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_READONLY : '@readonly'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_REQUIRED : '@required'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_HTML_ATTR_EXPR : ('@checked' | '@disabled' | '@readonly' | '@required' | '@selected')->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_AWARE : '@aware'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
-//misc
-D_EMPTY : '@empty'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_ENDEMPTY : '@endempty';
 D_JSON  : '@json'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_INJECT : '@inject'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_DD : '@dd'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
+//php injection
+D_USE : '@use'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_PHP : '@php'->pushMode(BLADE_INLINE_PHP);
 
 D_VERBATIM : '@verbatim' ->pushMode(VERBATIM_MODE);

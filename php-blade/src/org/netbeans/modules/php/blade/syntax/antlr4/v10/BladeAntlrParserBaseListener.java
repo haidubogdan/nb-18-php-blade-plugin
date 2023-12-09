@@ -1,5 +1,13 @@
 // Generated from BladeAntlrParser.g4 by ANTLR 4.13.0
 
+  /**
+   * Parser generated for netbeans blade editor
+   * Some elements have been simplified to optimize parser speed
+   * For example
+   * - switch statement have a loos validation
+   * - generic block statement "@isset" | "@unless" are grouped togehter
+   * - the start match and end match will be checked in the parser
+   */
   package org.netbeans.modules.php.blade.syntax.antlr4.v10;
 
 
@@ -151,6 +159,42 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterConditional_block(BladeAntlrParser.Conditional_blockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConditional_block(BladeAntlrParser.Conditional_blockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAuth_block(BladeAntlrParser.Auth_blockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAuth_block(BladeAntlrParser.Auth_blockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSwitch(BladeAntlrParser.SwitchContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSwitch(BladeAntlrParser.SwitchContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterWhile(BladeAntlrParser.WhileContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -163,6 +207,18 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFor(BladeAntlrParser.ForContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFor(BladeAntlrParser.ForContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterForeach(BladeAntlrParser.ForeachContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -170,6 +226,18 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitForeach(BladeAntlrParser.ForeachContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterForelse(BladeAntlrParser.ForelseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitForelse(BladeAntlrParser.ForelseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -338,6 +406,18 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVerbatim_block(BladeAntlrParser.Verbatim_blockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLoop_action(BladeAntlrParser.Loop_actionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLoop_action(BladeAntlrParser.Loop_actionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
