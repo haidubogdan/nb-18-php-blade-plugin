@@ -102,7 +102,7 @@ D_OVERWRITE : '@overwrite'->type(DIRECTIVE);
 D_ONCE : '@once'->type(DIRECTIVE);
 D_ENDONCE : '@endonce'->type(DIRECTIVE);
 D_PUSH : '@push'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
-D_ENDPUSH : '@endpush';
+D_ENDPUSH : '@endpush'->type(DIRECTIVE);
 D_PUSH_ONCE : '@pushOnce'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 D_ENDPUSH_ONCE : '@endPushOnce';
 D_PROPS : '@props'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);

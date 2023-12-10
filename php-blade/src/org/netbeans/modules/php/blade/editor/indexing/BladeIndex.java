@@ -89,6 +89,12 @@ public class BladeIndex {
         return indexedReferences;
     }
     
+    /**
+     * todo add qualifier for search result
+     * 
+     * @param prefix
+     * @return 
+     */
     public List<IndexedReference> getYieldIndexedReferences(String prefix) {
         List<IndexedReference> references = new ArrayList<>();
         try {
@@ -100,6 +106,30 @@ public class BladeIndex {
 
             for (IndexResult indexResult : result) {
                 String[] values = indexResult.getValues(BladeIndexer.YIELD_REFERENCE);
+                for (String value : values) {
+                    if (value.startsWith(prefix)) {
+                        references.add(new IndexedReference(BladeIndexer.extractYieldDataFromIndex(value), indexResult.getFile()));
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        
+        return references;
+    }
+    
+    public List<IndexedReference> getStacksIndexedReferences(String prefix) {
+        List<IndexedReference> references = new ArrayList<>();
+        try {
+            Collection<? extends IndexResult> result = querySupport.query(BladeIndexer.STACK_REFERENCE, prefix, QuerySupport.Kind.PREFIX, BladeIndexer.STACK_REFERENCE);
+
+            if (result == null || result.isEmpty()) {
+                return references;
+            }
+
+            for (IndexResult indexResult : result) {
+                String[] values = indexResult.getValues(BladeIndexer.STACK_REFERENCE);
                 for (String value : values) {
                     if (value.startsWith(prefix)) {
                         references.add(new IndexedReference(BladeIndexer.extractYieldDataFromIndex(value), indexResult.getFile()));

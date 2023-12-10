@@ -123,6 +123,18 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPush(BladeAntlrParser.PushContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPush(BladeAntlrParser.PushContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterIf(BladeAntlrParser.IfContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -255,6 +267,18 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterStack(BladeAntlrParser.StackContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStack(BladeAntlrParser.StackContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterInclude(BladeAntlrParser.IncludeContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -262,6 +286,18 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitInclude(BladeAntlrParser.IncludeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEach(BladeAntlrParser.EachContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEach(BladeAntlrParser.EachContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -339,61 +375,61 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBl_sg_param(BladeAntlrParser.Bl_sg_paramContext ctx) { }
+	@Override public void enterSingleArgWrapper(BladeAntlrParser.SingleArgWrapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBl_sg_param(BladeAntlrParser.Bl_sg_paramContext ctx) { }
+	@Override public void exitSingleArgWrapper(BladeAntlrParser.SingleArgWrapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBl_sg_default_param(BladeAntlrParser.Bl_sg_default_paramContext ctx) { }
+	@Override public void enterSingleArgAndDefaultWrapper(BladeAntlrParser.SingleArgAndDefaultWrapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBl_sg_default_param(BladeAntlrParser.Bl_sg_default_paramContext ctx) { }
+	@Override public void exitSingleArgAndDefaultWrapper(BladeAntlrParser.SingleArgAndDefaultWrapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDefault_blade_param_expression(BladeAntlrParser.Default_blade_param_expressionContext ctx) { }
+	@Override public void enterMultiArgWrapper(BladeAntlrParser.MultiArgWrapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDefault_blade_param_expression(BladeAntlrParser.Default_blade_param_expressionContext ctx) { }
+	@Override public void exitMultiArgWrapper(BladeAntlrParser.MultiArgWrapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBlade_params_expression(BladeAntlrParser.Blade_params_expressionContext ctx) { }
+	@Override public void enterIdentifiableArgument(BladeAntlrParser.IdentifiableArgumentContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBlade_params_expression(BladeAntlrParser.Blade_params_expressionContext ctx) { }
+	@Override public void exitIdentifiableArgument(BladeAntlrParser.IdentifiableArgumentContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBlade_parameter(BladeAntlrParser.Blade_parameterContext ctx) { }
+	@Override public void enterComposedArgument(BladeAntlrParser.ComposedArgumentContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBlade_parameter(BladeAntlrParser.Blade_parameterContext ctx) { }
+	@Override public void exitComposedArgument(BladeAntlrParser.ComposedArgumentContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

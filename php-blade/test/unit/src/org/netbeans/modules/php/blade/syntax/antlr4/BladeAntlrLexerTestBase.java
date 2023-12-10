@@ -55,9 +55,15 @@ public class BladeAntlrLexerTestBase extends NbTestCase {
 
         for (Token token : tokenStream.getTokens()) {
             switch (token.getType()) {
-//                case BL_PARAM_RPAREN:
-//                    result.append("BL_PARAM_RPAREN ");
-//                    break;
+                case BL_PARAM_STRING:
+                    result.append("BL_PARAM_STRING ");
+                    break;
+                case BL_NAME_STRING:
+                    result.append("BL_NAME_STRING ");
+                    break;
+                case BL_PARAM_COMMA:
+                    result.append("BL_PARAM_COMMA ");
+                    break;
             }
 
             String text = replaceLinesAndTabs(token.getText());

@@ -23,6 +23,7 @@ import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.api.HtmlFormatter;
 import org.netbeans.modules.csl.api.Modifier;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
+import org.netbeans.modules.php.blade.csl.elements.StackIdElement;
 import org.netbeans.modules.php.blade.csl.elements.YieldIdElement;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
@@ -42,8 +43,9 @@ import org.openide.util.Exceptions;
  */
 public class BladeDeclarationFinder implements DeclarationFinder {
 
+    //not used for the moment
     static enum DeclarationType {
-        BLADE_PATH, SECTION, PHP, NONE
+        BLADE_PATH, SECTION, HAS_SECTION, PHP, NONE
     }
 
     @Override
@@ -83,7 +85,9 @@ public class BladeDeclarationFinder implements DeclarationFinder {
             org.antlr.v4.runtime.Token nt = tokens.next().get();
 
             if (nt.getType() == BL_PARAM_STRING) {
-                List<Integer> tokensMatch = Arrays.asList(new Integer[]{D_EXTENDS, D_INCLUDE, D_SECTION});
+                List<Integer> tokensMatch = Arrays.asList(new Integer[]{
+                    D_EXTENDS, D_INCLUDE, D_EACH, D_SECTION, D_HAS_SECTION, D_PUSH
+                });
                 List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML});
                 org.antlr.v4.runtime.Token matchedToken = BladeAntlrUtils.findBackward(tokens, tokensMatch, tokensStop);
                 int offsetCorrection = caretOffset - lineOffset;
@@ -123,6 +127,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 dln.addAlternative(new AlternativeLocationImpl(dln));
                 return dln;
             case SECTION:
+            case HAS_SECTION:
                 String yieldId = reference.name;
                 List<BladeIndex.IndexedReference> yields = QueryUtils.getYieldReferences(yieldId, currentFile);
                 if (yields == null) {
@@ -140,7 +145,25 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 }
 
                 return dlyield;
+            case PUSH:
+                String stackId = reference.name;
+                List<BladeIndex.IndexedReference> stacks = QueryUtils.getStacksReferences(stackId, currentFile);
 
+                if (stacks == null) {
+                    return DeclarationLocation.NONE;
+                }
+
+                DeclarationLocation dlstack = DeclarationLocation.NONE;
+
+                for (BladeIndex.IndexedReference stackReference : stacks) {
+                    String stackReferenceId = stackReference.getReference().name;
+                    StackIdElement yieldIdHandle = new StackIdElement(stackReferenceId, stackReference.getOriginFile());
+                    int startOccurence = stackReference.getReference().defOffset.getStart();
+                    dlstack = new DeclarationFinder.DeclarationLocation(stackReference.getOriginFile(), startOccurence, yieldIdHandle);
+                    dlstack.addAlternative(new AlternativeLocationImpl(dlstack));
+                }
+
+                return dlstack;
         }
 
         return DeclarationLocation.NONE;

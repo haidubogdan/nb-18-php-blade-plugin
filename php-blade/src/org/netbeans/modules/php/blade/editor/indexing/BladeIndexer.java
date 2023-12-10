@@ -32,6 +32,8 @@ public class BladeIndexer extends EmbeddingIndexer {
     public static final String BLADE_INDEXED = "bli"; //NOI18N
     public static final String YIELD_REFERENCE = "blyr"; //NOI18N
     public static final String YIELD_ID = "blyid"; //NOI18N
+    public static final String STACK_REFERENCE = "blsr"; //NOI18N
+    public static final String STACK_ID = "blsid"; //NOI18N
     public static final String INCLUDE_PATH = "inp"; //NOI18N
 
     @Override
@@ -51,6 +53,10 @@ public class BladeIndexer extends EmbeddingIndexer {
 
             if (!parserResult.getYieldReferences().isEmpty()) {
                 storeYieldReferences(parserResult.getYieldReferences(), document);
+            }
+
+            if (!parserResult.getStackReferences().isEmpty()) {
+                storeStackReferences(parserResult.getStackReferences(), document);
             }
 
             if (!parserResult.includeFilePaths.isEmpty()) {
@@ -73,9 +79,24 @@ public class BladeIndexer extends EmbeddingIndexer {
         for (Map.Entry<String, Reference> entry : yields.entrySet()) {
             StringBuilder sb = new StringBuilder();
             Reference ref = entry.getValue();
+            //used for completion
             document.addPair(YIELD_ID, entry.getKey(), true, true);
             sb.append(entry.getKey()).append("#").append(ref.defOffset.getStart()).append(";").append(ref.defOffset.getEnd()); //NOI18N
+            //used for declaration finder
             document.addPair(YIELD_REFERENCE, sb.toString(), true, true);
+        }
+    }
+    
+    private void storeStackReferences(Map<String, Reference> stacks, IndexDocument document) {
+
+        for (Map.Entry<String, Reference> entry : stacks.entrySet()) {
+            StringBuilder sb = new StringBuilder();
+            Reference ref = entry.getValue();
+            //used for completion
+            document.addPair(STACK_ID, entry.getKey(), true, true);
+            sb.append(entry.getKey()).append("#").append(ref.defOffset.getStart()).append(";").append(ref.defOffset.getEnd()); //NOI18N
+            //used for declaration finder
+            document.addPair(STACK_REFERENCE, sb.toString(), true, true);
         }
     }
 

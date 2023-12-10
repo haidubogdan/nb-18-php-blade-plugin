@@ -35,8 +35,11 @@ Check for formating and code optimisation
 
 - blade paths reference file 70% (handle multiple references location) !
 - blade yield ids 80%
-- stacks + push ?
+- stacks + push 80%
 - components
+
+- manage real location offset of declaration
+- refactor code
 
 ! we will have to wait for the Project Custom Blade path config
 

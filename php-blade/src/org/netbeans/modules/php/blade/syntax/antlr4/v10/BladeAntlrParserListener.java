@@ -98,6 +98,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitSection(BladeAntlrParser.SectionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#push}.
+	 * @param ctx the parse tree
+	 */
+	void enterPush(BladeAntlrParser.PushContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#push}.
+	 * @param ctx the parse tree
+	 */
+	void exitPush(BladeAntlrParser.PushContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#if}.
 	 * @param ctx the parse tree
 	 */
@@ -208,6 +218,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitYield(BladeAntlrParser.YieldContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#stack}.
+	 * @param ctx the parse tree
+	 */
+	void enterStack(BladeAntlrParser.StackContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#stack}.
+	 * @param ctx the parse tree
+	 */
+	void exitStack(BladeAntlrParser.StackContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#include}.
 	 * @param ctx the parse tree
 	 */
@@ -217,6 +237,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitInclude(BladeAntlrParser.IncludeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#each}.
+	 * @param ctx the parse tree
+	 */
+	void enterEach(BladeAntlrParser.EachContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#each}.
+	 * @param ctx the parse tree
+	 */
+	void exitEach(BladeAntlrParser.EachContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#hasSection}.
 	 * @param ctx the parse tree
@@ -278,55 +308,55 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitPhp_expression(BladeAntlrParser.Php_expressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BladeAntlrParser#bl_sg_param}.
+	 * Enter a parse tree produced by {@link BladeAntlrParser#singleArgWrapper}.
 	 * @param ctx the parse tree
 	 */
-	void enterBl_sg_param(BladeAntlrParser.Bl_sg_paramContext ctx);
+	void enterSingleArgWrapper(BladeAntlrParser.SingleArgWrapperContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BladeAntlrParser#bl_sg_param}.
+	 * Exit a parse tree produced by {@link BladeAntlrParser#singleArgWrapper}.
 	 * @param ctx the parse tree
 	 */
-	void exitBl_sg_param(BladeAntlrParser.Bl_sg_paramContext ctx);
+	void exitSingleArgWrapper(BladeAntlrParser.SingleArgWrapperContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BladeAntlrParser#bl_sg_default_param}.
+	 * Enter a parse tree produced by {@link BladeAntlrParser#singleArgAndDefaultWrapper}.
 	 * @param ctx the parse tree
 	 */
-	void enterBl_sg_default_param(BladeAntlrParser.Bl_sg_default_paramContext ctx);
+	void enterSingleArgAndDefaultWrapper(BladeAntlrParser.SingleArgAndDefaultWrapperContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BladeAntlrParser#bl_sg_default_param}.
+	 * Exit a parse tree produced by {@link BladeAntlrParser#singleArgAndDefaultWrapper}.
 	 * @param ctx the parse tree
 	 */
-	void exitBl_sg_default_param(BladeAntlrParser.Bl_sg_default_paramContext ctx);
+	void exitSingleArgAndDefaultWrapper(BladeAntlrParser.SingleArgAndDefaultWrapperContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BladeAntlrParser#default_blade_param_expression}.
+	 * Enter a parse tree produced by {@link BladeAntlrParser#multiArgWrapper}.
 	 * @param ctx the parse tree
 	 */
-	void enterDefault_blade_param_expression(BladeAntlrParser.Default_blade_param_expressionContext ctx);
+	void enterMultiArgWrapper(BladeAntlrParser.MultiArgWrapperContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BladeAntlrParser#default_blade_param_expression}.
+	 * Exit a parse tree produced by {@link BladeAntlrParser#multiArgWrapper}.
 	 * @param ctx the parse tree
 	 */
-	void exitDefault_blade_param_expression(BladeAntlrParser.Default_blade_param_expressionContext ctx);
+	void exitMultiArgWrapper(BladeAntlrParser.MultiArgWrapperContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BladeAntlrParser#blade_params_expression}.
+	 * Enter a parse tree produced by {@link BladeAntlrParser#identifiableArgument}.
 	 * @param ctx the parse tree
 	 */
-	void enterBlade_params_expression(BladeAntlrParser.Blade_params_expressionContext ctx);
+	void enterIdentifiableArgument(BladeAntlrParser.IdentifiableArgumentContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BladeAntlrParser#blade_params_expression}.
+	 * Exit a parse tree produced by {@link BladeAntlrParser#identifiableArgument}.
 	 * @param ctx the parse tree
 	 */
-	void exitBlade_params_expression(BladeAntlrParser.Blade_params_expressionContext ctx);
+	void exitIdentifiableArgument(BladeAntlrParser.IdentifiableArgumentContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BladeAntlrParser#blade_parameter}.
+	 * Enter a parse tree produced by {@link BladeAntlrParser#composedArgument}.
 	 * @param ctx the parse tree
 	 */
-	void enterBlade_parameter(BladeAntlrParser.Blade_parameterContext ctx);
+	void enterComposedArgument(BladeAntlrParser.ComposedArgumentContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BladeAntlrParser#blade_parameter}.
+	 * Exit a parse tree produced by {@link BladeAntlrParser#composedArgument}.
 	 * @param ctx the parse tree
 	 */
-	void exitBlade_parameter(BladeAntlrParser.Blade_parameterContext ctx);
+	void exitComposedArgument(BladeAntlrParser.ComposedArgumentContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#verbatim_block}.
 	 * @param ctx the parse tree

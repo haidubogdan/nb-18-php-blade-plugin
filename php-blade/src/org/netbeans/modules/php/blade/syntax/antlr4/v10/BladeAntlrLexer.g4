@@ -87,7 +87,6 @@ D_COND_BLOCK_START : ('@unless' | '@isset')->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_COND_BLOCK_END : ('@endunless' | '@endisset');
 
 //loops
-D_EACH : '@each'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_FOREACH : '@foreach'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_ENDFOREACH : '@endforeach';
 D_FOR : '@for'->pushMode(LOOK_FOR_PHP_EXPRESSION);
@@ -105,13 +104,13 @@ D_INCLUDE_IF : '@includeIf'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_INCLUDE_WHEN : '@includeWhen'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_INCLUDE_FIRST : '@includeFirst'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_INCLUDE_UNLESS : '@includeUnless'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
-
+D_EACH : '@each'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 
 //layout
 D_EXTENDS : '@extends'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_JS : '@js'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_SECTION : '@section'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
-D_HAS_SECTION : '@hasSection'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_HAS_SECTION : '@hasSection'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_SECTION_MISSING : '@sectionMissing'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_ENDSECTION : '@endsection';
 D_YIELD : '@yield'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
@@ -121,7 +120,8 @@ D_OVERWRITE : '@overwrite';
 D_STOP : '@stop';
 D_ONCE : '@once';
 D_ENDONCE : '@endonce';
-D_PUSH : '@push'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_STACK : '@stack'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
+D_PUSH : '@push'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_ENDPUSH : '@endpush';
 D_PUSH_ONCE : '@pushOnce'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_ENDPUSH_ONCE : '@endPushOnce';

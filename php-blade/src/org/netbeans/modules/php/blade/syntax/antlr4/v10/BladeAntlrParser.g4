@@ -26,7 +26,9 @@ inline_statement:
     extends
     | section_inline
     | yield
+    | stack
     | include
+    | each
     | (D_CLASS | D_STYLE) php_expression
     | D_HTML_ATTR_EXPR php_expression
     //using basic inline case statement to not add complexity to parser
@@ -43,6 +45,7 @@ inline_statement:
 block_statement: 
     section
     | hasSection
+    | push
     | D_ONCE general_statement+ D_ENDONCE
     | if
     | elseif
@@ -64,9 +67,10 @@ non_blade_statement:
     html
     ;
 
-extends : D_EXTENDS blade_params_expression;
-section_inline: D_SECTION bl_sg_default_param;
-section : D_SECTION bl_sg_default_param general_statement* D_ENDSECTION;
+extends : D_EXTENDS singleArgWrapper;
+section_inline: D_SECTION singleArgAndDefaultWrapper;
+section : D_SECTION singleArgWrapper general_statement* D_ENDSECTION;
+push : D_PUSH singleArgWrapper general_statement+ D_ENDPUSH;
 
 if : D_IF php_expression general_statement* D_ENDIF? ~(D_IF | D_ELSEIF | D_ELSE);
 elseif : D_ELSEIF php_expression general_statement* D_ENDIF? ~(D_IF | D_ELSEIF | D_ELSE);
@@ -74,7 +78,7 @@ else : D_ELSE general_statement* D_ENDIF? ~(D_IF | D_ELSEIF | D_ELSE);
 
 //the consistency for these blocks need to be checked inside the parser
 conditional_block : D_COND_BLOCK_START php_expression general_statement+ D_COND_BLOCK_END;
-auth_block : D_AUTH_START bl_sg_param general_statement+ D_AUTH_END;
+auth_block : D_AUTH_START singleArgWrapper general_statement+ D_AUTH_END;
 
 //no need to add complexity to parser
 switch: D_SWITCH php_expression (general_statement | D_BREAK)+ D_ENDSWITCH;
@@ -86,11 +90,24 @@ foreach : D_FOREACH php_expression (general_statement)+ D_ENDFOREACH;
 forelse : D_FORELSE php_expression (general_statement | D_EMPTY)+ D_ENDFORELSE;
 
 //layout
-yield : D_YIELD bl_sg_default_param;
-include : D_INCLUDE blade_params_expression;
-hasSection : D_HAS_SECTION bl_sg_param general_statement* D_ENDIF;
+yield : D_YIELD singleArgWrapper;
+stack : D_STACK singleArgWrapper;
 
-custom_directive : D_CUSTOM blade_params_expression;
+include : D_INCLUDE singleArgAndDefaultWrapper;
+
+each : D_EACH BLADE_PARAM_LPAREN 
+    (identifiableArgument | composedArgument) //default path
+    BL_COMMA
+    composedArgument
+    BL_COMMA
+    composedArgument
+    (BL_COMMA
+    (identifiableArgument | composedArgument))? //fallback
+    BLADE_PARAM_RPAREN;
+
+hasSection : D_HAS_SECTION singleArgWrapper general_statement* D_ENDIF;
+
+custom_directive : D_CUSTOM multiArgWrapper;
     
 php_blade : D_PHP BLADE_PHP_INLINE D_ENDPHP;
 
@@ -101,20 +118,12 @@ echo_ne : NE_ECHO_START BLADE_PHP_ECHO_EXPR NE_ECHO_END;
 
 php_expression: WS_EXPR? PHP_EXPRESSION;
 
-bl_sg_param :BLADE_PARAM_LPAREN BL_PARAM_WS* blade_parameter BL_PARAM_WS* BLADE_PARAM_RPAREN
-;
+singleArgWrapper: BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BLADE_PARAM_RPAREN;
+singleArgAndDefaultWrapper: BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
+multiArgWrapper : BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)+ BLADE_PARAM_RPAREN;
 
-bl_sg_default_param :BLADE_PARAM_LPAREN BL_PARAM_WS* blade_parameter default_blade_param_expression?  BL_PARAM_WS* BLADE_PARAM_RPAREN
-;
-
-default_blade_param_expression :
-BL_PARAM_WS* BL_PARAM_COMMA BL_PARAM_WS* blade_parameter;
-    
-blade_params_expression :BLADE_PARAM_LPAREN BL_PARAM_WS* (blade_parameter BL_PARAM_WS* BL_PARAM_COMMA? BL_PARAM_WS*)+ BL_PARAM_WS* BLADE_PARAM_RPAREN
-;
-
-blade_parameter :  BL_PARAM_STRING 
-| (BLADE_PARAM_EXTRA | PHP_VARIABLE | BL_PARAM_WS | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_NAME_STRING | BL_COMMA)+ ;
+identifiableArgument : BL_PARAM_WS* BL_PARAM_STRING BL_PARAM_WS*;
+composedArgument : BL_PARAM_WS* (BLADE_PARAM_EXTRA | PHP_VARIABLE | BL_PARAM_WS | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_NAME_STRING | BL_COMMA)+ BL_PARAM_WS*;
 
 verbatim_block : D_VERBATIM non_blade_statement+ D_ENDVERBATIM;
 

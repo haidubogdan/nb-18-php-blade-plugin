@@ -24,8 +24,15 @@ public class QueryUtils {
         return bladeIndex.getYieldIndexedReferences(prefix);
     }
 
+    public static List<BladeIndex.IndexedReference> getStacksReferences(String prefix, FileObject fo) {
+        BladeIndex bladeIndex = getIndex(fo);
+        if (bladeIndex == null) {
+            return null;
+        }
+        return bladeIndex.getStacksIndexedReferences(prefix);
+    }
+    
     public static BladeIndex getIndex(FileObject fo) {
-        BladeIndex bladeIndex;
         Project project = FileOwnerQuery.getOwner(fo);
         try {
             return BladeIndex.get(project);

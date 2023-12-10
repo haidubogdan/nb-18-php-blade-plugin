@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
@@ -46,7 +47,8 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
 
     public final List<DefaultError> errors = new ArrayList<>();
     public final Map<String, Reference> references = new TreeMap<>();
-    public final Map<String, Reference> yieldReferences = new TreeMap<>();
+    private final Map<String, Reference> yieldReferences = new TreeMap<>();
+    private final Map<String, Reference> stackReferences = new TreeMap<>();
     public final Map<OffsetRange, Reference> occurancesForDeclaration = new TreeMap<>();
     public final Set<String> includeFilePaths = new LinkedHashSet<>();
 //    public final List<String> yields = new ArrayList<>();
@@ -58,7 +60,36 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     volatile boolean indexLoaded = false;
 
     public enum ReferenceType {
-        YIELD, SECTION, INCLUDE, EXTENDS
+        YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION
+    }
+
+    public enum ParserContext {
+        EXTENDS(BladeAntlrParser.ExtendsContext.class.getSimpleName()),
+        INCLUDE(BladeAntlrParser.IncludeContext.class.getSimpleName()),
+        YIELD(BladeAntlrParser.YieldContext.class.getSimpleName()),
+        STACK(BladeAntlrParser.StackContext.class.getSimpleName()),
+        SECTION(BladeAntlrParser.SectionContext.class.getSimpleName()),
+        SECTION_INLINE(BladeAntlrParser.Section_inlineContext.class.getSimpleName()),
+        PUSH(BladeAntlrParser.PushContext.class.getSimpleName()),
+        HAS_SECTION(BladeAntlrParser.HasSectionContext.class.getSimpleName()),
+        EACH(BladeAntlrParser.EachContext.class.getSimpleName());
+
+        String className;
+
+        ParserContext(String className) {
+            this.className = className;
+        }
+
+        public static ParserContext getValue(String name) {
+
+            for (ParserContext c : ParserContext.values()) {
+                if (c.className.equals(name)) {
+                    return c;
+                }
+            }
+
+            return null;
+        }
     }
 
     public BladeParserResult(Snapshot snapshot) {
@@ -79,13 +110,9 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
             BladeAntlrParser parser = createParser(getSnapshot());
             parser.addErrorListener(createErrorListener());
 //            parser.addParseListener(createFoldListener());
-            parser.addParseListener(createElementsListener());
-            parser.addParseListener(createExtendsListener());
             parser.addParseListener(createDeclarationReferencesListener());
-            parser.addParseListener(createYieldsListener());
             parser.addParseListener(createLayoutTreeListener());
 //            parser.addParseListener(createStructureListener());
-//            parser.addParseListener(createOccurancesListener());
             evaluateParser(parser);
 
             finished = true;
@@ -97,127 +124,89 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         parser.file();
     }
 
-    protected ParseTreeListener createElementsListener() {
-
-        return new BladeAntlrParserBaseListener() {
-            @Override
-            public void enterFile(BladeAntlrParser.FileContext ctx) {
-                int x = 1;
-            }
-
-            @Override
-            public void exitFile(BladeAntlrParser.FileContext ctx) {
-                int y = 1;
-            }
-        };
-    }
-
     protected ParseTreeListener createDeclarationReferencesListener() {
 
         return new BladeAntlrParserBaseListener() {
 
             @Override
-            public void exitExtends(BladeAntlrParser.ExtendsContext ctx) {
-                BladeAntlrParser.Blade_params_expressionContext bladeParamExpression = ctx.blade_params_expression();
-                addOccurenceForDeclaration(bladeParamExpression, ReferenceType.EXTENDS);
-            }
-
-            @Override
-            public void exitInclude(BladeAntlrParser.IncludeContext ctx) {
-                BladeAntlrParser.Blade_params_expressionContext bladeParamExpression = ctx.blade_params_expression();
-                addOccurenceForDeclaration(bladeParamExpression, ReferenceType.INCLUDE);
-            }
-
-            @Override
-            public void exitSection(BladeAntlrParser.SectionContext ctx) {
-                BladeAntlrParser.Bl_sg_default_paramContext bladeParamExpression = ctx.bl_sg_default_param();
-                addOccurenceForDeclaration(bladeParamExpression, ReferenceType.SECTION);
+            public void exitIdentifiableArgument(BladeAntlrParser.IdentifiableArgumentContext ctx) {
+                // ctx.each_path.BL_PARAM_STRING();
+                addOccurenceForDeclaration(ctx);
             }
 
             /**
-             * storing occurences for declaration finder the occurence will
-             * contain the type, range and identifier (blade path)
+             * - adds occurences for declaration - stores specific type
+             * references
              */
-            private void addOccurenceForDeclaration(BladeAntlrParser.Blade_params_expressionContext bladeParamExpression,
-                    ReferenceType type) {
-                if (bladeParamExpression == null) {
+            private void addOccurenceForDeclaration(BladeAntlrParser.IdentifiableArgumentContext ctx) {
+                if (ctx.BL_PARAM_STRING() == null) {
                     return;
                 }
 
-                if (bladeParamExpression.blade_parameter() == null || bladeParamExpression.blade_parameter().isEmpty()) {
+                String className = ctx.getParent().getClass().getSimpleName();
+
+                if (className.endsWith("WrapperContext")) {
+                    className = ctx.getParent().getParent().getClass().getSimpleName();
+                }
+
+                ParserContext classType = ParserContext.getValue(className);
+
+                if (classType == null) {
                     return;
                 }
 
-                BladeAntlrParser.Blade_parameterContext bladeParam = bladeParamExpression.blade_parameter().get(0);
+                ReferenceType type = getReferenceType(classType);
 
-                if (bladeParam == null) {
+                if (type == null) {
+                    //not handled
                     return;
                 }
 
-                if (bladeParam.BL_PARAM_STRING(0) == null) {
-                    return;
-                }
-
-                Token paramString = bladeParam.BL_PARAM_STRING(0).getSymbol();
+                Token paramString = ctx.BL_PARAM_STRING().getSymbol();
                 String bladeParamText = paramString.getText();
                 bladeParamText = bladeParamText.substring(1, bladeParamText.length() - 1);
-
-                if (bladeParamText.isEmpty()) {
-                    return;
-                }
-
-                includeFilePaths.add(bladeParamText);
-
                 OffsetRange range = new OffsetRange(paramString.getStartIndex(), paramString.getStopIndex());
                 Reference ref = new Reference(type, bladeParamText, range);
+
+                //to add include path ??
                 occurancesForDeclaration.put(range, ref);
+
+                //adding references to be indexed
+                switch (type) {
+                    case YIELD:
+                        addYieldReference(ReferenceType.YIELD, bladeParamText, range);
+                        break;
+                    case STACK:
+                        addStackReference(ReferenceType.STACK, bladeParamText, range);
+                        break;
+                }
             }
-
-            private void addOccurenceForDeclaration(BladeAntlrParser.Bl_sg_default_paramContext bladeParamExpression,
-                    ReferenceType type) {
-                if (bladeParamExpression == null) {
-                    return;
-                }
-
-                if (bladeParamExpression.blade_parameter() == null || bladeParamExpression.blade_parameter().isEmpty()) {
-                    return;
-                }
-
-                BladeAntlrParser.Blade_parameterContext bladeParam = bladeParamExpression.blade_parameter();
-
-                if (bladeParam == null) {
-                    return;
-                }
-
-                if (bladeParam.BL_PARAM_STRING(0) == null) {
-                    return;
-                }
-
-                Token paramString = bladeParam.BL_PARAM_STRING(0).getSymbol();
-                String bladeParamText = paramString.getText();
-                bladeParamText = bladeParamText.substring(1, bladeParamText.length() - 1);
-
-                if (bladeParamText.isEmpty()) {
-                    return;
-                }
-
-                OffsetRange range = new OffsetRange(paramString.getStartIndex(), paramString.getStopIndex());
-                Reference ref = new Reference(type, bladeParamText, range);
-                occurancesForDeclaration.put(range, ref);
-            }
-
         };
 
     }
 
-    protected ParseTreeListener createExtendsListener() {
-
-        return new BladeAntlrParserBaseListener() {
-            @Override
-            public void exitExtends(BladeAntlrParser.ExtendsContext ctx) {
-
-            }
-        };
+    private ReferenceType getReferenceType(ParserContext classType) {
+        switch (classType) {
+            case EACH:
+                return ReferenceType.EACH;
+            case EXTENDS:
+                return ReferenceType.EXTENDS;
+            case INCLUDE:
+                return ReferenceType.INCLUDE;
+            case YIELD:
+                return ReferenceType.YIELD;
+            case STACK:
+                return ReferenceType.STACK;
+            case SECTION:
+            case SECTION_INLINE:
+                return ReferenceType.SECTION;
+            case PUSH:
+                return ReferenceType.PUSH;
+            case HAS_SECTION:
+                return ReferenceType.HAS_SECTION;
+            default:
+                return null;
+        }
     }
 
     public Reference findReferenceForDeclaration(int offset) {
@@ -238,41 +227,6 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         return null;
     }
 
-    protected ParseTreeListener createYieldsListener() {
-
-        return new BladeAntlrParserBaseListener() {
-            @Override
-            public void exitExtends(BladeAntlrParser.ExtendsContext ctx) {
-                int x = 1;
-            }
-
-            public void exitYield(BladeAntlrParser.YieldContext ctx) {
-                BladeAntlrParser.Bl_sg_default_paramContext bladeParamExpression = ctx.bl_sg_default_param();
-                if (bladeParamExpression == null) {
-                    return;
-                }
-                //first we can add in a reference ?
-                //and then in a list?
-                BladeAntlrParser.Blade_parameterContext bladeParam = bladeParamExpression.blade_parameter();
-                if (bladeParam == null) {
-                    return;
-                }
-                if (bladeParam.BL_PARAM_STRING().size() == 1) {
-                    String yieldName = bladeParam.BL_PARAM_STRING(0).getText();
-                    if (yieldName == null || yieldName.isEmpty()) {
-                        return;
-                    }
-                    yieldName = yieldName.substring(1, yieldName.length() - 1);
-                    if (yieldName.isEmpty()) {
-                        return;
-                    }
-
-                    addYieldReference(ReferenceType.YIELD, bladeParam.BL_PARAM_STRING(0).getSymbol());
-                }
-            }
-        };
-    }
-
     //it will be used for scope
     protected ParseTreeListener createLayoutTreeListener() {
 
@@ -290,37 +244,14 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         };
     }
 
-    protected String extractStringParamFromParameterContext(BladeAntlrParser.Bl_sg_default_paramContext bladeParamExpression) {
-        String param = null;
-
-        if (bladeParamExpression == null) {
-            return param;
-        }
-        //first we can add in a reference ?
-        //and then in a list?
-        BladeAntlrParser.Blade_parameterContext bladeParam = bladeParamExpression.blade_parameter();
-        if (bladeParam.BL_PARAM_STRING().size() == 1) {
-            param = bladeParam.BL_PARAM_STRING(0).getText();
-            if (param == null || param.isEmpty()) {
-                return param;
-            }
-            param = param.substring(1, param.length() - 1);
-            if (param.isEmpty()) {
-                return param;
-            }
-            return param;
-        }
-        return param;
+    public void addYieldReference(ReferenceType type, String yieldId, OffsetRange range) {
+        Reference ref = new Reference(type, yieldId, range);
+        yieldReferences.put(ref.name, ref);
     }
 
-    public void addYieldReference(ReferenceType type, Token token) {
-        OffsetRange range = new OffsetRange(token.getStartIndex(), token.getStopIndex() + 1);
-        String name = token.getText().substring(1, token.getText().length() - 1);
-        if (name.isEmpty()) {
-            return;
-        }
-        Reference ref = new Reference(type, name, range);
-        yieldReferences.put(ref.name, ref);
+    public void addStackReference(ReferenceType type, String stackId, OffsetRange range) {
+        Reference ref = new Reference(type, stackId, range);
+        stackReferences.put(ref.name, ref);
     }
 
     protected BladeIndex getIndex() {
@@ -355,6 +286,10 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
 
     public Map<String, Reference> getYieldReferences() {
         return yieldReferences;
+    }
+
+    public Map<String, Reference> getStackReferences() {
+        return stackReferences;
     }
 
     protected ANTLRErrorListener createErrorListener() {

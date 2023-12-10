@@ -1,1 +1,1 @@
-@if(($data[$column['name']] ?? '') == $value) selected @endif
+@each('view.name', $jobs, 'job', 'view.empty')
