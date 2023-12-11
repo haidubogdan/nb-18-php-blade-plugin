@@ -238,6 +238,36 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitInclude(BladeAntlrParser.IncludeContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#includeIf}.
+	 * @param ctx the parse tree
+	 */
+	void enterIncludeIf(BladeAntlrParser.IncludeIfContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#includeIf}.
+	 * @param ctx the parse tree
+	 */
+	void exitIncludeIf(BladeAntlrParser.IncludeIfContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#includeCond}.
+	 * @param ctx the parse tree
+	 */
+	void enterIncludeCond(BladeAntlrParser.IncludeCondContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#includeCond}.
+	 * @param ctx the parse tree
+	 */
+	void exitIncludeCond(BladeAntlrParser.IncludeCondContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#includeFirst}.
+	 * @param ctx the parse tree
+	 */
+	void enterIncludeFirst(BladeAntlrParser.IncludeFirstContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#includeFirst}.
+	 * @param ctx the parse tree
+	 */
+	void exitIncludeFirst(BladeAntlrParser.IncludeFirstContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#each}.
 	 * @param ctx the parse tree
 	 */
@@ -327,6 +357,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSingleArgAndDefaultWrapper(BladeAntlrParser.SingleArgAndDefaultWrapperContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#doubleArgWrapper}.
+	 * @param ctx the parse tree
+	 */
+	void enterDoubleArgWrapper(BladeAntlrParser.DoubleArgWrapperContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#doubleArgWrapper}.
+	 * @param ctx the parse tree
+	 */
+	void exitDoubleArgWrapper(BladeAntlrParser.DoubleArgWrapperContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#multiArgWrapper}.
 	 * @param ctx the parse tree

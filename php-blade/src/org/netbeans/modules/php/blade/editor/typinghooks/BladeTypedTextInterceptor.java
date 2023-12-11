@@ -39,30 +39,17 @@
  */
 package org.netbeans.modules.php.blade.editor.typinghooks;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.Element;
-import org.antlr.v4.runtime.CharStreams;
-import org.netbeans.api.editor.document.LineDocument;
-import org.netbeans.api.editor.document.LineDocumentUtils;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
-import org.netbeans.modules.php.blade.editor.lexer.BladeTokenId;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.editor.mimelookup.MimeRegistrations;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import org.netbeans.spi.editor.typinghooks.TypedTextInterceptor;
-import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 
 /**
  * auto complete for '[', '(', '\'', '"'
- *
- * and for "{{ ", "{!! ", "{{--"
  *
  * @author bhaidu
  */
@@ -80,14 +67,6 @@ public class BladeTypedTextInterceptor implements TypedTextInterceptor {
         CHAR_PAIR.put('"', '"');
     }
 
-    static final Map<String, String> BRAKET_PAIR = new HashMap<>();
-
-    static {
-        BRAKET_PAIR.put("{{", "}}");
-        BRAKET_PAIR.put("{!!", "!!}");
-        BRAKET_PAIR.put("{{--", "--}}");
-    }
-
     @Override
     public boolean beforeInsert(Context cntxt) throws BadLocationException {
         return false;
@@ -103,24 +82,7 @@ public class BladeTypedTextInterceptor implements TypedTextInterceptor {
 
         if (CHAR_PAIR.containsKey(ch)) {
             completePairChar(context, ch, CHAR_PAIR.get(ch));
-            return;
-        }
-
-        /*
-        String txt = context.getText();
-        int caretOffset = context.getOffset();
-        LineDocument doc = (LineDocument) context.getDocument();
-        Element lineElement = doc.getParagraphElement(caretOffset);
-        int start = lineElement.getStartOffset();
-        int lineOffset = caretOffset - start;
-        try {
-            int end = lineElement.getEndOffset();
-            String text = doc.getText(start, end - start);
-            AntlrTokenSequence tokens = new AntlrTokenSequence(new BladeAntlrLexer(CharStreams.fromString(text)));
-        } catch (BadLocationException ex) {
-            //Exceptions.printStackTrace(ex);
-        }
-        */
+          }
     }
 
     /**

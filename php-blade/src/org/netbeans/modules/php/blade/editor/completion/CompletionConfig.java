@@ -46,9 +46,10 @@ public class CompletionConfig {
         try {
             scanner = new ScannerImpl(SETTINGS, new StreamReader(SETTINGS, getResourceContent(filePath)));
             ParserImpl parser = new ParserImpl(SETTINGS, scanner);
-            List<HashMap> attributesList = new ArrayList<>();
+//            List<HashMap> attributesList = new ArrayList<>();
+            HashMap<String, String> attributesList = new HashMap<>();
             HashMap<String, String> entry = new HashMap<>();
-            HashMap<String, List<HashMap>> groupMap = new HashMap<>();
+            HashMap<String, HashMap> groupMap = new HashMap<>();
 
             String directiveName = "", groupName = "", attributeName = "";
             int scalarCount = 0;
@@ -63,14 +64,11 @@ public class CompletionConfig {
                         parser.next();
                         break;
                     case MappingEnd:
-                        if (treeLevel == 3) {
-                            attributesList.add(entry);
-                        }
                         parser.next();
                         break;
                     case SequenceStart:
                         treeLevel++;
-                        attributesList = new ArrayList<>();
+                        attributesList = new HashMap<>();
                         if (treeLevel == 2) {
                             groupMap = new HashMap<>();
                         }
@@ -95,8 +93,7 @@ public class CompletionConfig {
                                 if (scalarCount == 1) {
                                     attributeName = ret.getValue();
                                 } else if (scalarCount == 2) {
-                                    entry = new HashMap();
-                                    entry.put(attributeName, ret.getValue());
+                                    attributesList.put(attributeName, ret.getValue());
                                 }
                                 break;
                             case 2:

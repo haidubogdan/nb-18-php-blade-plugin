@@ -35,7 +35,6 @@ import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 import org.openide.filesystems.FileObject;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -115,16 +114,19 @@ public class BladeDeclarationFinder implements DeclarationFinder {
             case EXTENDS:
             case INCLUDE:
                 String bladePath = reference.name;
-                FileObject includedFile = PathUtils.findFileObjectForBladePath(currentFile, bladePath);
+                List<FileObject> includedFiles = PathUtils.findFileObjectsForBladePath(currentFile, bladePath);
 
-                if (includedFile == null) {
+                if (includedFiles.isEmpty()) {
                     return DeclarationLocation.NONE;
                 }
+                
+                DeclarationLocation dln = DeclarationLocation.NONE;
 
-                PathElement elHandle = new PathElement(reference.name, includedFile);
-                DeclarationLocation dln = new DeclarationFinder.DeclarationLocation(includedFile, 0, elHandle);
-
-                dln.addAlternative(new AlternativeLocationImpl(dln));
+                for (FileObject includedFile : includedFiles){
+                    PathElement elHandle = new PathElement(reference.name, includedFile);
+                    dln = new DeclarationFinder.DeclarationLocation(includedFile, 0, elHandle);
+                    dln.addAlternative(new AlternativeLocationImpl(dln));
+                }
                 return dln;
             case SECTION:
             case HAS_SECTION:

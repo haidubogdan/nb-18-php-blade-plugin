@@ -21,4 +21,9 @@ public class BladeAntrlLexerTest extends BladeAntlrLexerTestBase {
     public void test_layout_directives() throws Exception {
         performTest("lexer/layout_directives.blade.php");
     }
+    
+        @Test
+    public void test_paren_balance_issue_in_includes() throws Exception {
+        performTest("lexer/paren_balance_issue.blade.php");
+    }
 }

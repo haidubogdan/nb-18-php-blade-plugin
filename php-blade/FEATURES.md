@@ -21,6 +21,7 @@ start from 10
 - Completion for yield names 70% (to add icon, for the moment no context is added)
 
 ! Most probably `BladeCompletionHandler` will not be used. The main completion service will be `BladeCompletionProvider`
+Might think to autocmplete with cursor and parameters
 
 ## Braces matcher
 
@@ -50,6 +51,8 @@ tags are not paired
 ## Php embedding
 
 ## Reformating
+
+## Navigation
 
 ## Lexer coloring
 
@@ -102,6 +105,7 @@ Project considered complete when :
     - should not freeze IDE when using ":" in php embedding context
     - should have unit tests for known lexer issues on the previous project
 - has brace match highlight for html and blade directives and output tags
+- navigator
 - supports project config for : 
     - custom directives
     - custom blade template paths

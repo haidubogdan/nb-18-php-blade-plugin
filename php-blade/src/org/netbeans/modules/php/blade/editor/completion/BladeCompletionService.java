@@ -96,7 +96,6 @@ public class BladeCompletionService {
 
             if (!tokens.isEmpty()) {
                 tokens.seekTo(caretOffset);
-                int tokenOffset = tokens.getOffset();
 
                 if (tokens.hasNext()) {
                     Token nt = tokens.next().get();
@@ -114,7 +113,7 @@ public class BladeCompletionService {
                     if (pt == null) {
                         return 0;
                     }
-                    String previousTokenText = pt.getText();
+
                     switch (pt.getType()) {
                         case AT:
                             queryType = COMPLETION_QUERY_TYPE;

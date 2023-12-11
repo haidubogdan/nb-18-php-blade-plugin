@@ -229,15 +229,11 @@ mode INSIDE_BLADE_PARAMETERS;
 
 BL_PARAM_LINE_COMMENT : LineComment->channel(COMMENT);
 
-OPEN_BL_PARAM_PAREN : {this.roundParenBalance == 0}? '(' {this.increaseRoundParenBalance();} ->type(BLADE_PARAM_LPAREN);
-CLOSE_BL_PARAM_PAREN : {this.roundParenBalance == 1}? ')' 
-    {this.decreaseRoundParenBalance();}->type(BLADE_PARAM_RPAREN),mode(DEFAULT_MODE);
+CLOSE_BL_PARAM_PAREN : {this.roundParenBalance <= 0}? ')' 
+    {this.roundParenBalance = 0;}->type(BLADE_PARAM_RPAREN),mode(DEFAULT_MODE);
 
-BL_PARAM_LPAREN : {this.roundParenBalance > 0}? '(' {this.increaseRoundParenBalance();}->type(BLADE_PARAM_EXTRA);
+BL_PARAM_LPAREN : {this.roundParenBalance >= 0}? '(' {this.increaseRoundParenBalance();}->type(BLADE_PARAM_EXTRA);
 BL_PARAM_RPAREN : {this.roundParenBalance > 0}? ')' {this.decreaseRoundParenBalance();}->type(BLADE_PARAM_EXTRA);
-
-//in case of lexer restart context
-BL_PARAM_EXIT_RPAREN : ')' {this.roundParenBalance == 0}?->type(BLADE_PARAM_RPAREN),mode(DEFAULT_MODE);
 
 BL_SQ_LPAREN : '[' {this.squareParenBalance++;}->type(BLADE_PARAM_EXTRA);
 BL_SQ_RPAREN : '[' {this.squareParenBalance--;}->type(BLADE_PARAM_EXTRA);

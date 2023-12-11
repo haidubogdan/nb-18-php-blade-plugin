@@ -1,9 +1,12 @@
 package org.netbeans.modules.php.blade.editor.completion;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
@@ -18,9 +21,9 @@ import org.netbeans.api.project.Project;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.php.blade.csl.elements.CompletionElement;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
-import org.netbeans.modules.php.blade.editor.completion.BladeCompletionProposal.OutputCompletionItem;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex.IndexedReferenceId;
+import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.ReferenceType;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
@@ -32,6 +35,7 @@ import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
+import org.netbeans.spi.editor.completion.support.CompletionUtilities.CompletionItemBuilder;
 import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -99,11 +103,12 @@ public class BladeCompletionProvider implements CompletionProvider {
                 }
 
                 String prefix;
+                String lineText = "";
                 adoc.readLock();
                 AntlrTokenSequence tokens;
                 try {
-                    String text = doc.getText(0, doc.getLength());
-                    tokens = new AntlrTokenSequence(new BladeAntlrLexer(CharStreams.fromString(text)));
+                    lineText = doc.getText(0, doc.getLength());
+                    tokens = new AntlrTokenSequence(new BladeAntlrLexer(CharStreams.fromString(lineText)));
                 } catch (BadLocationException ex) {
                     return;
                 } finally {
@@ -113,8 +118,13 @@ public class BladeCompletionProvider implements CompletionProvider {
                 if (tokens.isEmpty()) {
                     return;
                 }
-                tokens.seekTo(caretOffset);
-                int tokenOffset = tokens.getOffset();
+
+                if (lineText.endsWith("\n") && caretOffset > 1){
+                    tokens.seekTo(caretOffset - 1);
+                } else {
+                    tokens.seekTo(caretOffset);
+                }
+                
                 String closeTag = null;
 
                 if (tokens.hasNext()) {
@@ -149,7 +159,7 @@ public class BladeCompletionProvider implements CompletionProvider {
                     if (nt.getType() == HTML) {
                         String nText = nt.getText();
                         if (nText.startsWith("@")) {
-                            complete(nText, caretOffset, resultSet);
+                            completeDirectives(nText, doc, caretOffset, resultSet);
                             return;
                         }
                         pt = tokens.previous().get();
@@ -166,7 +176,11 @@ public class BladeCompletionProvider implements CompletionProvider {
 
                     } else if (nt.getType() == BL_PARAM_STRING) {
                         String pathName = nt.getText().substring(1, nt.getText().length() - 1);
-                        List<Integer> tokensMatch = Arrays.asList(new Integer[]{D_EXTENDS, D_INCLUDE, D_SECTION});
+                        List<Integer> tokensMatch = Arrays.asList(new Integer[]{
+                            D_EXTENDS, D_INCLUDE, D_SECTION, D_HAS_SECTION,
+                            D_INCLUDE_IF, D_INCLUDE_WHEN, D_INCLUDE_UNLESS, D_INCLUDE_FIRST,
+                            D_EACH, D_PUSH
+                        });
                         List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML, BL_PARAM_CONCAT_OPERATOR});
                         Token directiveToken = BladeAntlrUtils.findBackward(tokens, tokensMatch, tokensStop);
 
@@ -174,8 +188,12 @@ public class BladeCompletionProvider implements CompletionProvider {
                             return;
                         }
                         switch (directiveToken.getType()) {
-                            case D_INCLUDE:
                             case D_EXTENDS:
+                            case D_INCLUDE:
+                            case D_INCLUDE_IF:
+                            case D_INCLUDE_WHEN:
+                            case D_INCLUDE_UNLESS:
+                            case D_EACH:
 
                                 int lastDotPos;
 
@@ -201,6 +219,7 @@ public class BladeCompletionProvider implements CompletionProvider {
                                 }
                                 return;
                             case D_SECTION:
+                            case D_HAS_SECTION:
                                 completeYieldIdFromIndex(pathName, fo, caretOffset, resultSet);
                                 return;
                         }
@@ -234,15 +253,9 @@ public class BladeCompletionProvider implements CompletionProvider {
 
                             if (closeTag != null) {
                                 completeCloseTag(curlyStartToken, doc, closeTag, caretOffset, resultSet);
-                                return;
                             }
                         }
                     }
-
-                    if (nt.getText().trim().isEmpty()) {
-                        nt = pt;
-                    }
-                    completeFromIndex(pt, nt, caretOffset, tokenOffset, fo, resultSet);
                 } else if (tokens.hasPrevious()) {
                     Token pt = tokens.previous().get();
                     if (pt == null) {
@@ -255,7 +268,7 @@ public class BladeCompletionProvider implements CompletionProvider {
                     String pText = pt.getText();
                     if (pText.startsWith("@")) {
                         prefix = pt.getText();
-                        complete(prefix, caretOffset, resultSet);
+                        completeDirectives(prefix, doc, caretOffset, resultSet);
                     }
                 }
 
@@ -265,22 +278,49 @@ public class BladeCompletionProvider implements CompletionProvider {
         }
     }
 
-    private void complete(String prefix, int caretOffset, CompletionResultSet resultSet) {
+    @SuppressWarnings("rawtypes")
+    private void completeDirectives(String prefix, Document doc, int caretOffset, CompletionResultSet resultSet) {
         int startOffset = caretOffset - prefix.length();
         HashMap<String, HashMap> yamlCompletionList = BladeCompletionService.getDirectiveCompletionList();
 
         for (String group : yamlCompletionList.keySet()) {
-            for (Object directiveKey : yamlCompletionList.get(group).keySet()) {
-                String directive = directiveKey.toString();
-                String descr = (String) yamlCompletionList.get(group).get("description");
+            Set<Entry<String, HashMap>> directiveList = yamlCompletionList.get(group).entrySet();
+            for (Entry directiveEntry : directiveList) {
+                String directive = (String) directiveEntry.getKey();
+                Object info = directiveEntry.getValue();
+                String hasArgument = null, description = null;
+                if (info instanceof HashMap) {
+                    HashMap<String, String> infoList = (HashMap) info;
+                    hasArgument = infoList.get("takes_parameter");
+                    description = infoList.get("description");
+                }
+
                 if (directive.startsWith(prefix)) {
-                    CompletionItem item = CompletionUtilities.newCompletionItemBuilder(directive)
+                    CompletionItemBuilder builder = CompletionUtilities.newCompletionItemBuilder(directive)
                             .iconResource(getReferenceIcon())
                             .startOffset(startOffset)
-                            .leftHtmlText(descr)
-                            .rightHtmlText("right")
-                            .sortText(directive)
-                            .build();
+                            .leftHtmlText(directive)
+                            .sortText(directive);
+
+                    if (description != null && !description.isEmpty()){
+                        builder.rightHtmlText(description);
+                    }
+                    
+                    if (hasArgument != null && hasArgument.equals("1")) {
+                        builder.onSelect(ctx -> {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append(directive);
+                            sb.append("(${cursor})");
+                            try {
+                                doc.remove(caretOffset - prefix.length(), prefix.length());
+                                CodeTemplateManager.get(doc).createTemporary(sb.toString()).insert(ctx.getComponent());
+
+                            } catch (BadLocationException ex) {
+                                Exceptions.printStackTrace(ex);
+                            }
+                        });
+                    }
+                    CompletionItem item = builder.build();
                     resultSet.addItem(item);
                 }
             }
@@ -301,40 +341,6 @@ public class BladeCompletionProvider implements CompletionProvider {
             }
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
-        }
-    }
-
-    /**
-     * @not implemented
-     *
-     * @param pt
-     * @param nt
-     * @param caretOffset
-     * @param tokenOffset
-     * @param fo
-     * @param resultSet
-     */
-    private void completeFromIndex(Token pt, Token nt,
-            int caretOffset, int tokenOffset, FileObject fo, CompletionResultSet resultSet) {
-        String prefix;
-        if (pt != null) {
-            prefix = nt.getText();
-        } else {
-            //we are on the same token
-            prefix = nt.getText().substring(0, caretOffset - tokenOffset);
-        }
-
-        BladeIndex bladeIndex;
-        Project project = FileOwnerQuery.getOwner(fo);
-        try {
-            bladeIndex = BladeIndex.get(project);
-            bladeIndex.getYieldIndexedReferencesIds(prefix);
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-
-        if (prefix.length() > 0) {
-            complete(prefix, caretOffset, resultSet);
         }
     }
 
@@ -364,14 +370,14 @@ public class BladeCompletionProvider implements CompletionProvider {
         resultSet.addItem(item);
     }
 
-    private void completeBladePath(String bladePath, FileObject fo,
+    private void completeBladePath(String bladePath, FileObject originFile,
             int caretOffset, CompletionResultSet resultSet) {
 
-        String filePath = fo.getPath();
+        String filePath = originFile.getPath();
         int viewsPos = filePath.indexOf("/views/");
 
         CompletionItem item = CompletionUtilities.newCompletionItemBuilder(bladePath)
-                .iconResource(getReferenceIcon())
+                .iconResource(getReferenceIcon(originFile))
                 .startOffset(caretOffset)
                 .leftHtmlText(bladePath)
                 .rightHtmlText(filePath.substring(viewsPos, filePath.length()))
@@ -387,7 +393,7 @@ public class BladeCompletionProvider implements CompletionProvider {
         int viewsPos = filePath.indexOf("/views/");
 
         CompletionItem item = CompletionUtilities.newCompletionItemBuilder(identifier)
-                .iconResource(getReferenceIcon())
+                .iconResource(getReferenceIcon(CompletionType.YIELD_ID))
                 .startOffset(caretOffset)
                 .leftHtmlText(identifier)
                 .rightHtmlText(filePath.substring(viewsPos, filePath.length()))
@@ -400,5 +406,20 @@ public class BladeCompletionProvider implements CompletionProvider {
 
     private static String getReferenceIcon() {
         return ICON_BASE + "icons/at.png";
+    }
+    
+    private static String getReferenceIcon(CompletionType type) {
+        switch (type){
+            case YIELD_ID:
+                return ICON_BASE + "icons/layout.png";
+        }
+        return ICON_BASE + "icons/at.png";
+    }
+    
+    private static String getReferenceIcon(FileObject file) {
+        if (file.isFolder()){
+            return "org/openide/loaders/defaultFolder.gif";
+        }
+        return ICON_BASE + "icons/file.png";
     }
 }

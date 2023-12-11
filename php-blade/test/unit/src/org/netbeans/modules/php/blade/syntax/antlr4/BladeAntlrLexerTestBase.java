@@ -54,6 +54,7 @@ public class BladeAntlrLexerTestBase extends NbTestCase {
         StringBuilder result = new StringBuilder();
 
         for (Token token : tokenStream.getTokens()) {
+            int channel = token.getChannel();
             switch (token.getType()) {
                 case BL_PARAM_STRING:
                     result.append("BL_PARAM_STRING ");
@@ -63,6 +64,18 @@ public class BladeAntlrLexerTestBase extends NbTestCase {
                     break;
                 case BL_PARAM_COMMA:
                     result.append("BL_PARAM_COMMA ");
+                    break;
+                case BLADE_PARAM_LPAREN:
+                    result.append("BLADE_PARAM_LPAREN ");
+                    break;
+                case BLADE_PARAM_RPAREN:
+                    result.append("BLADE_PARAM_RPAREN ");
+                    break;
+                case BLADE_PARAM_EXTRA:
+                    result.append("BLADE_PARAM_EXTRA ");
+                    break;
+                case HTML:
+                    result.append("HTML ");
                     break;
             }
 

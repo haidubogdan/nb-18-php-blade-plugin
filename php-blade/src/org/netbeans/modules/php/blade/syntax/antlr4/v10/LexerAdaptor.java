@@ -74,12 +74,6 @@ public abstract class LexerAdaptor extends Lexer {
         this.roundParenBalance--;
     }
     
-    public int getCurrentPosition(){
-        System.out.println("char index " + this.getCharIndex());
-        System.out.println(" input index" + this._input.index());
-        return this.getCharPositionInLine();
-    }
-    
     public boolean endsWith(char ch1, char ch2){
         return this._input.LA(1) == ch1 && this._input.LA(2) == ch2;
     }
@@ -95,17 +89,5 @@ public abstract class LexerAdaptor extends Lexer {
                 this.squareParenBalance == 0 &&
                 this.curlyParenBalance == 0;
     }
-//    public boolean endsWith(String text){
-//        if (this._input.size() < text.length()){
-//            return false;
-//        }
-//        String peekedText = "";
-//
-//        for (int i = 0; i < text.length(); i++){
-//            peekedText += this._input.LA(i + 1);        
-//            //Process char
-//        }
-//        
-//        return peekedText.equals(text);
-//    }
+
 }

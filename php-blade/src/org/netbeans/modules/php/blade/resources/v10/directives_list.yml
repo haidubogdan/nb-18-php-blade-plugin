@@ -1,37 +1,46 @@
 layout_directives:
   - '@extends':
-    - description : "extend layout"
     - takes_parameter : 1
   - '@section':
-    - description : "section"
     - takes_parameter : 1
   - '@endsection' :
     - end_tag : true
   - '@hasSection' :
-    - description : "hasSection"
     - takes_parameter : 1
   - '@include':
-    - description : "include"
     - takes_parameter : 1
   - '@includeIf':
-    - description : "includeIf"
     - takes_parameter : 1
   - '@includeWhen':
-    - description : "includeWhen"
     - takes_parameter : 1
   - '@includeUnless':
-    - description : "includeUnless"
-    - takes_parameter : 1      
-
+    - takes_parameter : 1
+  - '@each':
+    - takes_parameter : 1
+  - '@stack':
+    - takes_parameter : 1
+  - '@push':
+    - takes_parameter : 1   
+  - '@endpush':
+    - description : ''
+    
 #test comment
 conditional_directives:
   - '@if' :
-    - description : 'if'
     - takes_parameter : 1
   - '@elseif' :
-    - description : 'elseif'
     - takes_parameter : 1
   - '@else' :
-    - description : "else"  
+    - description : ''  
   - '@endif' :
     - end_tag : true
+    
+loop_directives:
+  - '@for' :
+    - takes_parameter : 1
+  - '@endfor' :
+    - description : ''
+  - '@foreach' :
+    - takes_parameter : 1
+  - '@endforeach' :
+    - description : ''

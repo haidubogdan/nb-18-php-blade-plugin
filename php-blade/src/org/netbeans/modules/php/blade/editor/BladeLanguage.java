@@ -59,7 +59,6 @@ import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.modules.csl.api.DeclarationFinder;
 import org.netbeans.modules.csl.spi.CommentHandler;
 import static org.netbeans.modules.php.blade.editor.BladeLanguage.ACTIONS;
-import org.netbeans.modules.php.blade.editor.completion.BladeCompletionHandler;
 import org.netbeans.modules.php.blade.editor.lexer.BladeLexer;
 import org.netbeans.modules.php.blade.editor.lexer.BladeTokenId;
 import org.netbeans.modules.php.blade.editor.lexer.BladeTokenId.BladeLanguageHierarchy;
@@ -144,11 +143,6 @@ public class BladeLanguage extends DefaultLanguageConfig {
 //    @Override
 //    public HintsProvider getHintsProvider() {
 //        return new BladeHintsProvider();
-//    }
-//
-//    @Override
-//    public CodeCompletionHandler getCompletionHandler() {
-//        return new BladeCompletionHandler();
 //    }
 //
 //    @Override

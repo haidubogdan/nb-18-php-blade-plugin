@@ -28,6 +28,9 @@ inline_statement:
     | yield
     | stack
     | include
+    | includeIf
+    | includeCond
+    | includeFirst
     | each
     | (D_CLASS | D_STYLE) php_expression
     | D_HTML_ATTR_EXPR php_expression
@@ -68,8 +71,8 @@ non_blade_statement:
     ;
 
 extends : D_EXTENDS singleArgWrapper;
-section_inline: D_SECTION singleArgAndDefaultWrapper;
-section : D_SECTION singleArgWrapper general_statement* D_ENDSECTION;
+section_inline: D_SECTION doubleArgWrapper;
+section : D_SECTION singleArgWrapper (general_statement | D_SHOW)* D_ENDSECTION;
 push : D_PUSH singleArgWrapper general_statement+ D_ENDPUSH;
 
 if : D_IF php_expression general_statement* D_ENDIF? ~(D_IF | D_ELSEIF | D_ELSE);
@@ -94,6 +97,15 @@ yield : D_YIELD singleArgWrapper;
 stack : D_STACK singleArgWrapper;
 
 include : D_INCLUDE singleArgAndDefaultWrapper;
+includeIf : D_INCLUDE_IF singleArgAndDefaultWrapper;
+includeCond : (D_INCLUDE_WHEN | D_INCLUDE_UNLESS) BLADE_PARAM_LPAREN
+    composedArgument
+    BL_COMMA
+    (identifiableArgument | composedArgument)
+    (BL_COMMA composedArgument)?
+    BLADE_PARAM_RPAREN;
+
+includeFirst : D_INCLUDE_FIRST singleArgAndDefaultWrapper;
 
 each : D_EACH BLADE_PARAM_LPAREN 
     (identifiableArgument | composedArgument) //default path
@@ -120,7 +132,8 @@ php_expression: WS_EXPR? PHP_EXPRESSION;
 
 singleArgWrapper: BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BLADE_PARAM_RPAREN;
 singleArgAndDefaultWrapper: BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
-multiArgWrapper : BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)+ BLADE_PARAM_RPAREN;
+doubleArgWrapper: BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BL_COMMA composedArgument BLADE_PARAM_RPAREN;
+multiArgWrapper : BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
 
 identifiableArgument : BL_PARAM_WS* BL_PARAM_STRING BL_PARAM_WS*;
 composedArgument : BL_PARAM_WS* (BLADE_PARAM_EXTRA | PHP_VARIABLE | BL_PARAM_WS | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_NAME_STRING | BL_COMMA)+ BL_PARAM_WS*;
