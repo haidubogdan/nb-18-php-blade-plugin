@@ -14,11 +14,11 @@ start from 10
 
 ## Completion
 
-- Completion for directives 50% (to add more directives)
+- Completion for directives 80% (might add some documentation)
 - Completion for custom directives 0%
 - Completion for echo tags 80% (to add icon and possible description)
-- Completion for blade files 80% (to add icon)
-- Completion for yield names 70% (to add icon, for the moment no context is added)
+- Completion for blade files 100%
+- Completion for yield names 80% (for the moment no context is added)
 
 ! Most probably `BladeCompletionHandler` will not be used. The main completion service will be `BladeCompletionProvider`
 Might think to autocmplete with cursor and parameters
@@ -38,17 +38,15 @@ Check for formating and code optimisation
 - blade yield ids 80%
 - stacks + push 80%
 - components
-
-- manage real location offset of declaration
 - refactor code
-
-! we will have to wait for the Project Custom Blade path config
 
 ## Html embedding
 
 tags are not paired
 
 ## Php embedding
+
+- added a simple embedding for standard <?= > <?php ?> cases
 
 ## Reformating
 

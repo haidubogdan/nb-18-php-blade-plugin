@@ -23,6 +23,13 @@ general_statement: inline_statement
     ;
 
 inline_statement: 
+    inline_directive
+    | echo
+    | echo_ne
+    | PHP_INLINE
+    ;
+
+inline_directive: 
     extends
     | section_inline
     | yield
@@ -33,17 +40,18 @@ inline_statement:
     | includeFirst
     | each
     | (D_CLASS | D_STYLE) php_expression
+    | (D_METHOD) php_expression
+    | D_PROPS php_expression
+    | D_CSRF
+    | D_USE singleArgWrapper
+    | D_INJECT doubleArgWrapper
     | D_HTML_ATTR_EXPR php_expression
     //using basic inline case statement to not add complexity to parser
     | D_CASE php_expression
     | D_DEFAULT
     | loop_action
-    | echo
-    | echo_ne
     | custom_directive
-    | PHP_INLINE
     ;
-
 
 block_statement: 
     section
@@ -54,7 +62,9 @@ block_statement:
     | elseif
     | else
     | switch
+    | D_ENV singleArgWrapper general_statement+ D_ENDENV
     | D_EMPTY php_expression general_statement+ D_ENDEMPTY
+    | D_ERROR php_expression general_statement+ D_ENDERROR
     //we can consider the statements not being empty
     | conditional_block
     | auth_block
@@ -72,8 +82,9 @@ non_blade_statement:
 
 extends : D_EXTENDS singleArgWrapper;
 section_inline: D_SECTION doubleArgWrapper;
-section : D_SECTION singleArgWrapper (general_statement | D_SHOW)* D_ENDSECTION;
+section : D_SECTION singleArgWrapper (general_statement | D_SHOW | D_PARENT)* (D_STOP | D_OVERWRITE | D_ENDSECTION);
 push : D_PUSH singleArgWrapper general_statement+ D_ENDPUSH;
+pushOnce : D_PUSH_ONCE singleArgWrapper general_statement+ D_ENDPUSH_ONCE;
 
 if : D_IF php_expression general_statement* D_ENDIF? ~(D_IF | D_ELSEIF | D_ELSE);
 elseif : D_ELSEIF php_expression general_statement* D_ENDIF? ~(D_IF | D_ELSEIF | D_ELSE);

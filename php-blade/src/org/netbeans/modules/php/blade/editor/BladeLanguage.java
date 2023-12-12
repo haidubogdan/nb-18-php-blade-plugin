@@ -57,11 +57,13 @@ import org.openide.windows.TopComponent;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.modules.csl.api.DeclarationFinder;
+import org.netbeans.modules.csl.api.StructureScanner;
 import org.netbeans.modules.csl.spi.CommentHandler;
 import static org.netbeans.modules.php.blade.editor.BladeLanguage.ACTIONS;
 import org.netbeans.modules.php.blade.editor.lexer.BladeLexer;
 import org.netbeans.modules.php.blade.editor.lexer.BladeTokenId;
 import org.netbeans.modules.php.blade.editor.lexer.BladeTokenId.BladeLanguageHierarchy;
+import org.netbeans.modules.php.blade.editor.navigator.BladeStructureScanner;
 import org.netbeans.modules.php.blade.editor.parser.BladeParser;
 
 /**
@@ -120,15 +122,15 @@ public class BladeLanguage extends DefaultLanguageConfig {
         return new BladeParser();
     }
 
-//    @Override
-//    public boolean hasStructureScanner() {
-//        return true;
-//    }
+    @Override
+    public boolean hasStructureScanner() {
+        return true;
+    }
 
-//    @Override
-//    public StructureScanner getStructureScanner() {
-//        return new BladeStructureScanner();
-//    }
+    @Override
+    public StructureScanner getStructureScanner() {
+        return new BladeStructureScanner();
+    }
 //
     @Override
     public CommentHandler getCommentHandler() {

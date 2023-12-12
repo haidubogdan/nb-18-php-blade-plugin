@@ -112,10 +112,9 @@ public class BladeIndexer extends EmbeddingIndexer {
         int start = 0;
         int end = 1;
 
-        //corrupted data?
-        if (offsets.length == 0) {
-            start = Integer.getInteger(offsets[0]);
-            end = Integer.getInteger(offsets[1]);
+        if (offsets.length > 0) {
+            start = Integer.parseInt(offsets[0]);
+            end = Integer.parseInt(offsets[1]);
         }
 
         return new Reference(ReferenceType.YIELD, name, new OffsetRange(start, end));

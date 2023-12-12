@@ -27,6 +27,8 @@ public class BladeDirectivesUtils {
                 return new String[]{"@endisset"};
             case "@empty":
                 return new String[]{"@endempty"};
+            case "@error":
+                return new String[]{"@enderror"};
 
         }
         return null;
@@ -50,6 +52,8 @@ public class BladeDirectivesUtils {
                 return new String[]{"@isset"};
             case "@endempty":
                 return new String[]{"@empty"};
+            case "@enderror":
+                return new String[]{"@error"};
         }
         return null;
     }

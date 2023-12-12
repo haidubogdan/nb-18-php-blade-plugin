@@ -4,7 +4,10 @@ layout_directives:
   - '@section':
     - takes_parameter : 1
   - '@endsection' :
-    - end_tag : true
+  - '@stop':
+  - '@once':
+  - '@endonce':
+  - '@overwrite':    
   - '@hasSection' :
     - takes_parameter : 1
   - '@include':
@@ -22,7 +25,6 @@ layout_directives:
   - '@push':
     - takes_parameter : 1   
   - '@endpush':
-    - description : ''
     
 #test comment
 conditional_directives:
@@ -31,9 +33,7 @@ conditional_directives:
   - '@elseif' :
     - takes_parameter : 1
   - '@else' :
-    - description : ''  
   - '@endif' :
-    - end_tag : true
     
 loop_directives:
   - '@for' :
@@ -43,4 +43,31 @@ loop_directives:
   - '@foreach' :
     - takes_parameter : 1
   - '@endforeach' :
-    - description : ''
+  - '@break' :
+
+form_directives:
+    - '@csrf':
+    - '@method':
+    - '@error':
+      - takes_parameter : 1
+    - '@enderror':    
+
+env_directives:
+  - '@env':
+    - takes_parameter : 1
+  - '@endenv':  
+
+auth_directives:
+  - '@auth':
+    - takes_parameter : 1
+    
+php_directives:
+  - '@use':
+    - takes_parameter : 1
+  - '@inject':
+    - takes_parameter : 1   
+  - '@php':
+  - '@endphp':
+      
+utils_directives:
+   - '@dd': 

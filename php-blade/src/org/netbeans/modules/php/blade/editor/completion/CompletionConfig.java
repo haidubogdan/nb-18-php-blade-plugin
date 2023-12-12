@@ -49,9 +49,9 @@ public class CompletionConfig {
 //            List<HashMap> attributesList = new ArrayList<>();
             HashMap<String, String> attributesList = new HashMap<>();
             HashMap<String, String> entry = new HashMap<>();
-            HashMap<String, HashMap> groupMap = new HashMap<>();
+            HashMap<String, HashMap> directivesMap = new HashMap<>();
 
-            String directiveName = "", groupName = "", attributeName = "";
+            String directiveName = "", directiveTypeName = "", attributeName = "";
             int scalarCount = 0;
 
             int treeLevel = 1;
@@ -70,17 +70,17 @@ public class CompletionConfig {
                         treeLevel++;
                         attributesList = new HashMap<>();
                         if (treeLevel == 2) {
-                            groupMap = new HashMap<>();
+                            directivesMap = new HashMap<>();
                         }
                         parser.next();
                         break;
                     case SequenceEnd:
                         treeLevel--;
                         if (treeLevel == 2 && !directiveName.isEmpty()) {
-                            groupMap.put(directiveName, attributesList);
+                            directivesMap.put(directiveName, attributesList);
                         }
-                        if (treeLevel == 1 && !groupName.isEmpty()) {
-                            groupSequenceMap.put(groupName, groupMap);
+                        if (treeLevel == 1 && !directiveTypeName.isEmpty()) {
+                            groupSequenceMap.put(directiveTypeName, directivesMap);
                         }
                         parser.next();
                         break;
@@ -97,10 +97,16 @@ public class CompletionConfig {
                                 }
                                 break;
                             case 2:
-                                directiveName = ret.getValue();
+                                //in case we don't have any properties for the directive
+                                if(!directiveName.isEmpty() && ret.getValue().isEmpty()){
+                                    directivesMap.put(directiveName, attributesList);
+                                } else {
+                                    directiveName = ret.getValue();
+                                }
+                                attributeName = "";
                                 break;
                             case 1:
-                                groupName = ret.getValue();
+                                directiveTypeName = ret.getValue();
                                 break;
                             default:
                                 break;

@@ -48,6 +48,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitInline_statement(BladeAntlrParser.Inline_statementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#inline_directive}.
+	 * @param ctx the parse tree
+	 */
+	void enterInline_directive(BladeAntlrParser.Inline_directiveContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#inline_directive}.
+	 * @param ctx the parse tree
+	 */
+	void exitInline_directive(BladeAntlrParser.Inline_directiveContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#block_statement}.
 	 * @param ctx the parse tree
 	 */
@@ -107,6 +117,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPush(BladeAntlrParser.PushContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#pushOnce}.
+	 * @param ctx the parse tree
+	 */
+	void enterPushOnce(BladeAntlrParser.PushOnceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#pushOnce}.
+	 * @param ctx the parse tree
+	 */
+	void exitPushOnce(BladeAntlrParser.PushOnceContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#if}.
 	 * @param ctx the parse tree

@@ -123,7 +123,7 @@ D_ENDONCE : '@endonce';
 D_STACK : '@stack'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_PUSH : '@push'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_ENDPUSH : '@endpush';
-D_PUSH_ONCE : '@pushOnce'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_PUSH_ONCE : '@pushOnce'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_ENDPUSH_ONCE : '@endPushOnce';
 D_PROPS : '@props'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
@@ -150,11 +150,11 @@ D_HTML_ATTR_EXPR : ('@checked' | '@disabled' | '@readonly' | '@required' | '@sel
 D_AWARE : '@aware'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
 D_JSON  : '@json'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_INJECT : '@inject'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_DD : '@dd'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
 //php injection
 D_USE : '@use'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_INJECT : '@inject'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_PHP : '@php'->pushMode(BLADE_INLINE_PHP);
 
 D_VERBATIM : '@verbatim' ->pushMode(VERBATIM_MODE);

@@ -26,12 +26,16 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.Severity;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
+import org.netbeans.modules.php.blade.editor.navigator.BladeStructureItem;
+import org.netbeans.modules.php.blade.editor.navigator.BladeStructureItem.DirectiveBlockStructureItem;
+import org.netbeans.modules.php.blade.editor.navigator.BladeStructureItem.DirectiveInlineStructureItem;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrParser;
@@ -51,9 +55,9 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     private final Map<String, Reference> stackReferences = new TreeMap<>();
     public final Map<OffsetRange, Reference> occurancesForDeclaration = new TreeMap<>();
     public final Set<String> includeFilePaths = new LinkedHashSet<>();
-//    public final List<String> yields = new ArrayList<>();
-//    public final Map<String, List<OffsetRange>> occurrences = new HashMap<>();
-    //public MarkdownFile astMarkdownfile = null;
+    public final List<BladeStructureItem> structure = new ArrayList<>();
+    public final List<OffsetRange> folds = new ArrayList<>();
+
     protected BladeIndex bladeIndex = null;
 
     volatile boolean finished = false;
@@ -112,7 +116,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
 //            parser.addParseListener(createFoldListener());
             parser.addParseListener(createDeclarationReferencesListener());
             parser.addParseListener(createLayoutTreeListener());
-//            parser.addParseListener(createStructureListener());
+            parser.addParseListener(createStructureListener());
             evaluateParser(parser);
 
             finished = true;
@@ -183,6 +187,73 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
             }
         };
 
+    }
+
+    private ParseTreeListener createStructureListener() {
+
+        return new BladeAntlrParserBaseListener() {
+
+            final List<BladeStructureItem> lexerStructure = new ArrayList<>();
+            int blockBalance = 0;
+
+            @Override
+            public void exitInline_directive(BladeAntlrParser.Inline_directiveContext ctx) {
+                ParseTree rootRule = ctx.getChild(0);
+                if (rootRule instanceof ParserRuleContext) {
+                    ParseTree directive = ((ParserRuleContext) rootRule).getChild(0);
+                    if (directive instanceof TerminalNode) {
+                        Token directiveToken = ((TerminalNode) directive).getSymbol();
+                        if (directiveToken == null) {
+                            return;
+                        }
+                        String directiveName = directiveToken.getText();
+                        DirectiveInlineStructureItem inlineElement = new DirectiveInlineStructureItem(directiveName,
+                                getFileObject(), directiveToken.getStartIndex(), directiveToken.getStopIndex() + 1);
+
+                        if (blockBalance > 0) {
+                            lexerStructure.add(inlineElement);
+                        } else {
+                            structure.add(inlineElement);
+                        }
+
+                    }
+
+                }
+            }
+
+            @Override
+            public void enterBlock_statement(BladeAntlrParser.Block_statementContext ctx) {
+                blockBalance++;
+            }
+
+            @Override
+            public void exitBlock_statement(BladeAntlrParser.Block_statementContext ctx) {
+                ParseTree rootRule = ctx.getChild(0);
+                blockBalance--;
+                if (rootRule instanceof ParserRuleContext) {
+                    ParseTree directive = ((ParserRuleContext) rootRule).getChild(0);
+                    if (directive instanceof TerminalNode) {
+                        Token directiveToken = ((TerminalNode) directive).getSymbol();
+                        if (directiveToken == null) {
+                            return;
+                        }
+                        String directiveName = directiveToken.getText();
+                        DirectiveBlockStructureItem blockItem = new DirectiveBlockStructureItem(directiveName,
+                                getFileObject(), ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
+
+                        blockItem.nestedItems.addAll(lexerStructure);
+                        lexerStructure.clear();
+                        if (blockBalance > 0) {
+                            lexerStructure.add(blockItem);
+                        } else {
+                            structure.add(blockItem);
+                        }
+
+                    }
+
+                }
+            }
+        };
     }
 
     private ReferenceType getReferenceType(ParserContext classType) {
