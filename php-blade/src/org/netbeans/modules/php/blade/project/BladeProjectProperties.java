@@ -62,7 +62,7 @@ public final class BladeProjectProperties {
     private static final String COMPILER_PATH_LIST = "compiler.path.list";
     private static final String VIEW_PATH_LIST = "views.path.list";
     private static final String AUTO_FORMATTING = "auto.formatting";
-    private Project project;
+    public Project project;
 
     private BladeProjectProperties() {
     }

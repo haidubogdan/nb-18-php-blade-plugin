@@ -54,6 +54,8 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     private final Map<String, Reference> yieldReferences = new TreeMap<>();
     private final Map<String, Reference> stackReferences = new TreeMap<>();
     public final Map<OffsetRange, Reference> occurancesForDeclaration = new TreeMap<>();
+    public final Map<OffsetRange, Reference> customDirectivesReferences = new TreeMap<>();
+
     public final Set<String> includeFilePaths = new LinkedHashSet<>();
     public final List<BladeStructureItem> structure = new ArrayList<>();
     public final List<OffsetRange> folds = new ArrayList<>();
@@ -64,7 +66,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     volatile boolean indexLoaded = false;
 
     public enum ReferenceType {
-        YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION
+        YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION, CUSTOM_DIRECTIVE
     }
 
     public enum ParserContext {
@@ -117,6 +119,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
             parser.addParseListener(createDeclarationReferencesListener());
             parser.addParseListener(createLayoutTreeListener());
             parser.addParseListener(createStructureListener());
+            parser.addParseListener(createSemanticsListener());
             evaluateParser(parser);
 
             finished = true;
@@ -298,19 +301,52 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         return null;
     }
 
-    //it will be used for scope
+
+    /**
+     * to be implemented in the future
+     *
+     * @return
+     */
     protected ParseTreeListener createLayoutTreeListener() {
 
         return new BladeAntlrParserBaseListener() {
+            boolean includeContext = true;
+
             @Override
             public void enterFile(BladeAntlrParser.FileContext ctx) {
-                BladeIndex index = getIndex();
-                if (index == null) {
-                    return;
-                }
-                String fileName = getFileObject().getName().replace(".blade", "");
-                //maybe move in index ??
-                index.getFileObjectPathOccurences(fileName);
+//                BladeIndex index = getIndex();
+//                if (index == null) {
+//                    return;
+//                }
+//                String fileName = getFileObject().getName().replace(".blade", "");
+//                //maybe move in index ??
+//                index.getFileObjectPathOccurences(fileName);
+            }
+
+            @Override
+            public void enterInclude(BladeAntlrParser.IncludeContext ctx) {
+                includeContext = true;
+            }
+
+            @Override
+            public void exitParamAssign(BladeAntlrParser.ParamAssignContext ctx) {
+                String variableName = ctx.BL_PARAM_STRING(0).getSymbol().getText();
+                int y = 1;
+            }
+
+            @Override
+            public void exitInclude(BladeAntlrParser.IncludeContext ctx) {
+                includeContext = false;
+            }
+        };
+    }
+
+    private ParseTreeListener createSemanticsListener() {
+        return new BladeAntlrParserBaseListener() {
+            @Override
+            public void exitCustom_directive(BladeAntlrParser.Custom_directiveContext ctx) {
+                OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
+                customDirectivesReferences.put(range, new Reference(ReferenceType.CUSTOM_DIRECTIVE, "", range));
             }
         };
     }

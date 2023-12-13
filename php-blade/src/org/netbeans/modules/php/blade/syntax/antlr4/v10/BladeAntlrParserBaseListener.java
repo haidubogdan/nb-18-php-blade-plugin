@@ -507,6 +507,18 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterParamAssign(BladeAntlrParser.ParamAssignContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitParamAssign(BladeAntlrParser.ParamAssignContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterVerbatim_block(BladeAntlrParser.Verbatim_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}

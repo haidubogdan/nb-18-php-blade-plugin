@@ -418,6 +418,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitComposedArgument(BladeAntlrParser.ComposedArgumentContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#paramAssign}.
+	 * @param ctx the parse tree
+	 */
+	void enterParamAssign(BladeAntlrParser.ParamAssignContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#paramAssign}.
+	 * @param ctx the parse tree
+	 */
+	void exitParamAssign(BladeAntlrParser.ParamAssignContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#verbatim_block}.
 	 * @param ctx the parse tree
 	 */

@@ -1,5 +1,6 @@
 package org.netbeans.modules.php.blade.csl.elements;
 
+import org.netbeans.modules.csl.api.ElementKind;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -12,4 +13,9 @@ public class PathElement extends NamedElement {
         super(name, file);
     }
 
+    //for better visibility on type searcher
+    @Override
+    public ElementKind getKind() {
+        return ElementKind.PACKAGE;
+    }
 }

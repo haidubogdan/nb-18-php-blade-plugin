@@ -57,6 +57,9 @@ import org.openide.windows.TopComponent;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.modules.csl.api.DeclarationFinder;
+import org.netbeans.modules.csl.api.HintsProvider;
+import org.netbeans.modules.csl.api.IndexSearcher;
+import org.netbeans.modules.csl.api.SemanticAnalyzer;
 import org.netbeans.modules.csl.api.StructureScanner;
 import org.netbeans.modules.csl.spi.CommentHandler;
 import static org.netbeans.modules.php.blade.editor.BladeLanguage.ACTIONS;
@@ -131,21 +134,21 @@ public class BladeLanguage extends DefaultLanguageConfig {
     public StructureScanner getStructureScanner() {
         return new BladeStructureScanner();
     }
-//
+
     @Override
     public CommentHandler getCommentHandler() {
         return new BladeCommentHandler();
     }
 
-//    @Override
-//    public boolean hasHintsProvider() {
-//        return true;
-//    }
-//
-//    @Override
-//    public HintsProvider getHintsProvider() {
-//        return new BladeHintsProvider();
-//    }
+    @Override
+    public boolean hasHintsProvider() {
+        return true;
+    }
+
+    @Override
+    public HintsProvider getHintsProvider() {
+        return new BladeHintsProvider();
+    }
 //
 //    @Override
 //    public boolean hasFormatter() {
@@ -200,11 +203,11 @@ public class BladeLanguage extends DefaultLanguageConfig {
 //    public KeystrokeHandler getKeystrokeHandler() {
 //        return new BladeBracketCompleter();
 //    }
-//    @Override
-//    public IndexSearcher getIndexSearcher() {
-//        return new BladeTypeSearcher();
-//    }
-    
+    @Override
+    public IndexSearcher getIndexSearcher() {
+        return new BladeTypeSearcher();
+    }
+
     private static final Language<BladeTokenId> language
             = new BladeLanguageHierarchy() {
 
@@ -231,5 +234,9 @@ public class BladeLanguage extends DefaultLanguageConfig {
     public static MultiViewEditorElement createMultiViewEditorElement(Lookup context) {
         return new MultiViewEditorElement(context);
     }
-//TODO semantyc analyser ??
+
+    @Override
+    public SemanticAnalyzer getSemanticAnalyzer() {
+        return new BladeSemanticAnalyzer();
+    }
 }

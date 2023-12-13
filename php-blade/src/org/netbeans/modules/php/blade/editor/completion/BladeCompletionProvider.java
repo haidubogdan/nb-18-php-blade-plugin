@@ -1,7 +1,6 @@
 package org.netbeans.modules.php.blade.editor.completion;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -19,11 +18,9 @@ import org.netbeans.api.editor.mimelookup.MimeRegistrations;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
-import org.netbeans.modules.php.blade.csl.elements.CompletionElement;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex.IndexedReferenceId;
-import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.ReferenceType;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
@@ -64,6 +61,10 @@ public class BladeCompletionProvider implements CompletionProvider {
 
     @Override
     public int getAutoQueryTypes(JTextComponent component, String typedText) {
+        FileObject fo = EditorDocumentUtils.getFileObject(component.getDocument());
+        if (fo == null || !fo.getMIMEType().equals(BladeLanguage.MIME_TYPE)){
+            return 0;
+        }
         if (typedText.equals("@")) {
             return COMPLETION_QUERY_TYPE;
         }
@@ -98,7 +99,7 @@ public class BladeCompletionProvider implements CompletionProvider {
             try {
                 FileObject fo = EditorDocumentUtils.getFileObject(doc);
 
-                if (fo == null) {
+                if (fo == null || !fo.getMIMEType().equals(BladeLanguage.MIME_TYPE)) {
                     return;
                 }
 
@@ -119,12 +120,12 @@ public class BladeCompletionProvider implements CompletionProvider {
                     return;
                 }
 
-                if (lineText.endsWith("\n") && caretOffset > 1){
+                if (lineText.endsWith("\n") && caretOffset > 1) {
                     tokens.seekTo(caretOffset - 1);
                 } else {
                     tokens.seekTo(caretOffset);
                 }
-                
+
                 String closeTag = null;
 
                 if (tokens.hasNext()) {
@@ -132,10 +133,10 @@ public class BladeCompletionProvider implements CompletionProvider {
 
                     switch (nt.getType()) {
                         case ESCAPED_ECHO_START:
-                            closeTag = "}}";
+                            closeTag = "}}"; //NOI18N
                             break;
                         case NE_ECHO_START:
-                            closeTag = "!!}";
+                            closeTag = "!!}"; //NOI18N
                             break;
                     }
 
@@ -181,7 +182,10 @@ public class BladeCompletionProvider implements CompletionProvider {
                             D_INCLUDE_IF, D_INCLUDE_WHEN, D_INCLUDE_UNLESS, D_INCLUDE_FIRST,
                             D_EACH, D_PUSH
                         });
-                        List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML, BL_PARAM_CONCAT_OPERATOR});
+                        
+                        //todo 
+                        //we should have the stop tokens depending on context
+                        List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML, BL_COMMA, BL_PARAM_CONCAT_OPERATOR});
                         Token directiveToken = BladeAntlrUtils.findBackward(tokens, tokensMatch, tokensStop);
 
                         if (directiveToken == null) {
@@ -232,10 +236,10 @@ public class BladeCompletionProvider implements CompletionProvider {
                         if (curlyStartToken != null) {
                             switch (curlyStartToken.getType()) {
                                 case ESCAPED_ECHO_START:
-                                    closeTag = "}}";
+                                    closeTag = "}}"; //NOI18N
                                     break;
                                 case NE_ECHO_START:
-                                    closeTag = "!!}";
+                                    closeTag = "!!}"; //NOI18N
                                     break;
                             }
                             tokens.seekTo(nt.getTokenIndex());
@@ -302,10 +306,10 @@ public class BladeCompletionProvider implements CompletionProvider {
                             .leftHtmlText(directive)
                             .sortText(directive);
 
-                    if (description != null && !description.isEmpty()){
+                    if (description != null && !description.isEmpty()) {
                         builder.rightHtmlText(description);
                     }
-                    
+
                     if (hasArgument != null && hasArgument.equals("1")) {
                         builder.onSelect(ctx -> {
                             StringBuilder sb = new StringBuilder();
@@ -402,24 +406,24 @@ public class BladeCompletionProvider implements CompletionProvider {
         resultSet.addItem(item);
     }
 
-    private static final String ICON_BASE = "org/netbeans/modules/php/blade/resources/";
+    private static final String ICON_BASE = "org/netbeans/modules/php/blade/resources/"; //NOI18N
 
     private static String getReferenceIcon() {
-        return ICON_BASE + "icons/at.png";
+        return ICON_BASE + "icons/at.png"; //NOI18N
     }
-    
+
     private static String getReferenceIcon(CompletionType type) {
-        switch (type){
+        switch (type) {
             case YIELD_ID:
-                return ICON_BASE + "icons/layout.png";
+                return ICON_BASE + "icons/layout.png"; //NOI18N
         }
         return ICON_BASE + "icons/at.png";
     }
-    
+
     private static String getReferenceIcon(FileObject file) {
-        if (file.isFolder()){
-            return "org/openide/loaders/defaultFolder.gif";
+        if (file.isFolder()) {
+            return "org/openide/loaders/defaultFolder.gif"; //NOI18N
         }
-        return ICON_BASE + "icons/file.png";
+        return ICON_BASE + "icons/file.png"; //NOI18N
     }
 }

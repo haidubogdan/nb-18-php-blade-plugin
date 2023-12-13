@@ -85,15 +85,15 @@ public class BladeIndex {
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
-        
+
         return indexedReferences;
     }
-    
+
     /**
      * todo add qualifier for search result
-     * 
+     *
      * @param prefix
-     * @return 
+     * @return
      */
     public List<IndexedReference> getYieldIndexedReferences(String prefix) {
         List<IndexedReference> references = new ArrayList<>();
@@ -115,10 +115,10 @@ public class BladeIndex {
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
-        
+
         return references;
     }
-    
+
     public List<IndexedReference> getStacksIndexedReferences(String prefix) {
         List<IndexedReference> references = new ArrayList<>();
         try {
@@ -139,10 +139,10 @@ public class BladeIndex {
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
-        
+
         return references;
     }
-    
+
     public List<IndexedReferenceId> getYieldIds(String prefix) {
         List<IndexedReferenceId> indexedReferences = new ArrayList<>();
         try {
@@ -164,14 +164,36 @@ public class BladeIndex {
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
-        
+
         return indexedReferences;
+    }
+
+    public List<IndexedReferenceId> getBladePaths(String prefix) {
+        List<IndexedReferenceId> references = new ArrayList<>();
+        Collection<? extends IndexResult> result;
+        try {
+            result = querySupport.query(BladeIndexer.BLADE_PATH, prefix, QuerySupport.Kind.PREFIX, BladeIndexer.BLADE_PATH);
+
+            if (result == null || result.isEmpty()) {
+                return references;
+            }
+
+            for (IndexResult indexResult : result) {
+                String[] values = indexResult.getValues(BladeIndexer.BLADE_PATH);
+                for (String value : values) {
+                    references.add(new IndexedReferenceId(value, indexResult.getFile()));
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return references;
     }
 
     /**
      * could be use for tree path layout
-     * 
-     * @param prefix 
+     *
+     * @param prefix
      */
     public void getPathReferences(String prefix) {
         Collection<? extends IndexResult> result = null;
@@ -230,7 +252,7 @@ public class BladeIndex {
             return this.originFile;
         }
     }
-    
+
     public static class IndexedReference {
 
         private final Reference reference;

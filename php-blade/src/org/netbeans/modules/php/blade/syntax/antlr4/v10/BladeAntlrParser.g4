@@ -147,8 +147,9 @@ doubleArgWrapper: BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) B
 multiArgWrapper : BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
 
 identifiableArgument : BL_PARAM_WS* BL_PARAM_STRING BL_PARAM_WS*;
-composedArgument : BL_PARAM_WS* (BLADE_PARAM_EXTRA | PHP_VARIABLE | BL_PARAM_WS | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_NAME_STRING | BL_COMMA)+ BL_PARAM_WS*;
+composedArgument : BL_PARAM_WS* (paramAssign | BLADE_PARAM_EXTRA | PHP_VARIABLE | PHP_KEYWORD |  BL_PARAM_WS | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_PARAM_ASSIGN | BL_NAME_STRING | BL_COMMA)+ BL_PARAM_WS*;
 
+paramAssign : BL_PARAM_STRING BL_PARAM_WS* BL_PARAM_ASSIGN BL_PARAM_WS* (PHP_VARIABLE | PHP_KEYWORD | BL_PARAM_STRING);
 verbatim_block : D_VERBATIM non_blade_statement+ D_ENDVERBATIM;
 
 loop_action : (D_LOOP_ACTION | D_BREAK) php_expression?;

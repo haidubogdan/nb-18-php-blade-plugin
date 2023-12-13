@@ -77,6 +77,16 @@ might simplify generic block statment parsing which are not relevant for data ex
 - lexer
 - completion
 
+## Type searcher
+
+- working for blade paths 90%
+
+## Hints
+
+- added a basic hint provider for custom direcvies 
+
+!TODO link it with the custom direcvie config
+
 ## file wizard refactor
 
 TemplateWizardIterator
@@ -87,6 +97,10 @@ The msin issue is the FileObject geName and getExt methods on .blade.php
 ## linked documentation in markdown ?
 
 might check how it would work / parse
+
+## Licence
+
+add a GPL licence 0%
 
 ## plugins ?
 

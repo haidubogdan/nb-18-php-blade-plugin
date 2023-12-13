@@ -1,11 +1,14 @@
 package org.netbeans.modules.php.blade.editor.indexing;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.spi.Parser;
@@ -19,6 +22,8 @@ import org.netbeans.modules.php.blade.editor.BladeLanguage;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.ReferenceType;
+import org.netbeans.modules.php.blade.editor.path.PathUtils;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
 /**
@@ -29,12 +34,13 @@ import org.openide.util.Exceptions;
 public class BladeIndexer extends EmbeddingIndexer {
 
     private static final Logger LOGGER = Logger.getLogger(BladeIndexer.class.getSimpleName());
-    public static final String BLADE_INDEXED = "bli"; //NOI18N
-    public static final String YIELD_REFERENCE = "blyr"; //NOI18N
-    public static final String YIELD_ID = "blyid"; //NOI18N
-    public static final String STACK_REFERENCE = "blsr"; //NOI18N
-    public static final String STACK_ID = "blsid"; //NOI18N
-    public static final String INCLUDE_PATH = "inp"; //NOI18N
+    public static final String BLADE_INDEXED = "indexed"; //NOI18N
+    public static final String YIELD_REFERENCE = "yield"; //NOI18N
+    public static final String YIELD_ID = "yieldid"; //NOI18N
+    public static final String STACK_REFERENCE = "stack"; //NOI18N
+    public static final String STACK_ID = "stackid"; //NOI18N
+    public static final String INCLUDE_PATH = "include"; //NOI18N
+    public static final String BLADE_PATH = "path"; //NOI18N
 
     @Override
     protected void index(Indexable indxbl, Parser.Result result, Context context) {
@@ -63,6 +69,8 @@ public class BladeIndexer extends EmbeddingIndexer {
                 storeIncludePaths(parserResult.includeFilePaths, document);
             }
 
+            storeFilePathAsBladePath(parserResult.getSnapshot().getSource().getFileObject(), document);
+
             document.addPair(BLADE_INDEXED, Boolean.TRUE.toString(), true, true);
 
             support.addDocument(document);
@@ -86,7 +94,7 @@ public class BladeIndexer extends EmbeddingIndexer {
             document.addPair(YIELD_REFERENCE, sb.toString(), true, true);
         }
     }
-    
+
     private void storeStackReferences(Map<String, Reference> stacks, IndexDocument document) {
 
         for (Map.Entry<String, Reference> entry : stacks.entrySet()) {
@@ -97,6 +105,26 @@ public class BladeIndexer extends EmbeddingIndexer {
             sb.append(entry.getKey()).append("#").append(ref.defOffset.getStart()).append(";").append(ref.defOffset.getEnd()); //NOI18N
             //used for declaration finder
             document.addPair(STACK_REFERENCE, sb.toString(), true, true);
+        }
+    }
+
+    private void storeFilePathAsBladePath(FileObject fo, IndexDocument document) {
+        Project project = FileOwnerQuery.getOwner(fo);
+        if (project == null) {
+            return;
+        }
+        List<FileObject> roots = PathUtils.getCustomViewsRoots(project, fo);
+        String filePath = fo.getPath();
+
+        for (FileObject root : roots) {
+            String rootPath = root.getPath();
+            if (filePath.startsWith(rootPath)) {
+                String bladeFormatPath = filePath.replace(rootPath, "").replace(".blade.php", "").replace("/", ".");
+                if (bladeFormatPath.startsWith(".")){
+                    bladeFormatPath = bladeFormatPath.substring(1, bladeFormatPath.length());
+                }
+                document.addPair(BLADE_PATH, bladeFormatPath, true, true);
+            }
         }
     }
 
@@ -157,8 +185,15 @@ public class BladeIndexer extends EmbeddingIndexer {
         }
 
         @Override
-        public void filesDirty(Iterable<? extends Indexable> itrbl, Context cntxt) {
-
+        public void filesDirty(Iterable<? extends Indexable> dirty, org.netbeans.modules.parsing.spi.indexing.Context context) {
+            try {
+                IndexingSupport is = IndexingSupport.getInstance(context);
+                for (Indexable i : dirty) {
+                    is.markDirtyDocuments(i);
+                }
+            } catch (IOException ioe) {
+                LOGGER.log(Level.WARNING, null, ioe);
+            }
         }
 
         @Override
