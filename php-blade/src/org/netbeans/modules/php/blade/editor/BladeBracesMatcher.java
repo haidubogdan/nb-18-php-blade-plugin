@@ -20,9 +20,10 @@ import org.netbeans.spi.editor.bracesmatching.BracesMatcherFactory;
 import org.netbeans.spi.editor.bracesmatching.MatcherContext;
 
 /**
- * level of code satisfaction - 70% issues with - variable naming -
- * repeatability
- *
+ * brace matcher
+ * - block directives : @if @endif ..
+ * - output echo statements {{ }} {!! !!}
+ * 
  * @author bogdan
  */
 public class BladeBracesMatcher implements BracesMatcher {
@@ -32,6 +33,7 @@ public class BladeBracesMatcher implements BracesMatcher {
     }
     private final MatcherContext context;
     private Token originToken;
+    private BraceDirectionType currentDirection;
 
     private BladeBracesMatcher(MatcherContext context) {
         this.context = context;
@@ -65,9 +67,9 @@ public class BladeBracesMatcher implements BracesMatcher {
                 return result;
             }
 
-            BraceDirectionType directionType = findBraceDirectionType(tokenText);
+            currentDirection = findBraceDirectionType(tokenText);
 
-            if (directionType == null || directionType.equals(BraceDirectionType.STOP)) {
+            if (currentDirection.equals(BraceDirectionType.STOP)) {
                 return result;
             }
 
@@ -85,9 +87,8 @@ public class BladeBracesMatcher implements BracesMatcher {
             return result;
         }
         String tokenText = originToken.getText();
-        BraceDirectionType directionType = findBraceDirectionType(tokenText);
 
-        switch (directionType) {
+        switch (currentDirection) {
             case CURLY_START_TO_END:
                 return findCloseTag();
             case CURLY_END_TO_START:
@@ -179,12 +180,12 @@ public class BladeBracesMatcher implements BracesMatcher {
         String[] pair = BladeDirectivesUtils.directiveStart2EndPair(directive);
         List<String> startDirectiveForBalance = new ArrayList<>();
         List<String> stopDirectives = Arrays.asList(pair);
+
         for (String endDirective : pair) {
             String[] startDirectives = BladeDirectivesUtils.directiveEnd2StartPair(endDirective);
+
             if (startDirectives != null) {
-                for (String startDirective : startDirectives) {
-                    startDirectiveForBalance.add(startDirective);
-                }
+                startDirectiveForBalance.addAll( Arrays.asList(startDirectives));
             }
         }
 
@@ -206,12 +207,12 @@ public class BladeBracesMatcher implements BracesMatcher {
         String[] pair = BladeDirectivesUtils.directiveEnd2StartPair(directive);
         List<String> endDirectivesForBalance = new ArrayList<>();
         List<String> openDirectives = Arrays.asList(pair);
-        for (String startDirectiveN : pair) {
-            String[] endDirectives = BladeDirectivesUtils.directiveStart2EndPair(startDirectiveN);
+
+        for (String startDirective : pair) {
+            String[] endDirectives = BladeDirectivesUtils.directiveStart2EndPair(startDirective);
+
             if (endDirectives != null) {
-                for (String startDirective : endDirectives) {
-                    endDirectivesForBalance.add(startDirective);
-                }
+                endDirectivesForBalance.addAll(Arrays.asList(endDirectives));
             }
         }
 

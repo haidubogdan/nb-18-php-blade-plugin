@@ -4,6 +4,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.netbeans.api.editor.document.EditorDocumentUtils;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.csl.api.Hint;
 import org.netbeans.modules.csl.api.HintFix;
@@ -16,7 +19,9 @@ import org.netbeans.modules.csl.api.RuleContext;
 import org.netbeans.modules.csl.api.Severity;
 import org.netbeans.modules.csl.api.HintsProvider;
 import static org.netbeans.modules.php.blade.editor.BladeSemanticAnalyzer.UNDEFINED_FIELD_SET;
+import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -30,6 +35,23 @@ public class BladeHintsProvider implements HintsProvider {
      */
     @Override
     public void computeHints(HintsManager manager, RuleContext context, List<Hint> hints) {
+        BladeParserResult parserResult = (BladeParserResult) context.parserResult;
+        FileObject fo = EditorDocumentUtils.getFileObject(context.doc);
+        Project project = FileOwnerQuery.getOwner(fo);
+        CustomDirectives ct = CustomDirectives.getInstance(project);
+        for (Object setentry : parserResult.customDirectivesReferences.entrySet()) {
+            Map.Entry<OffsetRange, BladeParserResult.Reference> entry = (Map.Entry<OffsetRange, BladeParserResult.Reference>) setentry;
+            if (ct.customDirectiveNames.contains(entry.getValue().name )){
+                continue;
+            }
+            hints.add(new Hint(new BladeRule(HintSeverity.WARNING),
+                    //                        getMessageKey(e.getKey(), true), //NOI18N
+                    "unknown directive",
+                    context.parserResult.getSnapshot().getSource().getFileObject(),
+                    entry.getKey(),
+                    Collections.emptyList(),
+                    10));
+        }
     }
 
     /**
@@ -56,16 +78,8 @@ public class BladeHintsProvider implements HintsProvider {
     @Override
     public void computeErrors(HintsManager manager, RuleContext context, List<Hint> hints, List<Error> unhandled) {
         BladeParserResult parserResult = (BladeParserResult) context.parserResult;
-        for (Object setentry : parserResult.customDirectivesReferences.entrySet()) {
-            Map.Entry<OffsetRange, BladeParserResult.Reference> entry = (Map.Entry<OffsetRange, BladeParserResult.Reference>) setentry;
-            hints.add(new Hint(new BladeRule(HintSeverity.WARNING),
-                    //                        getMessageKey(e.getKey(), true), //NOI18N
-                    "unknown directive",
-                    context.parserResult.getSnapshot().getSource().getFileObject(),
-                    entry.getKey(),
-                    Collections.emptyList(),
-                    10));
-        }
+
+        unhandled.addAll(parserResult.getDiagnostics());
     }
 
     /**
@@ -112,19 +126,7 @@ public class BladeHintsProvider implements HintsProvider {
     public RuleContext createRuleContext() {
         return new RuleContext();
     }
-    private static final BladeRule ERROR_RULE = new BladeRule(HintSeverity.ERROR);
-    private static final BladeRule WARNING_RULE = new BladeRule(HintSeverity.WARNING);
 
-    private static BladeRule getBladeRule(Severity s) {
-        switch (s) {
-            case WARNING:
-                return WARNING_RULE;
-            case ERROR:
-                return ERROR_RULE;
-            default:
-                throw new AssertionError("Unexpected severity level"); //NOI18N
-        }
-    }
 
     private static final class BladeRule implements ErrorRule {
 
@@ -146,7 +148,7 @@ public class BladeHintsProvider implements HintsProvider {
 
         @Override
         public String getDisplayName() {
-            return "blade"; //NOI18N //does this show up anywhere????
+            return "blade"; //NOI18N
         }
 
         @Override

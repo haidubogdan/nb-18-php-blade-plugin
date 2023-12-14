@@ -158,6 +158,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitElse(BladeAntlrParser.ElseContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#endif}.
+	 * @param ctx the parse tree
+	 */
+	void enterEndif(BladeAntlrParser.EndifContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#endif}.
+	 * @param ctx the parse tree
+	 */
+	void exitEndif(BladeAntlrParser.EndifContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#conditional_block}.
 	 * @param ctx the parse tree
 	 */

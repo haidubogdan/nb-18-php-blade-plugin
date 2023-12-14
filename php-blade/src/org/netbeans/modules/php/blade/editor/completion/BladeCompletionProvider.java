@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.swing.text.AbstractDocument;
@@ -19,6 +20,8 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
+import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
+import org.netbeans.modules.php.blade.editor.directives.CustomDirectives.DirectiveNames;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex.IndexedReferenceId;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
@@ -62,7 +65,7 @@ public class BladeCompletionProvider implements CompletionProvider {
     @Override
     public int getAutoQueryTypes(JTextComponent component, String typedText) {
         FileObject fo = EditorDocumentUtils.getFileObject(component.getDocument());
-        if (fo == null || !fo.getMIMEType().equals(BladeLanguage.MIME_TYPE)){
+        if (fo == null || !fo.getMIMEType().equals(BladeLanguage.MIME_TYPE)) {
             return 0;
         }
         if (typedText.equals("@")) {
@@ -152,8 +155,9 @@ public class BladeCompletionProvider implements CompletionProvider {
                     Token pt = null;
                     switch (nt.getType()) {
                         case BLADE_COMMENT:
-                        case PHP_EXPRESSION:
                         case ESCAPED_ECHO_END:
+                            return;
+                        case PHP_EXPRESSION:
                             return;
                     }
 
@@ -182,7 +186,7 @@ public class BladeCompletionProvider implements CompletionProvider {
                             D_INCLUDE_IF, D_INCLUDE_WHEN, D_INCLUDE_UNLESS, D_INCLUDE_FIRST,
                             D_EACH, D_PUSH
                         });
-                        
+
                         //todo 
                         //we should have the stop tokens depending on context
                         List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML, BL_COMMA, BL_PARAM_CONCAT_OPERATOR});
@@ -324,6 +328,30 @@ public class BladeCompletionProvider implements CompletionProvider {
                             }
                         });
                     }
+                    CompletionItem item = builder.build();
+                    resultSet.addItem(item);
+                }
+            }
+        }
+        FileObject fo = EditorDocumentUtils.getFileObject(doc);
+        Project project = FileOwnerQuery.getOwner(fo);
+        //CustomDirectives.getInstance(project).addDirectiveNamesFromFile(fo);
+        Map<FileObject, DirectiveNames> customDirectives = CustomDirectives.getInstance(project).getCustomDirectives();
+        for (Map.Entry<FileObject, DirectiveNames> entry : customDirectives.entrySet()) {
+            if (!entry.getKey().isValid()) {
+                continue;
+            }
+            List<String> directiveNames = entry.getValue().getList();
+            if (directiveNames == null) {
+                continue;
+            }
+            for (String directiveName : directiveNames) {
+                if (directiveName.startsWith(prefix)) {
+                    CompletionItemBuilder builder = CompletionUtilities.newCompletionItemBuilder(directiveName)
+                            .iconResource(getReferenceIcon())
+                            .startOffset(startOffset)
+                            .leftHtmlText(directiveName)
+                            .sortText(directiveName);
                     CompletionItem item = builder.build();
                     resultSet.addItem(item);
                 }

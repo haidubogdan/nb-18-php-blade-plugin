@@ -23,6 +23,10 @@ start from 10
 ! Most probably `BladeCompletionHandler` will not be used. The main completion service will be `BladeCompletionProvider`
 Might think to autocmplete with cursor and parameters
 
+## validation
+
+if conditions are broken
+
 ## Braces matcher
 
 - forward

@@ -1,10 +1,14 @@
 package org.netbeans.modules.php.blade.editor;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.netbeans.modules.csl.api.ColoringAttributes;
+import org.netbeans.modules.csl.api.Hint;
+import org.netbeans.modules.csl.api.HintSeverity;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.SemanticAnalyzer;
 import org.netbeans.modules.parsing.spi.Parser.Result;
@@ -15,7 +19,7 @@ import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
 
 /**
  * coloring configured in fonts and colors
- * 
+ *
  * @author bhaidu
  */
 public class BladeSemanticAnalyzer extends SemanticAnalyzer {
@@ -69,6 +73,11 @@ public class BladeSemanticAnalyzer extends SemanticAnalyzer {
             highlights.put(entry.getKey(), UNDEFINED_FIELD_SET);
         }
 
+//        List<? extends org.netbeans.modules.csl.api.Error> errorList = parserResult.getDiagnostics();
+//        for (org.netbeans.modules.csl.api.Error error : errorList) {
+//            OffsetRange range = new OffsetRange(error.getStartPosition(), error.getEndPosition());
+//            highlights.put(range, UNDEFINED_FIELD_SET);
+//        }
         this.semanticHighlights = highlights;
     }
 

@@ -1,27 +1,17 @@
 package org.netbeans.modules.php.blade.editor;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 import org.antlr.v4.runtime.CharStreams;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.csl.api.DeclarationFinder;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.spi.ParserResult;
-import org.netbeans.api.editor.document.LineDocumentUtils;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.ElementHandle;
-import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.api.HtmlFormatter;
-import org.netbeans.modules.csl.api.Modifier;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
 import org.netbeans.modules.php.blade.csl.elements.StackIdElement;
 import org.netbeans.modules.php.blade.csl.elements.YieldIdElement;

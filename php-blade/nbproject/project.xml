@@ -299,6 +299,14 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.openide.text</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>6.89</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.openide.util</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -340,7 +348,16 @@
                     </test-dependency>
                 </test-type>
             </test-dependencies>
-            <public-packages/>
+            <public-packages>
+                <package>org.netbeans.modules.php.blade.editor.completion</package>
+                <package>org.netbeans.modules.php.blade.editor.indexing</package>
+                <package>org.netbeans.modules.php.blade.editor.lexer</package>
+                <package>org.netbeans.modules.php.blade.editor.parser</package>
+                <package>org.netbeans.modules.php.blade.editor.path</package>
+                <package>org.netbeans.modules.php.blade.project</package>
+                <package>org.netbeans.modules.php.blade.syntax</package>
+                <package>org.netbeans.modules.php.blade.syntax.antlr4.v10</package>
+            </public-packages>
         </data>
     </configuration>
 </project>

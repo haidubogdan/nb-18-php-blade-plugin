@@ -45,11 +45,16 @@ fragment PhpVariable
 fragment PhpKeyword
     : 'array' | 'class';
 
+fragment Digit
+    : ('0'..'9');
+
 BLADE_COMMENT : '{{--' .*? '--}}';
 
 PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? '?>';
 
 EMAIL_SUBSTRING : ('@' NameString '.')->type(HTML);
+
+VERSION_WITH_AT: '@' (Digit '.')+; 
 
 //escapes
 D_ESCAPES 
@@ -194,7 +199,7 @@ EXIT_NE_ECHO_EOF : EOF->type(ERROR),popMode;
 
 mode LOOK_FOR_PHP_EXPRESSION;
 
-WS_EXPR : [ ]+ {this._input.LA(1) == '('}? ->pushMode(INSIDE_PHP_EXPRESSION);
+WS_EXPR : [ ]+->skip;
 OPEN_EXPR_PAREN_MORE : '(' ->more,pushMode(INSIDE_PHP_EXPRESSION);
 
 L_OTHER : . ->type(HTML), popMode;
@@ -219,7 +224,7 @@ EXIT_EOF : EOF->type(ERROR),popMode;
 //@section, @include etc
 mode LOOK_FOR_BLADE_PARAMETERS;
 
-WS_BL_PARAM : [ ]+ {this._input.LA(1) == '('}? ->pushMode(INSIDE_BLADE_PARAMETERS);
+WS_BL_PARAM : [ ]+->skip;
 OPEN_BL_PARAM_PAREN_MORE : '(' ->type(BLADE_PARAM_LPAREN),pushMode(INSIDE_BLADE_PARAMETERS);
 
 L_BL_PARAM_OTHER : . ->type(HTML), popMode;

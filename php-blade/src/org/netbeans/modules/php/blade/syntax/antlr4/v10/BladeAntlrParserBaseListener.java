@@ -195,6 +195,18 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterEndif(BladeAntlrParser.EndifContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEndif(BladeAntlrParser.EndifContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterConditional_block(BladeAntlrParser.Conditional_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}

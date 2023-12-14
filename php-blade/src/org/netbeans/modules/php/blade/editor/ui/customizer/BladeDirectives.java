@@ -5,8 +5,8 @@ import java.io.File;
 import javax.swing.DefaultListModel;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.project.BladeProjectProperties;
-import org.netbeans.modules.php.blade.project.CustomDirectives;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.ChangeSupport;
@@ -34,6 +34,7 @@ public class BladeDirectives extends javax.swing.JPanel {
     public void storeData(){
         DefaultListModel pathModel = (DefaultListModel) customDirectivePathList.getModel();
         BladeProjectProperties.getInstance(project).setCompilerPathList(pathModel);
+        CustomDirectives.resetInstance(project);
     }
     
     public void addChangeListener(ChangeListener listener) {
@@ -54,11 +55,11 @@ public class BladeDirectives extends javax.swing.JPanel {
         customDirectivePathList = new javax.swing.JList<>();
         removePathButton = new javax.swing.JButton();
 
-        org.openide.awt.Mnemonics.setLocalizedText(includePathLabel, org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.includePathLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(includePathLabel, org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.includePathLabel.text_1")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(compilerPathFileButton, org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.compilerPathFileButton.text")); // NOI18N
-        compilerPathFileButton.setToolTipText(org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.compilerPathFileButton.toolTipText")); // NOI18N
-        compilerPathFileButton.setActionCommand(org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.compilerPathFileButton.actionCommand")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(compilerPathFileButton, org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.compilerPathFileButton.text_1")); // NOI18N
+        compilerPathFileButton.setToolTipText(org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.compilerPathFileButton.toolTipText_1")); // NOI18N
+        compilerPathFileButton.setActionCommand(org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.compilerPathFileButton.actionCommand_1")); // NOI18N
         compilerPathFileButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 compilerPathFileButtonActionPerformed(evt);
@@ -68,7 +69,7 @@ public class BladeDirectives extends javax.swing.JPanel {
         customDirectivePathList.setModel(org.netbeans.modules.php.blade.project.BladeProjectProperties.getInstance(project).getModelCompilerPathList());
         jScrollPane1.setViewportView(customDirectivePathList);
 
-        org.openide.awt.Mnemonics.setLocalizedText(removePathButton, org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.removePathButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(removePathButton, org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.removePathButton.text_1")); // NOI18N
         removePathButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 removePathButtonActionPerformed(evt);

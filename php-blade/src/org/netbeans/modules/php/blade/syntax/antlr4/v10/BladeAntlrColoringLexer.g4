@@ -32,11 +32,16 @@ fragment SINGLE_QUOTED_STRING_FRAGMENT
 fragment
 NEKUDO_WHITELIST_MATCH : '::' | '?:' | ' : ';
 
+fragment Digit
+    : ('0'..'9');
+
 BLADE_COMMENT : '{{--' .*? '--}}';
 
 PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? '?>';
 
 EMAIL_SUBSTRING : ('@' NameString '.')->type(HTML);
+
+VERSION_WITH_AT: '@' (Digit '.')+; 
 
 //escapes
 D_ESCAPES 

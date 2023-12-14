@@ -7,29 +7,29 @@ package org.netbeans.modules.php.blade.syntax;
 public class BladeTagsUtils {
 
     public static String[] outputCloseTags() {
-        return new String[]{"}}", "!!}"};
+        return new String[]{"}}", "!!}"}; //NOI18N
     }
 
     public static String[] outputStartTags() {
-        return new String[]{"{{", "{!!"};
+        return new String[]{"{{", "{!!"}; //NOI18N
     }
 
     public static String tagStart2EndPair(String tag) {
         switch (tag) {
-            case "{{":
-                return "}}";
-            case "{!!":
-                return "!!}";
+            case "{{": //NOI18N
+                return "}}"; //NOI18N
+            case "{!!": //NOI18N
+                return "!!}"; //NOI18N
         }
         return null;
     }
 
     public static String tagEnd2StartPair(String tag) {
         switch (tag) {
-            case "}}":
-                return "{{";
-            case "!!}":
-                return "{!!";
+            case "}}": //NOI18N
+                return "{{"; //NOI18N
+            case "!!}": //NOI18N
+                return "{!!"; //NOI18N
         }
         return null;
     }

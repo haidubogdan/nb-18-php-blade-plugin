@@ -62,7 +62,7 @@ block_statement:
     | elseif
     | else
     | switch
-    | D_ENV singleArgWrapper general_statement+ D_ENDENV
+    | D_ENV  singleArgWrapper general_statement+ D_ENDENV
     | D_EMPTY php_expression general_statement+ D_ENDEMPTY
     | D_ERROR php_expression general_statement+ D_ENDERROR
     //we can consider the statements not being empty
@@ -86,9 +86,10 @@ section : D_SECTION singleArgWrapper (general_statement | D_SHOW | D_PARENT)* (D
 push : D_PUSH singleArgWrapper general_statement+ D_ENDPUSH;
 pushOnce : D_PUSH_ONCE singleArgWrapper general_statement+ D_ENDPUSH_ONCE;
 
-if : D_IF php_expression general_statement* D_ENDIF? ~(D_IF | D_ELSEIF | D_ELSE);
-elseif : D_ELSEIF php_expression general_statement* D_ENDIF? ~(D_IF | D_ELSEIF | D_ELSE);
-else : D_ELSE general_statement* D_ENDIF? ~(D_IF | D_ELSEIF | D_ELSE);
+if : D_IF php_expression general_statement+ endif?;
+elseif : D_ELSEIF php_expression general_statement+ endif?;
+else : D_ELSE general_statement+ endif?;
+endif: D_ENDIF;
 
 //the consistency for these blocks need to be checked inside the parser
 conditional_block : D_COND_BLOCK_START php_expression general_statement+ D_COND_BLOCK_END;
@@ -139,12 +140,12 @@ php_blade : D_PHP BLADE_PHP_INLINE D_ENDPHP;
 echo : ESCAPED_ECHO_START BLADE_PHP_ECHO_EXPR ESCAPED_ECHO_END;
 echo_ne : NE_ECHO_START BLADE_PHP_ECHO_EXPR NE_ECHO_END;
 
-php_expression: WS_EXPR? PHP_EXPRESSION;
+php_expression: PHP_EXPRESSION;
 
-singleArgWrapper: BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BLADE_PARAM_RPAREN;
-singleArgAndDefaultWrapper: BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
-doubleArgWrapper: BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BL_COMMA composedArgument BLADE_PARAM_RPAREN;
-multiArgWrapper : BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
+singleArgWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BLADE_PARAM_RPAREN;
+singleArgAndDefaultWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
+doubleArgWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BL_COMMA composedArgument BLADE_PARAM_RPAREN;
+multiArgWrapper :  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
 
 identifiableArgument : BL_PARAM_WS* BL_PARAM_STRING BL_PARAM_WS*;
 composedArgument : BL_PARAM_WS* (paramAssign | BLADE_PARAM_EXTRA | PHP_VARIABLE | PHP_KEYWORD |  BL_PARAM_WS | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_PARAM_ASSIGN | BL_NAME_STRING | BL_COMMA)+ BL_PARAM_WS*;

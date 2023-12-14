@@ -99,6 +99,7 @@ public class CompletionConfig {
                             case 2:
                                 //in case we don't have any properties for the directive
                                 if(!directiveName.isEmpty() && ret.getValue().isEmpty()){
+                                    attributesList = new HashMap<>();
                                     directivesMap.put(directiveName, attributesList);
                                 } else {
                                     directiveName = ret.getValue();
