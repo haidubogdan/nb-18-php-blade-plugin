@@ -44,6 +44,9 @@ public class BladeIndexer extends EmbeddingIndexer {
 
     @Override
     protected void index(Indexable indxbl, Parser.Result result, Context context) {
+        if (!(result instanceof BladeParserResult)){
+            return;
+        }
         BladeParserResult parserResult = (BladeParserResult) result;
 
         //we have errors

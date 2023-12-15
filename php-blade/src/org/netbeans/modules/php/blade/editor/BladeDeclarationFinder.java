@@ -6,15 +6,20 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 import org.antlr.v4.runtime.CharStreams;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.DeclarationFinder;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.HtmlFormatter;
+import org.netbeans.modules.php.blade.csl.elements.CustomDirectiveElement;
+import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
 import org.netbeans.modules.php.blade.csl.elements.StackIdElement;
 import org.netbeans.modules.php.blade.csl.elements.YieldIdElement;
+import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
@@ -25,8 +30,12 @@ import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 import org.openide.filesystems.FileObject;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
+import org.netbeans.spi.editor.completion.CompletionItem;
+import org.netbeans.spi.editor.completion.support.CompletionUtilities;
 
 /**
+ * focuses mainly on string inputs
+ *
  *
  * @author bhaidu
  */
@@ -34,7 +43,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
     //not used for the moment
     static enum DeclarationType {
-        BLADE_PATH, SECTION, HAS_SECTION, PHP, NONE
+        BLADE_PATH, SECTION, HAS_SECTION, PHP, CUSTOM_DIRECTIVE, NONE
     }
 
     @Override
@@ -67,11 +76,16 @@ public class BladeDeclarationFinder implements DeclarationFinder {
         tokens.seekTo(lineOffset);
 
         if (tokens.hasNext()) {
+            org.antlr.v4.runtime.Token nt = tokens.next().get();
+
+            if (nt.getType() == D_CUSTOM) {
+                int offsetCorrection = caretOffset - lineOffset;
+                return new OffsetRange(nt.getStartIndex() + offsetCorrection, nt.getStopIndex() + offsetCorrection + 1);
+            }
+
             if (!tokens.hasPrevious()) {
                 return offsetRange;
             }
-
-            org.antlr.v4.runtime.Token nt = tokens.next().get();
 
             if (nt.getType() == BL_PARAM_STRING) {
                 List<Integer> tokensMatch = Arrays.asList(new Integer[]{
@@ -109,10 +123,10 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 if (includedFiles.isEmpty()) {
                     return DeclarationLocation.NONE;
                 }
-                
+
                 DeclarationLocation dln = DeclarationLocation.NONE;
 
-                for (FileObject includedFile : includedFiles){
+                for (FileObject includedFile : includedFiles) {
                     PathElement elHandle = new PathElement(reference.name, includedFile);
                     dln = new DeclarationFinder.DeclarationLocation(includedFile, 0, elHandle);
                     dln.addAlternative(new AlternativeLocationImpl(dln));
@@ -156,6 +170,29 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 }
 
                 return dlstack;
+            case CUSTOM_DIRECTIVE:
+                String directiveNameFound = reference.name;
+                Project project = FileOwnerQuery.getOwner(currentFile);
+
+                DeclarationLocation dlcustomDirective = DeclarationLocation.NONE;
+
+                CustomDirectives.getInstance(project).filterAction(new CustomDirectives.FilterCallbackDeclaration(dlcustomDirective) {
+                    @Override
+                    public void filterDirectiveName(String directiveName, FileObject file) {
+                        if (directiveName.equals(directiveNameFound)) {
+                            CustomDirectiveElement customDirectiveHandle = new CustomDirectiveElement(directiveNameFound, file);
+                            DeclarationFinder.DeclarationLocation newLoc = new DeclarationFinder.DeclarationLocation(file, 0, customDirectiveHandle);
+                            this.location.addAlternative(new AlternativeLocationImpl(newLoc));
+                        }
+                    }
+                });
+
+                if (!dlcustomDirective.getAlternativeLocations().isEmpty()) {
+                    for (AlternativeLocation loc : dlcustomDirective.getAlternativeLocations()) {
+                        dlcustomDirective = loc.getLocation();
+                    }
+                }
+                return dlcustomDirective;
         }
 
         return DeclarationLocation.NONE;

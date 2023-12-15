@@ -76,7 +76,7 @@ import org.openide.loaders.DataObject;
  */
 public class ParsingUtils {
 
-    private FileObject currentFile;
+    private final FileObject currentFile;
 
     public ParsingUtils(FileObject file) {
         this.currentFile = file;

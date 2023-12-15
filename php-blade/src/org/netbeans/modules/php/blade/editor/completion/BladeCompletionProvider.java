@@ -1,12 +1,17 @@
 package org.netbeans.modules.php.blade.editor.completion;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
+import javax.swing.Action;
+import javax.swing.JToolTip;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
@@ -19,15 +24,18 @@ import org.netbeans.api.editor.mimelookup.MimeRegistrations;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
+import org.netbeans.modules.csl.api.Documentation;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives.DirectiveNames;
+import org.netbeans.modules.php.blade.editor.directives.CustomDirectives.FilterCallback;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex.IndexedReferenceId;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
+import org.netbeans.spi.editor.completion.CompletionDocumentation;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
@@ -335,28 +343,69 @@ public class BladeCompletionProvider implements CompletionProvider {
         }
         FileObject fo = EditorDocumentUtils.getFileObject(doc);
         Project project = FileOwnerQuery.getOwner(fo);
-        //CustomDirectives.getInstance(project).addDirectiveNamesFromFile(fo);
-        Map<FileObject, DirectiveNames> customDirectives = CustomDirectives.getInstance(project).getCustomDirectives();
-        for (Map.Entry<FileObject, DirectiveNames> entry : customDirectives.entrySet()) {
-            if (!entry.getKey().isValid()) {
-                continue;
-            }
-            List<String> directiveNames = entry.getValue().getList();
-            if (directiveNames == null) {
-                continue;
-            }
-            for (String directiveName : directiveNames) {
+
+        CustomDirectives.getInstance(project).filterAction(new FilterCallback() {
+            @Override
+            public void filterDirectiveName(String directiveName, FileObject file) {
                 if (directiveName.startsWith(prefix)) {
                     CompletionItemBuilder builder = CompletionUtilities.newCompletionItemBuilder(directiveName)
                             .iconResource(getReferenceIcon())
                             .startOffset(startOffset)
                             .leftHtmlText(directiveName)
+                            .rightHtmlText("custom directive")
+                            .documentationTask(getDocTask(file))
+                            .onSelect(ctx -> {
+                                StringBuilder sb = new StringBuilder();
+                                sb.append(directiveName);
+                                sb.append("(${cursor})");
+                                try {
+                                    doc.remove(caretOffset - prefix.length(), prefix.length());
+                                    CodeTemplateManager.get(doc).createTemporary(sb.toString()).insert(ctx.getComponent());
+
+                                } catch (BadLocationException ex) {
+                                    Exceptions.printStackTrace(ex);
+                                }
+                            })
                             .sortText(directiveName);
                     CompletionItem item = builder.build();
                     resultSet.addItem(item);
                 }
             }
-        }
+        });
+    }
+
+    private static Supplier<CompletionTask> getDocTask(FileObject fo) {
+        return () -> {
+            return new AsyncCompletionTask(new AsyncCompletionQuery() {
+                @Override
+                protected void query(CompletionResultSet resultSet, Document doc, int caretOffset) {
+                    CompletionDocumentation docInfo = new CompletionDocumentation() {
+                        @Override
+                        public String getText() {
+                            return "From " + fo.getNameExt();
+                        }
+
+                        @Override
+                        public URL getURL() {
+                            return null;
+                        }
+
+                        @Override
+                        public CompletionDocumentation resolveLink(String string) {
+                            return null;
+                        }
+
+                        @Override
+                        public Action getGotoSourceAction() {
+                            return null;
+                        }
+
+                    };
+                    resultSet.setDocumentation(docInfo);
+                    resultSet.finish();
+                }
+            });
+        };
     }
 
     private void completeYieldIdFromIndex(String prefixIdentifier, FileObject fo,
@@ -454,4 +503,5 @@ public class BladeCompletionProvider implements CompletionProvider {
         }
         return ICON_BASE + "icons/file.png"; //NOI18N
     }
+
 }

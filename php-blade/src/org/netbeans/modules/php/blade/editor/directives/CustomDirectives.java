@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.csl.api.DeclarationFinder;
 import org.netbeans.modules.php.blade.editor.parser.ParsingUtils;
 import org.netbeans.modules.php.blade.project.BladeProjectProperties;
 import org.netbeans.modules.php.editor.parser.astnodes.Expression;
@@ -27,9 +28,10 @@ public final class CustomDirectives {
 
     private final Project project;
     private static final Map<Project, CustomDirectives> INSTANCES = new WeakHashMap<>();
-    private final Map<FileObject, DirectiveNames> customDirectives = new LinkedHashMap<>();
+    private final Map<FileObject, List<String>> customDirectives = new LinkedHashMap<>();
+
     public List<String> customDirectiveNames = new ArrayList<>();
-    
+
     private final FileChangeListener fileChangeListener = new FileChangeListenerImpl();
 
     public static CustomDirectives getInstance(Project project) {
@@ -52,10 +54,10 @@ public final class CustomDirectives {
         return customDirective;
     }
 
-    private CustomDirectives(){
+    private CustomDirectives() {
         this.project = null;
     }
-    
+
     private CustomDirectives(Project project) {
         this.project = project;
         extractCustomDirectives();
@@ -84,8 +86,8 @@ public final class CustomDirectives {
     }
 
     private void rescanFile(FileObject file) {
-        DirectiveNames entry = customDirectives.get(file);
-        if (entry != null) {
+        List<String> entry = customDirectives.get(file);
+        if (!entry.isEmpty()) {
             addDirectiveNamesFromFile(file);
         }
     }
@@ -96,14 +98,18 @@ public final class CustomDirectives {
         FunctionInvocationVisitor functionInvocationVisitor = new FunctionInvocationVisitor();
         if (parsingUtils.getParserResult() != null && parsingUtils.getParserResult().getProgram() != null) {
             parsingUtils.getParserResult().getProgram().accept(functionInvocationVisitor);
+            //TODO add parameters list
             customDirectiveNames = functionInvocationVisitor.getDirectiveNames();
-            if (!customDirectiveNames.isEmpty()) {
-                customDirectives.put(file, new DirectiveNames(customDirectiveNames));
+
+            if (customDirectiveNames.isEmpty()) {
+                return;
             }
+
+            customDirectives.put(file, customDirectiveNames);
         }
     }
 
-    public Map<FileObject, DirectiveNames> getCustomDirectives() {
+    public Map<FileObject, List<String>> getCustomDirectives() {
         return customDirectives;
     }
 
@@ -182,5 +188,48 @@ public final class CustomDirectives {
             CustomDirectives.getInstance(project).rescanFile(file);
         }
 
+    }
+
+    public void filterAction(FilterCallback callback) {
+        for (Map.Entry<FileObject, List<String>> entry : customDirectives.entrySet()) {
+            if (!entry.getKey().isValid()) {
+                continue;
+            }
+
+            for (String directiveName : entry.getValue()) {
+                 callback.filterDirectiveName(directiveName, entry.getKey());
+            }
+           
+        }
+    }
+    
+    public void filterAction(FilterCallbackDeclaration callback) {
+        for (Map.Entry<FileObject, List<String>> entry : customDirectives.entrySet()) {
+            if (!entry.getKey().isValid()) {
+                continue;
+            }
+
+            for (String directiveName : entry.getValue()) {
+                 callback.filterDirectiveName(directiveName, entry.getKey());
+            }
+           
+        }
+    }
+
+    public static interface FilterCallback {
+
+        public void filterDirectiveName(String directiveName, FileObject file);
+    }
+    
+    public static abstract class FilterCallbackDeclaration {
+        protected DeclarationFinder.DeclarationLocation location ;
+        
+        public FilterCallbackDeclaration(DeclarationFinder.DeclarationLocation location){
+            this.location = location;
+        }
+
+        public void filterDirectiveName(String directiveName, FileObject file){
+            
+        }
     }
 }

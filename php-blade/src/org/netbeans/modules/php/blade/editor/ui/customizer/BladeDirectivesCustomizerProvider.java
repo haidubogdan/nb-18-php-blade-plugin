@@ -14,12 +14,12 @@ import org.openide.util.NbBundle;
  */
 public class BladeDirectivesCustomizerProvider implements ProjectCustomizer.CompositeCategoryProvider {
 
-    public static final String BLADE_DIRECTIVES = "Blade Directives"; // NOI18N
+    public static final String BLADE_DIRECTIVES = "Custom Directives"; // NOI18N
 
     @NbBundle.Messages("BladeCompilerCustomizerProvider.name=Blade Directives")
     @Override
     public ProjectCustomizer.Category createCategory(Lookup lkp) {
-        return ProjectCustomizer.Category.create(BLADE_DIRECTIVES, "Blade Directives", null);
+        return ProjectCustomizer.Category.create(BLADE_DIRECTIVES, BLADE_DIRECTIVES, null);
     }
 
     @Override

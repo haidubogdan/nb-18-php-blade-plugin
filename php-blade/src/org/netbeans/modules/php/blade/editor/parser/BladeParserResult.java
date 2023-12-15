@@ -138,14 +138,21 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
             @Override
             public void exitIdentifiableArgument(BladeAntlrParser.IdentifiableArgumentContext ctx) {
                 // ctx.each_path.BL_PARAM_STRING();
-                addOccurenceForDeclaration(ctx);
+                addIdentifiableOccurenceForDeclaration(ctx);
+            }
+
+            @Override
+            public void exitCustom_directive(BladeAntlrParser.Custom_directiveContext ctx) {
+                String directiveName = ctx.getStart().getText();
+                OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
+                occurancesForDeclaration.put(range, new Reference(ReferenceType.CUSTOM_DIRECTIVE, directiveName, range));
             }
 
             /**
              * - adds occurences for declaration - stores specific type
              * references
              */
-            private void addOccurenceForDeclaration(BladeAntlrParser.IdentifiableArgumentContext ctx) {
+            private void addIdentifiableOccurenceForDeclaration(BladeAntlrParser.IdentifiableArgumentContext ctx) {
                 if (ctx.BL_PARAM_STRING() == null) {
                     return;
                 }
@@ -301,7 +308,6 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         return null;
     }
 
-
     /**
      * to be implemented in the future
      *
@@ -345,28 +351,28 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         return new BladeAntlrParserBaseListener() {
             int ifBalance = 0;
             int ifStart = 0;
-            
+
             @Override
             public void exitCustom_directive(BladeAntlrParser.Custom_directiveContext ctx) {
                 String directiveName = ctx.getStart().getText();
                 OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
                 customDirectivesReferences.put(range, new Reference(ReferenceType.CUSTOM_DIRECTIVE, directiveName, range));
             }
-            
+
             @Override
-            public void enterIf(BladeAntlrParser.IfContext ctx){
+            public void enterIf(BladeAntlrParser.IfContext ctx) {
                 ifBalance++;
                 ifStart = ctx.getStart().getStartIndex();
             }
-            
+
             @Override
-            public void exitEndif(BladeAntlrParser.EndifContext ctx){
+            public void exitEndif(BladeAntlrParser.EndifContext ctx) {
                 ifBalance--;
             }
-            
+
             @Override
-            public void exitFile(BladeAntlrParser.FileContext ctx){
-                if (ifBalance != 0){
+            public void exitFile(BladeAntlrParser.FileContext ctx) {
+                if (ifBalance != 0) {
                     errors.add(new BladeError(null, "Unclosed @if", null, getFileObject(), ifStart, ctx.getStart().getStopIndex(), Severity.ERROR));
                 }
             }

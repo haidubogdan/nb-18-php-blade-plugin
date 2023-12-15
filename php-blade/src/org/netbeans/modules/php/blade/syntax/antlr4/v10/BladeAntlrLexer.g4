@@ -54,7 +54,7 @@ PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? '?>';
 
 EMAIL_SUBSTRING : ('@' NameString '.')->type(HTML);
 
-VERSION_WITH_AT: '@' (Digit '.')+; 
+VERSION_WITH_AT: '@' (Digit '.')+->type(HTML); 
 
 //escapes
 D_ESCAPES 
