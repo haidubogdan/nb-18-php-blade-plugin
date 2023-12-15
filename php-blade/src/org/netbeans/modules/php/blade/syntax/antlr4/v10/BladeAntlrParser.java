@@ -90,9 +90,9 @@ public class BladeAntlrParser extends Parser {
 			"'@pushOnce'", "'@endPushOnce'", "'@props'", "'@csrf'", "'@method'", 
 			"'@error'", "'@enderror'", "'@production'", "'@endproduction'", "'@env'", 
 			"'@endenv'", null, null, "'@class'", "'@style'", null, "'@aware'", "'@json'", 
-			"'@dd'", "'@use'", "'@inject'", "'@php'", "'@verbatim'", null, null, 
-			"'{{'", "'{!!'", "'@'", null, null, null, null, null, null, null, "'=>'", 
-			"'.'", null, "','", null, null, "'@endphp'", null, "'@{'", "'('"
+			"'@dd'", "'@use'", "'@inject'", "'@php'", "'@verbatim'", "'@endverbatim'", 
+			null, "'{{'", "'{!!'", "'@'", null, null, null, null, null, null, null, 
+			"'=>'", "'.'", null, "','", null, null, "'@endphp'", null, "'@{'", "'('"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();

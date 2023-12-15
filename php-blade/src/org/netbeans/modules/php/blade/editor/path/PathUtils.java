@@ -25,6 +25,9 @@ public class PathUtils {
     public static FileObject extractRootPath(FileObject currentFile) {
         String currentFilepath = currentFile.getPath();
         int viewRootPos = currentFilepath.lastIndexOf("/views/");
+        if (viewRootPos< 0){
+            return null;
+        }
         String relativePath = currentFilepath.substring(viewRootPos);
         int currentFileDeep = StringUtils.countMatches(relativePath, "/");
         String relativeRootPath = StringUtils.repeat("../", currentFileDeep) + "views";

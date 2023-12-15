@@ -74,6 +74,12 @@ public class BladeAntlrLexerTestBase extends NbTestCase {
                 case BLADE_PARAM_EXTRA:
                     result.append("BLADE_PARAM_EXTRA ");
                     break;
+                case D_VERBATIM:
+                    result.append("D_VERBATIM ");
+                    break;
+                case D_ENDVERBATIM:
+                    result.append("D_ENDVERBATIM ");
+                    break;
                 case HTML:
                     result.append("HTML ");
                     break;

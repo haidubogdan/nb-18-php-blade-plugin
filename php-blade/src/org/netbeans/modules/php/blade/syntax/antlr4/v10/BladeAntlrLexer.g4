@@ -289,7 +289,7 @@ EXIT_INLINE_PHP_EOF : EOF->type(ERROR),popMode;
 
 mode VERBATIM_MODE;
 
-D_ENDVERBATIM_IN_MODE : '@endverbatim'->type(D_ENDVERBATIM), popMode;
+D_ENDVERBATIM_IN_MODE : '@endverbatim'->type(D_ENDVERBATIM), mode(DEFAULT_MODE);
 
 //hack to merge all php inputs into one token
 VERBATIM_HTML : . {
@@ -303,4 +303,4 @@ VERBATIM_HTML : . {
       }? ->type(HTML);
 VERBATIM_HTML_MORE : . ->more;
 
-EXIT_VERBATIM_MOD_EOF : EOF->type(ERROR),popMode;
+EXIT_VERBATIM_MOD_EOF : EOF->type(ERROR),mode(DEFAULT_MODE);

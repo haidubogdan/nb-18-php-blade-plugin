@@ -135,8 +135,8 @@ D_DD : '@dd'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 
 D_PHP : '@php'->pushMode(BLADE_INLINE_PHP);
 
-D_VERBATIM : '@verbatim' ->pushMode(VERBATIM_MODE);
-D_ENDVERBATIM : '@endverbatim';
+D_VERBATIM : '@verbatim' ->pushMode(VERBATIM_MODE), type(DIRECTIVE);
+D_ENDVERBATIM : '@endverbatim'->type(DIRECTIVE);
 
 //starting the optimisation
 //D_WITH_EXPR: ''
@@ -232,7 +232,7 @@ EXIT_INLINE_PHP_EOF : EOF->type(ERROR),popMode;
 
 mode VERBATIM_MODE;
 
-D_ENDVERBATIM_IN_MODE : '@endverbatim'->type(D_ENDVERBATIM), popMode;
+D_ENDVERBATIM_IN_MODE : '@endverbatim'->type(DIRECTIVE), popMode;
 
 //hack to merge all php inputs into one token
 VERBATIM_HTML : . {

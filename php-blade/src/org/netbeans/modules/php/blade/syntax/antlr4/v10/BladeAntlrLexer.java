@@ -104,9 +104,9 @@ public class BladeAntlrLexer extends LexerAdaptor {
 			"'@pushOnce'", "'@endPushOnce'", "'@props'", "'@csrf'", "'@method'", 
 			"'@error'", "'@enderror'", "'@production'", "'@endproduction'", "'@env'", 
 			"'@endenv'", null, null, "'@class'", "'@style'", null, "'@aware'", "'@json'", 
-			"'@dd'", "'@use'", "'@inject'", "'@php'", "'@verbatim'", null, null, 
-			"'{{'", "'{!!'", "'@'", null, null, null, null, null, null, null, "'=>'", 
-			"'.'", null, "','", null, null, "'@endphp'", null, "'@{'", "'('"
+			"'@dd'", "'@use'", "'@inject'", "'@php'", "'@verbatim'", "'@endverbatim'", 
+			null, "'{{'", "'{!!'", "'@'", null, null, null, null, null, null, null, 
+			"'=>'", "'.'", null, "','", null, null, "'@endphp'", null, "'@{'", "'('"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -1347,13 +1347,13 @@ public class BladeAntlrLexer extends LexerAdaptor {
 		"b\u0000\u0000\u0600\u0601\u0005a\u0000\u0000\u0601\u0602\u0005t\u0000"+
 		"\u0000\u0602\u0603\u0005i\u0000\u0000\u0603\u0604\u0005m\u0000\u0000\u0604"+
 		"\u0605\u0001\u0000\u0000\u0000\u0605\u0606\u0006\u0086!\u0000\u0606\u0607"+
-		"\u0006\u0086\u0007\u0000\u0607\u0116\u0001\u0000\u0000\u0000\u0608\u0609"+
+		"\u0006\u0086\u0010\u0000\u0607\u0116\u0001\u0000\u0000\u0000\u0608\u0609"+
 		"\t\u0000\u0000\u0000\u0609\u060a\u0004\u0087\u000b\u0000\u060a\u060b\u0001"+
 		"\u0000\u0000\u0000\u060b\u060c\u0006\u0087\u0000\u0000\u060c\u0118\u0001"+
 		"\u0000\u0000\u0000\u060d\u060e\t\u0000\u0000\u0000\u060e\u060f\u0001\u0000"+
 		"\u0000\u0000\u060f\u0610\u0006\u0088\t\u0000\u0610\u011a\u0001\u0000\u0000"+
 		"\u0000\u0611\u0612\u0005\u0000\u0000\u0001\u0612\u0613\u0001\u0000\u0000"+
-		"\u0000\u0613\u0614\u0006\u0089\n\u0000\u0614\u0615\u0006\u0089\u0007\u0000"+
+		"\u0000\u0613\u0614\u0006\u0089\n\u0000\u0614\u0615\u0006\u0089\u0010\u0000"+
 		"\u0615\u011c\u0001\u0000\u0000\u0000#\u0000\u0001\u0002\u0003\u0004\u0005"+
 		"\u0006\u0007\b\u0121\u0129\u012b\u0134\u0136\u0141\u0151\u015d\u016c\u017a"+
 		"\u017f\u018d\u0204\u026b\u0282\u044c\u0461\u04a1\u050c\u0516\u0524\u053a"+
