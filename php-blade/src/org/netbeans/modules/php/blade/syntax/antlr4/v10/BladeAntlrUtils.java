@@ -8,7 +8,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.misc.NotNull;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrParser.*;
 import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 

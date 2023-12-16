@@ -411,6 +411,18 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPhpInline(BladeAntlrParser.PhpInlineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPhpInline(BladeAntlrParser.PhpInlineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterEcho(BladeAntlrParser.EchoContext ctx) { }
 	/**
 	 * {@inheritDoc}

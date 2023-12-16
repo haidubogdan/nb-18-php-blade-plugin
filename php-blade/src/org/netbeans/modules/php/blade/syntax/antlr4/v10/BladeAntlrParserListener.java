@@ -338,6 +338,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitPhp_blade(BladeAntlrParser.Php_bladeContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#phpInline}.
+	 * @param ctx the parse tree
+	 */
+	void enterPhpInline(BladeAntlrParser.PhpInlineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#phpInline}.
+	 * @param ctx the parse tree
+	 */
+	void exitPhpInline(BladeAntlrParser.PhpInlineContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#echo}.
 	 * @param ctx the parse tree
 	 */

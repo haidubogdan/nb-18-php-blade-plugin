@@ -26,7 +26,7 @@ inline_statement:
     inline_directive
     | echo
     | echo_ne
-    | PHP_INLINE
+    | phpInline
     ;
 
 inline_directive: 
@@ -78,6 +78,7 @@ block_statement:
 
 non_blade_statement:
     html
+    | phpInline
     ;
 
 extends : D_EXTENDS singleArgWrapper;
@@ -135,6 +136,7 @@ custom_directive : D_CUSTOM multiArgWrapper;
     
 php_blade : D_PHP BLADE_PHP_INLINE D_ENDPHP;
 
+phpInline : PHP_INLINE;
 //echo
 
 echo : ESCAPED_ECHO_START BLADE_PHP_ECHO_EXPR ESCAPED_ECHO_END;

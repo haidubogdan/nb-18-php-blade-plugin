@@ -6,6 +6,10 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenId;
+import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.DeclarationFinder;
@@ -19,19 +23,24 @@ import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
 import org.netbeans.modules.php.blade.csl.elements.StackIdElement;
 import org.netbeans.modules.php.blade.csl.elements.YieldIdElement;
+import org.netbeans.modules.php.blade.editor.completion.PhpTypeCompletionProvider;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
+import org.netbeans.modules.php.blade.editor.lexer.BladeLexerUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
+import org.netbeans.modules.php.blade.editor.parser.ParsingUtils;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 import org.openide.filesystems.FileObject;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
+import org.netbeans.modules.php.editor.lexer.PHPTokenId;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
+import org.openide.filesystems.FileUtil;
 
 /**
  * focuses mainly on string inputs
@@ -52,27 +61,42 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
         baseDoc.readLock();
         AntlrTokenSequence tokens = null;
+        TokenHierarchy<Document> th;
+        TokenSequence<? extends PHPTokenId> tsPhp = null;
+        org.netbeans.api.lexer.Token<?> tokenPhp = null;
         OffsetRange offsetRange = OffsetRange.NONE;
         int lineOffset = caretOffset;
         try {
-            Element lineElement = baseDoc.getParagraphElement(caretOffset);
-            int start = lineElement.getStartOffset();
-            lineOffset = caretOffset - start;
-            try {
-                int end = lineElement.getEndOffset();
-                String text = baseDoc.getText(start, end - start);
-                tokens = new AntlrTokenSequence(new BladeAntlrLexer(CharStreams.fromString(text)));
-            } catch (BadLocationException ex) {
-                //Exceptions.printStackTrace(ex);
+            th = TokenHierarchy.get(document);
+            tsPhp = BladeLexerUtils.getPhpTokenSequence(th, caretOffset);
+
+            //we are in php context
+            if (tsPhp != null) {
+                tokenPhp = tsPhp.token();
+                String name = tokenPhp.id().name();
+                int x = 1;
             }
 
+            if (tokenPhp == null || tokenPhp.id().equals(PHPTokenId.PHP_CONSTANT_ENCAPSED_STRING)) {
+                Element lineElement = baseDoc.getParagraphElement(caretOffset);
+                int start = lineElement.getStartOffset();
+                lineOffset = caretOffset - start;
+                try {
+                    int end = lineElement.getEndOffset();
+                    String text = baseDoc.getText(start, end - start);
+                    tokens = new AntlrTokenSequence(new BladeAntlrLexer(CharStreams.fromString(text)));
+                } catch (BadLocationException ex) {
+                    //Exceptions.printStackTrace(ex);
+                }
+            }
         } finally {
             baseDoc.readUnlock();
         }
 
         if (tokens == null || tokens.isEmpty()) {
-            return offsetRange;
+            return getPhpReferenceSpan(tsPhp, tokenPhp);
         }
+
         tokens.seekTo(lineOffset);
 
         if (tokens.hasNext()) {
@@ -83,6 +107,12 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 return new OffsetRange(nt.getStartIndex() + offsetCorrection, nt.getStopIndex() + offsetCorrection + 1);
             }
 
+            //we will skip constant encapsed string and give priority to directives
+            OffsetRange phpSpanRange = getPhpReferenceSpan(tsPhp, tokenPhp);
+            if (!phpSpanRange.isEmpty()){
+                return phpSpanRange;
+            }
+            
             if (!tokens.hasPrevious()) {
                 return offsetRange;
             }
@@ -193,9 +223,31 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                     }
                 }
                 return dlcustomDirective;
+            case PHP_INLINE:
+            //case PHP_BLADE:
+                DeclarationLocation locations;
+                FileObject fo = parserResult.getSnapshot().getSource().getFileObject();
+                String phpText = info.getSnapshot().getText().subSequence(reference.defOffset.getStart(), reference.defOffset.getEnd()).toString();
+                //phpText = phpText.replace("@php", "<?php").replace("@endphp", "?>");
+                ParsingUtils parsingUtils = new ParsingUtils();
+                parsingUtils.parsePhpText(phpText);
+                locations = PhpTypeCompletionProvider.getInstance().getItems(fo, parsingUtils.getParserResult(), caretOffset);
+                
+                return locations;
         }
 
         return DeclarationLocation.NONE;
+    }
+
+    private OffsetRange getPhpReferenceSpan(TokenSequence<? extends PHPTokenId> tsPhp, org.netbeans.api.lexer.Token<?> tokenPhp) {
+        if (tsPhp != null && tokenPhp != null && !tokenPhp.id().equals(PHPTokenId.PHP_CONSTANT_ENCAPSED_STRING)) {
+            TokenId phpId = tokenPhp.id();
+            if (phpId.equals(PHPTokenId.PHP_STRING) || phpId.equals(PHPTokenId.PHP_VARIABLE)) {
+                return new OffsetRange(tsPhp.offset(), tsPhp.offset() + tokenPhp.length());
+            }
+        }
+        
+        return OffsetRange.NONE;
     }
 
     private static class AlternativeLocationImpl implements AlternativeLocation {
@@ -226,5 +278,72 @@ public class BladeDeclarationFinder implements DeclarationFinder {
             return 0;
         }
 
+    }
+    
+    public static class BladeAlternativeLocation implements AlternativeLocation {
+
+        private ElementHandle modelElement;
+        private DeclarationLocation declaration;
+
+        public BladeAlternativeLocation(ElementHandle modelElement, DeclarationLocation declaration) {
+            this.modelElement = modelElement;
+            this.declaration = declaration;
+        }
+
+        @Override
+        public ElementHandle getElement() {
+            return modelElement;
+        }
+
+        @Override
+        public String getDisplayHtml(HtmlFormatter formatter) {
+            formatter.reset();
+            //ElementKind ek = modelElement.getKind();
+            formatter.appendText(modelElement.getName());
+
+            if (declaration.getFileObject() != null) {
+                formatter.appendText(" in ");
+                formatter.appendText(FileUtil.getFileDisplayName(declaration.getFileObject()));
+            }
+
+            return formatter.getText();
+        }
+
+        @Override
+        public DeclarationLocation getLocation() {
+            return declaration;
+        }
+
+        @Override
+        public int compareTo(AlternativeLocation o) {
+            BladeAlternativeLocation i = (BladeAlternativeLocation) o;
+            return this.modelElement.getName().compareTo(i.modelElement.getName());
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 89 * hash + (this.modelElement != null ? this.modelElement.hashCode() : 0);
+            hash = 89 * hash + (this.declaration != null ? this.declaration.hashCode() : 0);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final BladeAlternativeLocation other = (BladeAlternativeLocation) obj;
+            if (this.modelElement != other.modelElement && (this.modelElement == null || !this.modelElement.equals(other.modelElement))) {
+                return false;
+            }
+            if (this.declaration != other.declaration && (this.declaration == null || !this.declaration.equals(other.declaration))) {
+                return false;
+            }
+            return true;
+        }
     }
 }

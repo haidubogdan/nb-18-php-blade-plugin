@@ -66,7 +66,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     volatile boolean indexLoaded = false;
 
     public enum ReferenceType {
-        YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION, CUSTOM_DIRECTIVE
+        YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION, CUSTOM_DIRECTIVE, PHP_INLINE, PHP_BLADE
     }
 
     public enum ParserContext {
@@ -146,6 +146,20 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
                 String directiveName = ctx.getStart().getText();
                 OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
                 occurancesForDeclaration.put(range, new Reference(ReferenceType.CUSTOM_DIRECTIVE, directiveName, range));
+            }
+            
+            @Override
+            public void exitPhpInline(BladeAntlrParser.PhpInlineContext ctx) {
+                OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
+                //no need to store php_inline text, but who knows ?
+                occurancesForDeclaration.put(range, new Reference(ReferenceType.PHP_INLINE, "php_inline", range));
+            }
+            
+            @Override
+            public void exitPhp_blade(BladeAntlrParser.Php_bladeContext ctx) {
+                OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
+                //no need to store php_inline text, but who knows ?
+                occurancesForDeclaration.put(range, new Reference(ReferenceType.PHP_BLADE, "php_blade", range));
             }
 
             /**
