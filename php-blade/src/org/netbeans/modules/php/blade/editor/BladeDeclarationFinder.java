@@ -224,14 +224,16 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 }
                 return dlcustomDirective;
             case PHP_INLINE:
-            //case PHP_BLADE:
+            case PHP_BLADE:
                 DeclarationLocation locations;
                 FileObject fo = parserResult.getSnapshot().getSource().getFileObject();
                 String phpText = info.getSnapshot().getText().subSequence(reference.defOffset.getStart(), reference.defOffset.getEnd()).toString();
-                //phpText = phpText.replace("@php", "<?php").replace("@endphp", "?>");
+                //what we need is a compiler visitor
+                //the caretOffset will be adjusted by the results of the compiled text
+                phpText = phpText.replace("@php", "<?php").replace("@endphp", "     ?>");
                 ParsingUtils parsingUtils = new ParsingUtils();
                 parsingUtils.parsePhpText(phpText);
-                locations = PhpTypeCompletionProvider.getInstance().getItems(fo, parsingUtils.getParserResult(), caretOffset);
+                locations = PhpTypeCompletionProvider.getInstance().getItems(fo, parsingUtils.getParserResult(), caretOffset -1);
                 
                 return locations;
         }

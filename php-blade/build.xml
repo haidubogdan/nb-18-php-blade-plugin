@@ -6,23 +6,32 @@
     <description>Builds, tests, and runs the project org.netbeans.modules.php.blade.</description>
     <import file="nbproject/build-impl.xml"/>
     <target name="generate-antlr-parser" description="Regenerate the ANTLRv4 parser" depends="init">
-        <property name="md.outdir" location="${src.dir}/org/netbeans/modules/php/blade/syntax/antlr4/v10"/>
+        <property name="v10.outdir" location="${src.dir}/org/netbeans/modules/php/blade/syntax/antlr4/v10"/>
+        <property name="v10.compiler.outdir" location="${src.dir}/org/netbeans/modules/php/blade/syntax/antlr4/v10/compiler"/>
         <path id="antlr4.tool">
             <fileset dir="external" includes="*.jar"/>
         </path>
 
-        <java classname="org.antlr.v4.Tool" classpathref="antlr4.tool" fork="true" dir="${md.outdir}">
+        <java classname="org.antlr.v4.Tool" classpathref="antlr4.tool" fork="true" dir="${v10.outdir}">
             <arg value="-o"/>
-            <arg value="${md.outdir}"/>
+            <arg value="${v10.outdir}"/>
             <arg value="BladeAntlrLexer.g4"/>
             <arg value="BladeAntlrParser.g4"/>
         </java>
-        <java classname="org.antlr.v4.Tool" classpathref="antlr4.tool" fork="true" dir="${md.outdir}">
+        <java classname="org.antlr.v4.Tool" classpathref="antlr4.tool" fork="true" dir="${v10.outdir}">
             <arg value="-o"/>
-            <arg value="${md.outdir}"/>
+            <arg value="${v10.outdir}"/>
             <arg value="BladeAntlrColoringLexer.g4"/>
         </java>
-        <delete dir="${md.outdir}" includes="*.tokens"/>
-        <delete dir="${md.outdir}" includes="*.interp"/>
+        <java classname="org.antlr.v4.Tool" classpathref="antlr4.tool" fork="true" dir="${v10.compiler.outdir}">
+            <arg value="-o"/>
+            <arg value="${v10.compiler.outdir}"/>
+            <arg value="BladeAntlrCompilerLexer.g4"/>
+            <arg value="BladeAntlrCompilerParser.g4"/>
+        </java>
+        <delete dir="${v10.outdir}" includes="*.tokens"/>
+        <delete dir="${v10.outdir}" includes="*.interp"/>
+        <delete dir="${v10.compiler.outdir}" includes="*.tokens"/>
+        <delete dir="${v10.compiler.outdir}" includes="*.interp"/>
     </target>
 </project>
