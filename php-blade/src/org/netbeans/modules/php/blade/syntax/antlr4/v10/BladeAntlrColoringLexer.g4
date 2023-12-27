@@ -1,4 +1,5 @@
 lexer grammar BladeAntlrColoringLexer;
+import BladeCommonLexer;
 
 @header{
   package org.netbeans.modules.php.blade.syntax.antlr4.v10;
@@ -18,49 +19,7 @@ tokens { TOKEN_REF,
 }
 
 fragment
-NameString : [a-zA-Z_\u0080-\ufffe][a-zA-Z0-9_\u0080-\ufffe]*;    
-
-fragment ESC_DOUBLE_QUOTED_STRING 
-    : [\\"];
-
-fragment DOUBLE_QUOTED_STRING_FRAGMENT 
-    : '"' (ESC_DOUBLE_QUOTED_STRING | . )*? '"';
-
-fragment SINGLE_QUOTED_STRING_FRAGMENT 
-    : '\'' (~('\'' | '\\') | '\\' . )* '\'';
-  
-fragment
 NEKUDO_WHITELIST_MATCH : '::' | '?:' | ' : ';
-
-fragment Digit
-    : ('0'..'9');
-
-BLADE_COMMENT : '{{--' .*? '--}}';
-
-PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? '?>';
-
-EMAIL_SUBSTRING : ('@' NameString '.')->type(HTML);
-
-VERSION_WITH_AT: '@' (Digit '.')+->type(HTML); 
-
-//escapes
-D_ESCAPES 
-    : (
-      '@@'
-    | '@media'
-    | '@charset'
-    | '@import'
-    | '@namespace'
-    | '@document'
-    | '@font-face'
-    | '@page'
-    | '@supports'
-    | '@layer'
-    | '@tailwind'
-    | '@apply' 
-    | '@-webkit-keyframes' 
-    | '@keyframes'
-    )->type(HTML);
 
 //conditionals
 D_IF : '@if'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
@@ -151,7 +110,6 @@ D_CUSTOM : ('@' NameString {this._input.LA(1) == '(' ||
         (this._input.LA(1) == ' ' && this._input.LA(2) == '(')}? ) ->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
 //display
-ESCAPE_ECHO : '@{' ->type(HTML);
 ESCAPED_ECHO_START : '{{' ->pushMode(ESCAPED_ECHO);
 NE_ECHO_START : '{!!' ->pushMode(NE_ECHO);
 
@@ -164,7 +122,7 @@ mode ESCAPED_ECHO;
 ESCAPED_ECHO_END : ('}}')->popMode;
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
 ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
-ECHO_PHP_FREEZE_SYNTAX : ':' ->type(ERROR);
+ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
 ESCAPED_ECHO_EXPR : ~[:{}]+ ->type(BLADE_PHP_ECHO_EXPR);
 ESCAPED_ECHO_EXPR_MORE : . ->more;
 EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
@@ -175,7 +133,7 @@ mode NE_ECHO;
 NE_ECHO_END : ('!!}')->popMode;
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
 NE_ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
-NE_ECHO_PHP_FREEZE_SYNTAX : ':' ->type(ERROR);
+NE_ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
 NE_ECHO_EXPR : ~[:!{}]+ ->type(BLADE_PHP_ECHO_EXPR);
 NE_ECHO_EXPR_MORE : . ->more;
 EXIT_NE_ECHO_EOF : EOF->type(ERROR),popMode;
@@ -206,7 +164,7 @@ DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
 //freeze issue
 EXPR_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT)->more;
 
-PHP_FREEZE_SYNTAX : ':' ->type(ERROR);
+PHP_FREEZE_SYNTAX : ':' ->skip;
 
 PHP_EXPRESSION_MORE : . ->more;
 

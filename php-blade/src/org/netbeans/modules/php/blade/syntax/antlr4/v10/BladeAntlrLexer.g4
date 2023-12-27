@@ -1,4 +1,5 @@
 lexer grammar BladeAntlrLexer;
+import BladeCommonLexer;
 
 @header{
   package org.netbeans.modules.php.blade.syntax.antlr4.v10;
@@ -21,59 +22,8 @@ tokens { TOKEN_REF,
  
 channels { COMMENT, PHP_CODE }
 
-//
-    
-fragment NameString 
-    : [a-zA-Z_\u0080-\ufffe][a-zA-Z0-9_\u0080-\ufffe]*;    
-    
-fragment ESC_DOUBLE_QUOTED_STRING 
-    : [\\"];
+//RULES
 
-fragment DOUBLE_QUOTED_STRING_FRAGMENT 
-    : '"' (ESC_DOUBLE_QUOTED_STRING | . )*? '"';
-
-fragment SINGLE_QUOTED_STRING_FRAGMENT 
-    : '\'' (~('\'' | '\\') | '\\' . )* '\'';
-
-fragment LineComment
-    : '//' ~ [\r\n]*
-    ;
-
-fragment PhpVariable
-    : '$' NameString;
-
-fragment PhpKeyword
-    : 'array' | 'class';
-
-fragment Digit
-    : ('0'..'9');
-
-BLADE_COMMENT : '{{--' .*? '--}}';
-
-PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? '?>';
-
-EMAIL_SUBSTRING : ('@' NameString '.')->type(HTML);
-
-VERSION_WITH_AT: '@' (Digit '.')+->type(HTML); 
-
-//escapes
-D_ESCAPES 
-    : (
-      '@@'
-    | '@media'
-    | '@charset'
-    | '@import'
-    | '@namespace'
-    | '@document'
-    | '@font-face'
-    | '@page'
-    | '@supports'
-    | '@layer'
-    | '@tailwind'
-    | '@apply' 
-    | '@-webkit-keyframes' 
-    | '@keyframes'
-    )->type(HTML);
 
 //conditionals
 D_IF : '@if'->pushMode(LOOK_FOR_PHP_EXPRESSION);
@@ -171,7 +121,6 @@ D_CUSTOM : ('@' NameString {this._input.LA(1) == '(' ||
 
 D_UNKNOWN : '@' NameString->type(HTML);
 //display
-ESCAPE_ECHO : '@{' ->type(HTML);
 ESCAPED_ECHO_START : '{{' ->pushMode(ESCAPED_ECHO);
 NE_ECHO_START : '{!!' ->pushMode(NE_ECHO);
 

@@ -70,9 +70,6 @@ extract all css directives
 
 ## ANTLR
 
-see if we can have optimisaiton using channels
-might use a common .g4 file for some tokens for (coloring and lexer)
-try to see optimisation on the grammar (coloring + lexer)
 see if alias can help us with simple param extraction on listener
 might simplify generic block statment parsing which are not relevant for data extractio ex: block statements like @can, @isset ...
 

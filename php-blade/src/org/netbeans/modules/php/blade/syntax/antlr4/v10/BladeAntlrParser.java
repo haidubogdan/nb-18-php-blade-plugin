@@ -29,24 +29,24 @@ public class BladeAntlrParser extends Parser {
 	public static final int
 		TOKEN_REF=1, RULE_REF=2, LEXER_CHAR_SET=3, PHP_EXPRESSION=4, PHP_VARIABLE=5, 
 		PHP_KEYWORD=6, BLADE_PARAM_EXTRA=7, BLADE_PARAM_LPAREN=8, BLADE_PARAM_RPAREN=9, 
-		BLADE_PHP_ECHO_EXPR=10, ERROR=11, BLADE_COMMENT=12, PHP_INLINE=13, D_IF=14, 
-		D_ELSEIF=15, D_ELSE=16, D_ENDIF=17, D_SWITCH=18, D_CASE=19, D_DEFAULT=20, 
-		D_ENDSWITCH=21, D_EMPTY=22, D_ENDEMPTY=23, D_COND_BLOCK_START=24, D_COND_BLOCK_END=25, 
-		D_FOREACH=26, D_ENDFOREACH=27, D_FOR=28, D_ENDFOR=29, D_FORELSE=30, D_ENDFORELSE=31, 
-		D_WHILE=32, D_ENDWHILE=33, D_BREAK=34, D_LOOP_ACTION=35, D_INCLUDE=36, 
-		D_INCLUDE_IF=37, D_INCLUDE_WHEN=38, D_INCLUDE_FIRST=39, D_INCLUDE_UNLESS=40, 
-		D_EACH=41, D_EXTENDS=42, D_JS=43, D_SECTION=44, D_HAS_SECTION=45, D_SECTION_MISSING=46, 
-		D_ENDSECTION=47, D_YIELD=48, D_PARENT=49, D_SHOW=50, D_OVERWRITE=51, D_STOP=52, 
-		D_ONCE=53, D_ENDONCE=54, D_STACK=55, D_PUSH=56, D_ENDPUSH=57, D_PUSH_ONCE=58, 
-		D_ENDPUSH_ONCE=59, D_PROPS=60, D_CSRF=61, D_METHOD=62, D_ERROR=63, D_ENDERROR=64, 
-		D_PRODUCTION=65, D_ENDPRODUCTION=66, D_ENV=67, D_ENDENV=68, D_AUTH_START=69, 
-		D_AUTH_END=70, D_CLASS=71, D_STYLE=72, D_HTML_ATTR_EXPR=73, D_AWARE=74, 
-		D_JSON=75, D_DD=76, D_USE=77, D_INJECT=78, D_PHP=79, D_VERBATIM=80, D_ENDVERBATIM=81, 
-		D_CUSTOM=82, ESCAPED_ECHO_START=83, NE_ECHO_START=84, AT=85, HTML=86, 
-		ESCAPED_ECHO_END=87, NE_ECHO_END=88, WS_EXPR=89, WS_BL_PARAM=90, BL_PARAM_LINE_COMMENT=91, 
-		BL_PARAM_STRING=92, BL_PARAM_ASSIGN=93, BL_PARAM_CONCAT_OPERATOR=94, BL_PARAM_COMMA=95, 
-		BL_COMMA=96, BL_PARAM_WS=97, BL_NAME_STRING=98, D_ENDPHP=99, BLADE_PHP_INLINE=100, 
-		ESCAPE_ECHO=101, OPEN_EXPR_PAREN_MORE=102;
+		BLADE_PHP_ECHO_EXPR=10, ERROR=11, HTML=12, D_IF=13, D_ELSEIF=14, D_ELSE=15, 
+		D_ENDIF=16, D_SWITCH=17, D_CASE=18, D_DEFAULT=19, D_ENDSWITCH=20, D_EMPTY=21, 
+		D_ENDEMPTY=22, D_COND_BLOCK_START=23, D_COND_BLOCK_END=24, D_FOREACH=25, 
+		D_ENDFOREACH=26, D_FOR=27, D_ENDFOR=28, D_FORELSE=29, D_ENDFORELSE=30, 
+		D_WHILE=31, D_ENDWHILE=32, D_BREAK=33, D_LOOP_ACTION=34, D_INCLUDE=35, 
+		D_INCLUDE_IF=36, D_INCLUDE_WHEN=37, D_INCLUDE_FIRST=38, D_INCLUDE_UNLESS=39, 
+		D_EACH=40, D_EXTENDS=41, D_JS=42, D_SECTION=43, D_HAS_SECTION=44, D_SECTION_MISSING=45, 
+		D_ENDSECTION=46, D_YIELD=47, D_PARENT=48, D_SHOW=49, D_OVERWRITE=50, D_STOP=51, 
+		D_ONCE=52, D_ENDONCE=53, D_STACK=54, D_PUSH=55, D_ENDPUSH=56, D_PUSH_ONCE=57, 
+		D_ENDPUSH_ONCE=58, D_PROPS=59, D_CSRF=60, D_METHOD=61, D_ERROR=62, D_ENDERROR=63, 
+		D_PRODUCTION=64, D_ENDPRODUCTION=65, D_ENV=66, D_ENDENV=67, D_AUTH_START=68, 
+		D_AUTH_END=69, D_CLASS=70, D_STYLE=71, D_HTML_ATTR_EXPR=72, D_AWARE=73, 
+		D_JSON=74, D_DD=75, D_USE=76, D_INJECT=77, D_PHP=78, D_VERBATIM=79, D_ENDVERBATIM=80, 
+		D_CUSTOM=81, ESCAPED_ECHO_START=82, NE_ECHO_START=83, AT=84, BLADE_COMMENT=85, 
+		PHP_INLINE=86, ESCAPED_ECHO_END=87, NE_ECHO_END=88, WS_EXPR=89, WS_BL_PARAM=90, 
+		BL_PARAM_LINE_COMMENT=91, BL_PARAM_STRING=92, BL_PARAM_ASSIGN=93, BL_PARAM_CONCAT_OPERATOR=94, 
+		BL_PARAM_COMMA=95, BL_COMMA=96, BL_PARAM_WS=97, BL_NAME_STRING=98, D_ENDPHP=99, 
+		BLADE_PHP_INLINE=100, OPEN_EXPR_PAREN_MORE=101;
 	public static final int
 		RULE_file = 0, RULE_general_statement = 1, RULE_inline_statement = 2, 
 		RULE_inline_directive = 3, RULE_block_statement = 4, RULE_non_blade_statement = 5, 
@@ -79,20 +79,20 @@ public class BladeAntlrParser extends Parser {
 	private static String[] makeLiteralNames() {
 		return new String[] {
 			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, "'@if'", "'@elseif'", "'@else'", "'@endif'", "'@switch'", 
-			"'@case'", "'@default'", "'@endswitch'", "'@empty'", "'@endempty'", null, 
-			null, "'@foreach'", "'@endforeach'", "'@for'", "'@endfor'", "'@forelse'", 
-			"'@endforelse'", "'@while'", "'@endwhile'", "'@break'", null, "'@include'", 
-			"'@includeIf'", "'@includeWhen'", "'@includeFirst'", "'@includeUnless'", 
-			"'@each'", "'@extends'", "'@js'", "'@section'", "'@hasSection'", "'@sectionMissing'", 
-			"'@endsection'", "'@yield'", "'@parent'", "'@show'", "'@overwrite'", 
-			"'@stop'", "'@once'", "'@endonce'", "'@stack'", "'@push'", "'@endpush'", 
-			"'@pushOnce'", "'@endPushOnce'", "'@props'", "'@csrf'", "'@method'", 
-			"'@error'", "'@enderror'", "'@production'", "'@endproduction'", "'@env'", 
-			"'@endenv'", null, null, "'@class'", "'@style'", null, "'@aware'", "'@json'", 
-			"'@dd'", "'@use'", "'@inject'", "'@php'", "'@verbatim'", "'@endverbatim'", 
-			null, "'{{'", "'{!!'", "'@'", null, null, null, null, null, null, null, 
-			"'=>'", "'.'", null, "','", null, null, "'@endphp'", null, "'@{'", "'('"
+			null, "'@if'", "'@elseif'", "'@else'", "'@endif'", "'@switch'", "'@case'", 
+			"'@default'", "'@endswitch'", "'@empty'", "'@endempty'", null, null, 
+			"'@foreach'", "'@endforeach'", "'@for'", "'@endfor'", "'@forelse'", "'@endforelse'", 
+			"'@while'", "'@endwhile'", "'@break'", null, "'@include'", "'@includeIf'", 
+			"'@includeWhen'", "'@includeFirst'", "'@includeUnless'", "'@each'", "'@extends'", 
+			"'@js'", "'@section'", "'@hasSection'", "'@sectionMissing'", "'@endsection'", 
+			"'@yield'", "'@parent'", "'@show'", "'@overwrite'", "'@stop'", "'@once'", 
+			"'@endonce'", "'@stack'", "'@push'", "'@endpush'", "'@pushOnce'", "'@endPushOnce'", 
+			"'@props'", "'@csrf'", "'@method'", "'@error'", "'@enderror'", "'@production'", 
+			"'@endproduction'", "'@env'", "'@endenv'", null, null, "'@class'", "'@style'", 
+			null, "'@aware'", "'@json'", "'@dd'", "'@use'", "'@inject'", "'@php'", 
+			"'@verbatim'", "'@endverbatim'", null, "'{{'", "'{!!'", "'@'", null, 
+			null, null, null, null, null, null, null, "'=>'", "'.'", null, "','", 
+			null, null, "'@endphp'", null, "'('"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -100,9 +100,9 @@ public class BladeAntlrParser extends Parser {
 		return new String[] {
 			null, "TOKEN_REF", "RULE_REF", "LEXER_CHAR_SET", "PHP_EXPRESSION", "PHP_VARIABLE", 
 			"PHP_KEYWORD", "BLADE_PARAM_EXTRA", "BLADE_PARAM_LPAREN", "BLADE_PARAM_RPAREN", 
-			"BLADE_PHP_ECHO_EXPR", "ERROR", "BLADE_COMMENT", "PHP_INLINE", "D_IF", 
-			"D_ELSEIF", "D_ELSE", "D_ENDIF", "D_SWITCH", "D_CASE", "D_DEFAULT", "D_ENDSWITCH", 
-			"D_EMPTY", "D_ENDEMPTY", "D_COND_BLOCK_START", "D_COND_BLOCK_END", "D_FOREACH", 
+			"BLADE_PHP_ECHO_EXPR", "ERROR", "HTML", "D_IF", "D_ELSEIF", "D_ELSE", 
+			"D_ENDIF", "D_SWITCH", "D_CASE", "D_DEFAULT", "D_ENDSWITCH", "D_EMPTY", 
+			"D_ENDEMPTY", "D_COND_BLOCK_START", "D_COND_BLOCK_END", "D_FOREACH", 
 			"D_ENDFOREACH", "D_FOR", "D_ENDFOR", "D_FORELSE", "D_ENDFORELSE", "D_WHILE", 
 			"D_ENDWHILE", "D_BREAK", "D_LOOP_ACTION", "D_INCLUDE", "D_INCLUDE_IF", 
 			"D_INCLUDE_WHEN", "D_INCLUDE_FIRST", "D_INCLUDE_UNLESS", "D_EACH", "D_EXTENDS", 
@@ -113,10 +113,10 @@ public class BladeAntlrParser extends Parser {
 			"D_ENV", "D_ENDENV", "D_AUTH_START", "D_AUTH_END", "D_CLASS", "D_STYLE", 
 			"D_HTML_ATTR_EXPR", "D_AWARE", "D_JSON", "D_DD", "D_USE", "D_INJECT", 
 			"D_PHP", "D_VERBATIM", "D_ENDVERBATIM", "D_CUSTOM", "ESCAPED_ECHO_START", 
-			"NE_ECHO_START", "AT", "HTML", "ESCAPED_ECHO_END", "NE_ECHO_END", "WS_EXPR", 
-			"WS_BL_PARAM", "BL_PARAM_LINE_COMMENT", "BL_PARAM_STRING", "BL_PARAM_ASSIGN", 
-			"BL_PARAM_CONCAT_OPERATOR", "BL_PARAM_COMMA", "BL_COMMA", "BL_PARAM_WS", 
-			"BL_NAME_STRING", "D_ENDPHP", "BLADE_PHP_INLINE", "ESCAPE_ECHO", "OPEN_EXPR_PAREN_MORE"
+			"NE_ECHO_START", "AT", "BLADE_COMMENT", "PHP_INLINE", "ESCAPED_ECHO_END", 
+			"NE_ECHO_END", "WS_EXPR", "WS_BL_PARAM", "BL_PARAM_LINE_COMMENT", "BL_PARAM_STRING", 
+			"BL_PARAM_ASSIGN", "BL_PARAM_CONCAT_OPERATOR", "BL_PARAM_COMMA", "BL_COMMA", 
+			"BL_PARAM_WS", "BL_NAME_STRING", "D_ENDPHP", "BLADE_PHP_INLINE", "OPEN_EXPR_PAREN_MORE"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -203,7 +203,7 @@ public class BladeAntlrParser extends Parser {
 			setState(95);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0)) {
 				{
 				{
 				setState(92);
@@ -789,7 +789,7 @@ public class BladeAntlrParser extends Parser {
 					setState(148); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 				setState(150);
 				match(D_ENDONCE);
 				}
@@ -842,7 +842,7 @@ public class BladeAntlrParser extends Parser {
 					setState(161); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 				setState(163);
 				match(D_ENDENV);
 				}
@@ -867,7 +867,7 @@ public class BladeAntlrParser extends Parser {
 					setState(170); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 				setState(172);
 				match(D_ENDEMPTY);
 				}
@@ -892,7 +892,7 @@ public class BladeAntlrParser extends Parser {
 					setState(179); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 				setState(181);
 				match(D_ENDERROR);
 				}
@@ -1163,13 +1163,12 @@ public class BladeAntlrParser extends Parser {
 			setState(210);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & -1033796028259766272L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 8706474022724890624L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0)) {
 				{
 				setState(208);
 				_errHandler.sync(this);
 				switch (_input.LA(1)) {
-				case BLADE_COMMENT:
-				case PHP_INLINE:
+				case HTML:
 				case D_IF:
 				case D_ELSEIF:
 				case D_ELSE:
@@ -1213,7 +1212,8 @@ public class BladeAntlrParser extends Parser {
 				case D_CUSTOM:
 				case ESCAPED_ECHO_START:
 				case NE_ECHO_START:
-				case HTML:
+				case BLADE_COMMENT:
+				case PHP_INLINE:
 					{
 					setState(205);
 					general_statement();
@@ -1241,7 +1241,7 @@ public class BladeAntlrParser extends Parser {
 			}
 			setState(213);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 6896136929411072L) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 3448068464705536L) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -1313,7 +1313,7 @@ public class BladeAntlrParser extends Parser {
 				setState(220); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 			setState(222);
 			match(D_ENDPUSH);
 			}
@@ -1380,7 +1380,7 @@ public class BladeAntlrParser extends Parser {
 				setState(229); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 			setState(231);
 			match(D_ENDPUSH_ONCE);
 			}
@@ -1729,7 +1729,7 @@ public class BladeAntlrParser extends Parser {
 				setState(269); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 			setState(271);
 			match(D_COND_BLOCK_END);
 			}
@@ -1796,7 +1796,7 @@ public class BladeAntlrParser extends Parser {
 				setState(278); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 			setState(280);
 			match(D_AUTH_END);
 			}
@@ -1879,7 +1879,7 @@ public class BladeAntlrParser extends Parser {
 				setState(288); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 			setState(290);
 			match(D_ENDSWITCH);
 			}
@@ -1946,7 +1946,7 @@ public class BladeAntlrParser extends Parser {
 				setState(297); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 			setState(299);
 			match(D_ENDWHILE);
 			}
@@ -2013,7 +2013,7 @@ public class BladeAntlrParser extends Parser {
 				setState(306); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 			setState(308);
 			match(D_ENDFOR);
 			}
@@ -2080,7 +2080,7 @@ public class BladeAntlrParser extends Parser {
 				setState(315); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 			setState(317);
 			match(D_ENDFOREACH);
 			}
@@ -2163,7 +2163,7 @@ public class BladeAntlrParser extends Parser {
 				setState(325); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0) );
 			setState(327);
 			match(D_ENDFORELSE);
 			}
@@ -2645,7 +2645,7 @@ public class BladeAntlrParser extends Parser {
 			setState(382);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & -1035484878120030208L) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & 769141L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 8705629597794758656L) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & 1817717L) != 0)) {
 				{
 				{
 				setState(379);
@@ -3611,7 +3611,7 @@ public class BladeAntlrParser extends Parser {
 				setState(503); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( _la==PHP_INLINE || _la==HTML );
+			} while ( _la==HTML || _la==PHP_INLINE );
 			setState(505);
 			match(D_ENDVERBATIM);
 			}
@@ -3749,7 +3749,7 @@ public class BladeAntlrParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\u0004\u0001f\u0205\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
+		"\u0004\u0001e\u0205\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
 		"\u0002\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004\u0002"+
 		"\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0002"+
 		"\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b\u0007\u000b\u0002"+
@@ -3825,8 +3825,8 @@ public class BladeAntlrParser extends Parser {
 		"+\u0001,\u0001,\u0003,\u01fe\b,\u0001-\u0004-\u0201\b-\u000b-\f-\u0202"+
 		"\u0001-\u0000\u0000.\u0000\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014"+
 		"\u0016\u0018\u001a\u001c\u001e \"$&(*,.02468:<>@BDFHJLNPRTVXZ\u0000\u0005"+
-		"\u0001\u0000GH\u0002\u0000//34\u0002\u0000&&((\u0002\u0000\u0005\u0006"+
-		"\\\\\u0001\u0000\"#\u023a\u0000_\u0001\u0000\u0000\u0000\u0002h\u0001"+
+		"\u0001\u0000FG\u0002\u0000..23\u0002\u0000%%\'\'\u0002\u0000\u0005\u0006"+
+		"\\\\\u0001\u0000!\"\u023a\u0000_\u0001\u0000\u0000\u0000\u0002h\u0001"+
 		"\u0000\u0000\u0000\u0004n\u0001\u0000\u0000\u0000\u0006\u008b\u0001\u0000"+
 		"\u0000\u0000\b\u00bf\u0001\u0000\u0000\u0000\n\u00c3\u0001\u0000\u0000"+
 		"\u0000\f\u00c5\u0001\u0000\u0000\u0000\u000e\u00c8\u0001\u0000\u0000\u0000"+
@@ -3851,7 +3851,7 @@ public class BladeAntlrParser extends Parser {
 		"_]\u0001\u0000\u0000\u0000_`\u0001\u0000\u0000\u0000`b\u0001\u0000\u0000"+
 		"\u0000a_\u0001\u0000\u0000\u0000bc\u0005\u0000\u0000\u0001c\u0001\u0001"+
 		"\u0000\u0000\u0000di\u0003\u0004\u0002\u0000ei\u0003\b\u0004\u0000fi\u0005"+
-		"\f\u0000\u0000gi\u0003Z-\u0000hd\u0001\u0000\u0000\u0000he\u0001\u0000"+
+		"U\u0000\u0000gi\u0003Z-\u0000hd\u0001\u0000\u0000\u0000he\u0001\u0000"+
 		"\u0000\u0000hf\u0001\u0000\u0000\u0000hg\u0001\u0000\u0000\u0000i\u0003"+
 		"\u0001\u0000\u0000\u0000jo\u0003\u0006\u0003\u0000ko\u0003B!\u0000lo\u0003"+
 		"D\"\u0000mo\u0003@ \u0000nj\u0001\u0000\u0000\u0000nk\u0001\u0000\u0000"+
@@ -3860,12 +3860,12 @@ public class BladeAntlrParser extends Parser {
 		"\u0000r\u008c\u0003,\u0016\u0000s\u008c\u0003.\u0017\u0000t\u008c\u0003"+
 		"0\u0018\u0000u\u008c\u00032\u0019\u0000v\u008c\u00034\u001a\u0000w\u008c"+
 		"\u00036\u001b\u0000x\u008c\u00038\u001c\u0000yz\u0007\u0000\u0000\u0000"+
-		"z\u008c\u0003F#\u0000{|\u0005>\u0000\u0000|\u008c\u0003F#\u0000}~\u0005"+
-		"<\u0000\u0000~\u008c\u0003F#\u0000\u007f\u008c\u0005=\u0000\u0000\u0080"+
-		"\u0081\u0005M\u0000\u0000\u0081\u008c\u0003H$\u0000\u0082\u0083\u0005"+
-		"N\u0000\u0000\u0083\u008c\u0003L&\u0000\u0084\u0085\u0005I\u0000\u0000"+
-		"\u0085\u008c\u0003F#\u0000\u0086\u0087\u0005\u0013\u0000\u0000\u0087\u008c"+
-		"\u0003F#\u0000\u0088\u008c\u0005\u0014\u0000\u0000\u0089\u008c\u0003X"+
+		"z\u008c\u0003F#\u0000{|\u0005=\u0000\u0000|\u008c\u0003F#\u0000}~\u0005"+
+		";\u0000\u0000~\u008c\u0003F#\u0000\u007f\u008c\u0005<\u0000\u0000\u0080"+
+		"\u0081\u0005L\u0000\u0000\u0081\u008c\u0003H$\u0000\u0082\u0083\u0005"+
+		"M\u0000\u0000\u0083\u008c\u0003L&\u0000\u0084\u0085\u0005H\u0000\u0000"+
+		"\u0085\u008c\u0003F#\u0000\u0086\u0087\u0005\u0012\u0000\u0000\u0087\u008c"+
+		"\u0003F#\u0000\u0088\u008c\u0005\u0013\u0000\u0000\u0089\u008c\u0003X"+
 		",\u0000\u008a\u008c\u0003<\u001e\u0000\u008bp\u0001\u0000\u0000\u0000"+
 		"\u008bq\u0001\u0000\u0000\u0000\u008br\u0001\u0000\u0000\u0000\u008bs"+
 		"\u0001\u0000\u0000\u0000\u008bt\u0001\u0000\u0000\u0000\u008bu\u0001\u0000"+
@@ -3877,27 +3877,27 @@ public class BladeAntlrParser extends Parser {
 		"\u0000\u0000\u0000\u008b\u0088\u0001\u0000\u0000\u0000\u008b\u0089\u0001"+
 		"\u0000\u0000\u0000\u008b\u008a\u0001\u0000\u0000\u0000\u008c\u0007\u0001"+
 		"\u0000\u0000\u0000\u008d\u00c0\u0003\u0010\b\u0000\u008e\u00c0\u0003:"+
-		"\u001d\u0000\u008f\u00c0\u0003\u0012\t\u0000\u0090\u0092\u00055\u0000"+
+		"\u001d\u0000\u008f\u00c0\u0003\u0012\t\u0000\u0090\u0092\u00054\u0000"+
 		"\u0000\u0091\u0093\u0003\u0002\u0001\u0000\u0092\u0091\u0001\u0000\u0000"+
 		"\u0000\u0093\u0094\u0001\u0000\u0000\u0000\u0094\u0092\u0001\u0000\u0000"+
 		"\u0000\u0094\u0095\u0001\u0000\u0000\u0000\u0095\u0096\u0001\u0000\u0000"+
-		"\u0000\u0096\u0097\u00056\u0000\u0000\u0097\u00c0\u0001\u0000\u0000\u0000"+
+		"\u0000\u0096\u0097\u00055\u0000\u0000\u0097\u00c0\u0001\u0000\u0000\u0000"+
 		"\u0098\u00c0\u0003\u0016\u000b\u0000\u0099\u00c0\u0003\u0018\f\u0000\u009a"+
 		"\u00c0\u0003\u001a\r\u0000\u009b\u00c0\u0003\"\u0011\u0000\u009c\u009d"+
-		"\u0005C\u0000\u0000\u009d\u009f\u0003H$\u0000\u009e\u00a0\u0003\u0002"+
+		"\u0005B\u0000\u0000\u009d\u009f\u0003H$\u0000\u009e\u00a0\u0003\u0002"+
 		"\u0001\u0000\u009f\u009e\u0001\u0000\u0000\u0000\u00a0\u00a1\u0001\u0000"+
 		"\u0000\u0000\u00a1\u009f\u0001\u0000\u0000\u0000\u00a1\u00a2\u0001\u0000"+
-		"\u0000\u0000\u00a2\u00a3\u0001\u0000\u0000\u0000\u00a3\u00a4\u0005D\u0000"+
-		"\u0000\u00a4\u00c0\u0001\u0000\u0000\u0000\u00a5\u00a6\u0005\u0016\u0000"+
+		"\u0000\u0000\u00a2\u00a3\u0001\u0000\u0000\u0000\u00a3\u00a4\u0005C\u0000"+
+		"\u0000\u00a4\u00c0\u0001\u0000\u0000\u0000\u00a5\u00a6\u0005\u0015\u0000"+
 		"\u0000\u00a6\u00a8\u0003F#\u0000\u00a7\u00a9\u0003\u0002\u0001\u0000\u00a8"+
 		"\u00a7\u0001\u0000\u0000\u0000\u00a9\u00aa\u0001\u0000\u0000\u0000\u00aa"+
 		"\u00a8\u0001\u0000\u0000\u0000\u00aa\u00ab\u0001\u0000\u0000\u0000\u00ab"+
-		"\u00ac\u0001\u0000\u0000\u0000\u00ac\u00ad\u0005\u0017\u0000\u0000\u00ad"+
-		"\u00c0\u0001\u0000\u0000\u0000\u00ae\u00af\u0005?\u0000\u0000\u00af\u00b1"+
+		"\u00ac\u0001\u0000\u0000\u0000\u00ac\u00ad\u0005\u0016\u0000\u0000\u00ad"+
+		"\u00c0\u0001\u0000\u0000\u0000\u00ae\u00af\u0005>\u0000\u0000\u00af\u00b1"+
 		"\u0003F#\u0000\u00b0\u00b2\u0003\u0002\u0001\u0000\u00b1\u00b0\u0001\u0000"+
 		"\u0000\u0000\u00b2\u00b3\u0001\u0000\u0000\u0000\u00b3\u00b1\u0001\u0000"+
 		"\u0000\u0000\u00b3\u00b4\u0001\u0000\u0000\u0000\u00b4\u00b5\u0001\u0000"+
-		"\u0000\u0000\u00b5\u00b6\u0005@\u0000\u0000\u00b6\u00c0\u0001\u0000\u0000"+
+		"\u0000\u0000\u00b5\u00b6\u0005?\u0000\u0000\u00b6\u00c0\u0001\u0000\u0000"+
 		"\u0000\u00b7\u00c0\u0003\u001e\u000f\u0000\u00b8\u00c0\u0003 \u0010\u0000"+
 		"\u00b9\u00c0\u0003$\u0012\u0000\u00ba\u00c0\u0003&\u0013\u0000\u00bb\u00c0"+
 		"\u0003(\u0014\u0000\u00bc\u00c0\u0003*\u0015\u0000\u00bd\u00c0\u0003V"+
@@ -3913,84 +3913,84 @@ public class BladeAntlrParser extends Parser {
 		"\u00bf\u00bd\u0001\u0000\u0000\u0000\u00bf\u00be\u0001\u0000\u0000\u0000"+
 		"\u00c0\t\u0001\u0000\u0000\u0000\u00c1\u00c4\u0003Z-\u0000\u00c2\u00c4"+
 		"\u0003@ \u0000\u00c3\u00c1\u0001\u0000\u0000\u0000\u00c3\u00c2\u0001\u0000"+
-		"\u0000\u0000\u00c4\u000b\u0001\u0000\u0000\u0000\u00c5\u00c6\u0005*\u0000"+
+		"\u0000\u0000\u00c4\u000b\u0001\u0000\u0000\u0000\u00c5\u00c6\u0005)\u0000"+
 		"\u0000\u00c6\u00c7\u0003H$\u0000\u00c7\r\u0001\u0000\u0000\u0000\u00c8"+
-		"\u00c9\u0005,\u0000\u0000\u00c9\u00ca\u0003L&\u0000\u00ca\u000f\u0001"+
-		"\u0000\u0000\u0000\u00cb\u00cc\u0005,\u0000\u0000\u00cc\u00d2\u0003H$"+
-		"\u0000\u00cd\u00d1\u0003\u0002\u0001\u0000\u00ce\u00d1\u00052\u0000\u0000"+
-		"\u00cf\u00d1\u00051\u0000\u0000\u00d0\u00cd\u0001\u0000\u0000\u0000\u00d0"+
+		"\u00c9\u0005+\u0000\u0000\u00c9\u00ca\u0003L&\u0000\u00ca\u000f\u0001"+
+		"\u0000\u0000\u0000\u00cb\u00cc\u0005+\u0000\u0000\u00cc\u00d2\u0003H$"+
+		"\u0000\u00cd\u00d1\u0003\u0002\u0001\u0000\u00ce\u00d1\u00051\u0000\u0000"+
+		"\u00cf\u00d1\u00050\u0000\u0000\u00d0\u00cd\u0001\u0000\u0000\u0000\u00d0"+
 		"\u00ce\u0001\u0000\u0000\u0000\u00d0\u00cf\u0001\u0000\u0000\u0000\u00d1"+
 		"\u00d4\u0001\u0000\u0000\u0000\u00d2\u00d0\u0001\u0000\u0000\u0000\u00d2"+
 		"\u00d3\u0001\u0000\u0000\u0000\u00d3\u00d5\u0001\u0000\u0000\u0000\u00d4"+
 		"\u00d2\u0001\u0000\u0000\u0000\u00d5\u00d6\u0007\u0001\u0000\u0000\u00d6"+
-		"\u0011\u0001\u0000\u0000\u0000\u00d7\u00d8\u00058\u0000\u0000\u00d8\u00da"+
+		"\u0011\u0001\u0000\u0000\u0000\u00d7\u00d8\u00057\u0000\u0000\u00d8\u00da"+
 		"\u0003H$\u0000\u00d9\u00db\u0003\u0002\u0001\u0000\u00da\u00d9\u0001\u0000"+
 		"\u0000\u0000\u00db\u00dc\u0001\u0000\u0000\u0000\u00dc\u00da\u0001\u0000"+
 		"\u0000\u0000\u00dc\u00dd\u0001\u0000\u0000\u0000\u00dd\u00de\u0001\u0000"+
-		"\u0000\u0000\u00de\u00df\u00059\u0000\u0000\u00df\u0013\u0001\u0000\u0000"+
-		"\u0000\u00e0\u00e1\u0005:\u0000\u0000\u00e1\u00e3\u0003H$\u0000\u00e2"+
+		"\u0000\u0000\u00de\u00df\u00058\u0000\u0000\u00df\u0013\u0001\u0000\u0000"+
+		"\u0000\u00e0\u00e1\u00059\u0000\u0000\u00e1\u00e3\u0003H$\u0000\u00e2"+
 		"\u00e4\u0003\u0002\u0001\u0000\u00e3\u00e2\u0001\u0000\u0000\u0000\u00e4"+
 		"\u00e5\u0001\u0000\u0000\u0000\u00e5\u00e3\u0001\u0000\u0000\u0000\u00e5"+
 		"\u00e6\u0001\u0000\u0000\u0000\u00e6\u00e7\u0001\u0000\u0000\u0000\u00e7"+
-		"\u00e8\u0005;\u0000\u0000\u00e8\u0015\u0001\u0000\u0000\u0000\u00e9\u00ea"+
-		"\u0005\u000e\u0000\u0000\u00ea\u00ec\u0003F#\u0000\u00eb\u00ed\u0003\u0002"+
+		"\u00e8\u0005:\u0000\u0000\u00e8\u0015\u0001\u0000\u0000\u0000\u00e9\u00ea"+
+		"\u0005\r\u0000\u0000\u00ea\u00ec\u0003F#\u0000\u00eb\u00ed\u0003\u0002"+
 		"\u0001\u0000\u00ec\u00eb\u0001\u0000\u0000\u0000\u00ed\u00ee\u0001\u0000"+
 		"\u0000\u0000\u00ee\u00ec\u0001\u0000\u0000\u0000\u00ee\u00ef\u0001\u0000"+
 		"\u0000\u0000\u00ef\u00f1\u0001\u0000\u0000\u0000\u00f0\u00f2\u0003\u001c"+
 		"\u000e\u0000\u00f1\u00f0\u0001\u0000\u0000\u0000\u00f1\u00f2\u0001\u0000"+
-		"\u0000\u0000\u00f2\u0017\u0001\u0000\u0000\u0000\u00f3\u00f4\u0005\u000f"+
+		"\u0000\u0000\u00f2\u0017\u0001\u0000\u0000\u0000\u00f3\u00f4\u0005\u000e"+
 		"\u0000\u0000\u00f4\u00f6\u0003F#\u0000\u00f5\u00f7\u0003\u0002\u0001\u0000"+
 		"\u00f6\u00f5\u0001\u0000\u0000\u0000\u00f7\u00f8\u0001\u0000\u0000\u0000"+
 		"\u00f8\u00f6\u0001\u0000\u0000\u0000\u00f8\u00f9\u0001\u0000\u0000\u0000"+
 		"\u00f9\u00fb\u0001\u0000\u0000\u0000\u00fa\u00fc\u0003\u001c\u000e\u0000"+
 		"\u00fb\u00fa\u0001\u0000\u0000\u0000\u00fb\u00fc\u0001\u0000\u0000\u0000"+
-		"\u00fc\u0019\u0001\u0000\u0000\u0000\u00fd\u00ff\u0005\u0010\u0000\u0000"+
+		"\u00fc\u0019\u0001\u0000\u0000\u0000\u00fd\u00ff\u0005\u000f\u0000\u0000"+
 		"\u00fe\u0100\u0003\u0002\u0001\u0000\u00ff\u00fe\u0001\u0000\u0000\u0000"+
 		"\u0100\u0101\u0001\u0000\u0000\u0000\u0101\u00ff\u0001\u0000\u0000\u0000"+
 		"\u0101\u0102\u0001\u0000\u0000\u0000\u0102\u0104\u0001\u0000\u0000\u0000"+
 		"\u0103\u0105\u0003\u001c\u000e\u0000\u0104\u0103\u0001\u0000\u0000\u0000"+
 		"\u0104\u0105\u0001\u0000\u0000\u0000\u0105\u001b\u0001\u0000\u0000\u0000"+
-		"\u0106\u0107\u0005\u0011\u0000\u0000\u0107\u001d\u0001\u0000\u0000\u0000"+
-		"\u0108\u0109\u0005\u0018\u0000\u0000\u0109\u010b\u0003F#\u0000\u010a\u010c"+
+		"\u0106\u0107\u0005\u0010\u0000\u0000\u0107\u001d\u0001\u0000\u0000\u0000"+
+		"\u0108\u0109\u0005\u0017\u0000\u0000\u0109\u010b\u0003F#\u0000\u010a\u010c"+
 		"\u0003\u0002\u0001\u0000\u010b\u010a\u0001\u0000\u0000\u0000\u010c\u010d"+
 		"\u0001\u0000\u0000\u0000\u010d\u010b\u0001\u0000\u0000\u0000\u010d\u010e"+
 		"\u0001\u0000\u0000\u0000\u010e\u010f\u0001\u0000\u0000\u0000\u010f\u0110"+
-		"\u0005\u0019\u0000\u0000\u0110\u001f\u0001\u0000\u0000\u0000\u0111\u0112"+
-		"\u0005E\u0000\u0000\u0112\u0114\u0003H$\u0000\u0113\u0115\u0003\u0002"+
+		"\u0005\u0018\u0000\u0000\u0110\u001f\u0001\u0000\u0000\u0000\u0111\u0112"+
+		"\u0005D\u0000\u0000\u0112\u0114\u0003H$\u0000\u0113\u0115\u0003\u0002"+
 		"\u0001\u0000\u0114\u0113\u0001\u0000\u0000\u0000\u0115\u0116\u0001\u0000"+
 		"\u0000\u0000\u0116\u0114\u0001\u0000\u0000\u0000\u0116\u0117\u0001\u0000"+
-		"\u0000\u0000\u0117\u0118\u0001\u0000\u0000\u0000\u0118\u0119\u0005F\u0000"+
-		"\u0000\u0119!\u0001\u0000\u0000\u0000\u011a\u011b\u0005\u0012\u0000\u0000"+
+		"\u0000\u0000\u0117\u0118\u0001\u0000\u0000\u0000\u0118\u0119\u0005E\u0000"+
+		"\u0000\u0119!\u0001\u0000\u0000\u0000\u011a\u011b\u0005\u0011\u0000\u0000"+
 		"\u011b\u011e\u0003F#\u0000\u011c\u011f\u0003\u0002\u0001\u0000\u011d\u011f"+
-		"\u0005\"\u0000\u0000\u011e\u011c\u0001\u0000\u0000\u0000\u011e\u011d\u0001"+
+		"\u0005!\u0000\u0000\u011e\u011c\u0001\u0000\u0000\u0000\u011e\u011d\u0001"+
 		"\u0000\u0000\u0000\u011f\u0120\u0001\u0000\u0000\u0000\u0120\u011e\u0001"+
 		"\u0000\u0000\u0000\u0120\u0121\u0001\u0000\u0000\u0000\u0121\u0122\u0001"+
-		"\u0000\u0000\u0000\u0122\u0123\u0005\u0015\u0000\u0000\u0123#\u0001\u0000"+
-		"\u0000\u0000\u0124\u0125\u0005 \u0000\u0000\u0125\u0127\u0003F#\u0000"+
+		"\u0000\u0000\u0000\u0122\u0123\u0005\u0014\u0000\u0000\u0123#\u0001\u0000"+
+		"\u0000\u0000\u0124\u0125\u0005\u001f\u0000\u0000\u0125\u0127\u0003F#\u0000"+
 		"\u0126\u0128\u0003\u0002\u0001\u0000\u0127\u0126\u0001\u0000\u0000\u0000"+
 		"\u0128\u0129\u0001\u0000\u0000\u0000\u0129\u0127\u0001\u0000\u0000\u0000"+
 		"\u0129\u012a\u0001\u0000\u0000\u0000\u012a\u012b\u0001\u0000\u0000\u0000"+
-		"\u012b\u012c\u0005!\u0000\u0000\u012c%\u0001\u0000\u0000\u0000\u012d\u012e"+
-		"\u0005\u001c\u0000\u0000\u012e\u0130\u0003F#\u0000\u012f\u0131\u0003\u0002"+
+		"\u012b\u012c\u0005 \u0000\u0000\u012c%\u0001\u0000\u0000\u0000\u012d\u012e"+
+		"\u0005\u001b\u0000\u0000\u012e\u0130\u0003F#\u0000\u012f\u0131\u0003\u0002"+
 		"\u0001\u0000\u0130\u012f\u0001\u0000\u0000\u0000\u0131\u0132\u0001\u0000"+
 		"\u0000\u0000\u0132\u0130\u0001\u0000\u0000\u0000\u0132\u0133\u0001\u0000"+
-		"\u0000\u0000\u0133\u0134\u0001\u0000\u0000\u0000\u0134\u0135\u0005\u001d"+
-		"\u0000\u0000\u0135\'\u0001\u0000\u0000\u0000\u0136\u0137\u0005\u001a\u0000"+
+		"\u0000\u0000\u0133\u0134\u0001\u0000\u0000\u0000\u0134\u0135\u0005\u001c"+
+		"\u0000\u0000\u0135\'\u0001\u0000\u0000\u0000\u0136\u0137\u0005\u0019\u0000"+
 		"\u0000\u0137\u0139\u0003F#\u0000\u0138\u013a\u0003\u0002\u0001\u0000\u0139"+
 		"\u0138\u0001\u0000\u0000\u0000\u013a\u013b\u0001\u0000\u0000\u0000\u013b"+
 		"\u0139\u0001\u0000\u0000\u0000\u013b\u013c\u0001\u0000\u0000\u0000\u013c"+
-		"\u013d\u0001\u0000\u0000\u0000\u013d\u013e\u0005\u001b\u0000\u0000\u013e"+
-		")\u0001\u0000\u0000\u0000\u013f\u0140\u0005\u001e\u0000\u0000\u0140\u0143"+
-		"\u0003F#\u0000\u0141\u0144\u0003\u0002\u0001\u0000\u0142\u0144\u0005\u0016"+
+		"\u013d\u0001\u0000\u0000\u0000\u013d\u013e\u0005\u001a\u0000\u0000\u013e"+
+		")\u0001\u0000\u0000\u0000\u013f\u0140\u0005\u001d\u0000\u0000\u0140\u0143"+
+		"\u0003F#\u0000\u0141\u0144\u0003\u0002\u0001\u0000\u0142\u0144\u0005\u0015"+
 		"\u0000\u0000\u0143\u0141\u0001\u0000\u0000\u0000\u0143\u0142\u0001\u0000"+
 		"\u0000\u0000\u0144\u0145\u0001\u0000\u0000\u0000\u0145\u0143\u0001\u0000"+
 		"\u0000\u0000\u0145\u0146\u0001\u0000\u0000\u0000\u0146\u0147\u0001\u0000"+
-		"\u0000\u0000\u0147\u0148\u0005\u001f\u0000\u0000\u0148+\u0001\u0000\u0000"+
-		"\u0000\u0149\u014a\u00050\u0000\u0000\u014a\u014b\u0003H$\u0000\u014b"+
-		"-\u0001\u0000\u0000\u0000\u014c\u014d\u00057\u0000\u0000\u014d\u014e\u0003"+
-		"H$\u0000\u014e/\u0001\u0000\u0000\u0000\u014f\u0150\u0005$\u0000\u0000"+
+		"\u0000\u0000\u0147\u0148\u0005\u001e\u0000\u0000\u0148+\u0001\u0000\u0000"+
+		"\u0000\u0149\u014a\u0005/\u0000\u0000\u014a\u014b\u0003H$\u0000\u014b"+
+		"-\u0001\u0000\u0000\u0000\u014c\u014d\u00056\u0000\u0000\u014d\u014e\u0003"+
+		"H$\u0000\u014e/\u0001\u0000\u0000\u0000\u014f\u0150\u0005#\u0000\u0000"+
 		"\u0150\u0151\u0003J%\u0000\u01511\u0001\u0000\u0000\u0000\u0152\u0153"+
-		"\u0005%\u0000\u0000\u0153\u0154\u0003J%\u0000\u01543\u0001\u0000\u0000"+
+		"\u0005$\u0000\u0000\u0153\u0154\u0003J%\u0000\u01543\u0001\u0000\u0000"+
 		"\u0000\u0155\u0156\u0007\u0002\u0000\u0000\u0156\u0157\u0005\b\u0000\u0000"+
 		"\u0157\u0158\u0003R)\u0000\u0158\u015b\u0005`\u0000\u0000\u0159\u015c"+
 		"\u0003P(\u0000\u015a\u015c\u0003R)\u0000\u015b\u0159\u0001\u0000\u0000"+
@@ -3998,8 +3998,8 @@ public class BladeAntlrParser extends Parser {
 		"\u0000\u015d\u015e\u0005`\u0000\u0000\u015e\u0160\u0003R)\u0000\u015f"+
 		"\u015d\u0001\u0000\u0000\u0000\u015f\u0160\u0001\u0000\u0000\u0000\u0160"+
 		"\u0161\u0001\u0000\u0000\u0000\u0161\u0162\u0005\t\u0000\u0000\u01625"+
-		"\u0001\u0000\u0000\u0000\u0163\u0164\u0005\'\u0000\u0000\u0164\u0165\u0003"+
-		"J%\u0000\u01657\u0001\u0000\u0000\u0000\u0166\u0167\u0005)\u0000\u0000"+
+		"\u0001\u0000\u0000\u0000\u0163\u0164\u0005&\u0000\u0000\u0164\u0165\u0003"+
+		"J%\u0000\u01657\u0001\u0000\u0000\u0000\u0166\u0167\u0005(\u0000\u0000"+
 		"\u0167\u016a\u0005\b\u0000\u0000\u0168\u016b\u0003P(\u0000\u0169\u016b"+
 		"\u0003R)\u0000\u016a\u0168\u0001\u0000\u0000\u0000\u016a\u0169\u0001\u0000"+
 		"\u0000\u0000\u016b\u016c\u0001\u0000\u0000\u0000\u016c\u016d\u0005`\u0000"+
@@ -4009,31 +4009,31 @@ public class BladeAntlrParser extends Parser {
 		"\u0173\u0172\u0001\u0000\u0000\u0000\u0174\u0176\u0001\u0000\u0000\u0000"+
 		"\u0175\u0170\u0001\u0000\u0000\u0000\u0175\u0176\u0001\u0000\u0000\u0000"+
 		"\u0176\u0177\u0001\u0000\u0000\u0000\u0177\u0178\u0005\t\u0000\u0000\u0178"+
-		"9\u0001\u0000\u0000\u0000\u0179\u017a\u0005-\u0000\u0000\u017a\u017e\u0003"+
+		"9\u0001\u0000\u0000\u0000\u0179\u017a\u0005,\u0000\u0000\u017a\u017e\u0003"+
 		"H$\u0000\u017b\u017d\u0003\u0002\u0001\u0000\u017c\u017b\u0001\u0000\u0000"+
 		"\u0000\u017d\u0180\u0001\u0000\u0000\u0000\u017e\u017c\u0001\u0000\u0000"+
 		"\u0000\u017e\u017f\u0001\u0000\u0000\u0000\u017f\u0181\u0001\u0000\u0000"+
-		"\u0000\u0180\u017e\u0001\u0000\u0000\u0000\u0181\u0182\u0005\u0011\u0000"+
-		"\u0000\u0182;\u0001\u0000\u0000\u0000\u0183\u0184\u0005R\u0000\u0000\u0184"+
+		"\u0000\u0180\u017e\u0001\u0000\u0000\u0000\u0181\u0182\u0005\u0010\u0000"+
+		"\u0000\u0182;\u0001\u0000\u0000\u0000\u0183\u0184\u0005Q\u0000\u0000\u0184"+
 		"\u0185\u0003N\'\u0000\u0185=\u0001\u0000\u0000\u0000\u0186\u0187\u0005"+
-		"O\u0000\u0000\u0187\u0188\u0005d\u0000\u0000\u0188\u0189\u0005c\u0000"+
-		"\u0000\u0189?\u0001\u0000\u0000\u0000\u018a\u018b\u0005\r\u0000\u0000"+
-		"\u018bA\u0001\u0000\u0000\u0000\u018c\u018d\u0005S\u0000\u0000\u018d\u018e"+
-		"\u0005\n\u0000\u0000\u018e\u018f\u0005W\u0000\u0000\u018fC\u0001\u0000"+
-		"\u0000\u0000\u0190\u0191\u0005T\u0000\u0000\u0191\u0192\u0005\n\u0000"+
-		"\u0000\u0192\u0193\u0005X\u0000\u0000\u0193E\u0001\u0000\u0000\u0000\u0194"+
-		"\u0195\u0005\u0004\u0000\u0000\u0195G\u0001\u0000\u0000\u0000\u0196\u0199"+
-		"\u0005\b\u0000\u0000\u0197\u019a\u0003P(\u0000\u0198\u019a\u0003R)\u0000"+
-		"\u0199\u0197\u0001\u0000\u0000\u0000\u0199\u0198\u0001\u0000\u0000\u0000"+
-		"\u019a\u019b\u0001\u0000\u0000\u0000\u019b\u019c\u0005\t\u0000\u0000\u019c"+
-		"I\u0001\u0000\u0000\u0000\u019d\u01a0\u0005\b\u0000\u0000\u019e\u01a1"+
-		"\u0003P(\u0000\u019f\u01a1\u0003R)\u0000\u01a0\u019e\u0001\u0000\u0000"+
-		"\u0000\u01a0\u019f\u0001\u0000\u0000\u0000\u01a1\u01a4\u0001\u0000\u0000"+
-		"\u0000\u01a2\u01a3\u0005`\u0000\u0000\u01a3\u01a5\u0003R)\u0000\u01a4"+
-		"\u01a2\u0001\u0000\u0000\u0000\u01a4\u01a5\u0001\u0000\u0000\u0000\u01a5"+
-		"\u01a6\u0001\u0000\u0000\u0000\u01a6\u01a7\u0005\t\u0000\u0000\u01a7K"+
-		"\u0001\u0000\u0000\u0000\u01a8\u01ab\u0005\b\u0000\u0000\u01a9\u01ac\u0003"+
-		"P(\u0000\u01aa\u01ac\u0003R)\u0000\u01ab\u01a9\u0001\u0000\u0000\u0000"+
+		"N\u0000\u0000\u0187\u0188\u0005d\u0000\u0000\u0188\u0189\u0005c\u0000"+
+		"\u0000\u0189?\u0001\u0000\u0000\u0000\u018a\u018b\u0005V\u0000\u0000\u018b"+
+		"A\u0001\u0000\u0000\u0000\u018c\u018d\u0005R\u0000\u0000\u018d\u018e\u0005"+
+		"\n\u0000\u0000\u018e\u018f\u0005W\u0000\u0000\u018fC\u0001\u0000\u0000"+
+		"\u0000\u0190\u0191\u0005S\u0000\u0000\u0191\u0192\u0005\n\u0000\u0000"+
+		"\u0192\u0193\u0005X\u0000\u0000\u0193E\u0001\u0000\u0000\u0000\u0194\u0195"+
+		"\u0005\u0004\u0000\u0000\u0195G\u0001\u0000\u0000\u0000\u0196\u0199\u0005"+
+		"\b\u0000\u0000\u0197\u019a\u0003P(\u0000\u0198\u019a\u0003R)\u0000\u0199"+
+		"\u0197\u0001\u0000\u0000\u0000\u0199\u0198\u0001\u0000\u0000\u0000\u019a"+
+		"\u019b\u0001\u0000\u0000\u0000\u019b\u019c\u0005\t\u0000\u0000\u019cI"+
+		"\u0001\u0000\u0000\u0000\u019d\u01a0\u0005\b\u0000\u0000\u019e\u01a1\u0003"+
+		"P(\u0000\u019f\u01a1\u0003R)\u0000\u01a0\u019e\u0001\u0000\u0000\u0000"+
+		"\u01a0\u019f\u0001\u0000\u0000\u0000\u01a1\u01a4\u0001\u0000\u0000\u0000"+
+		"\u01a2\u01a3\u0005`\u0000\u0000\u01a3\u01a5\u0003R)\u0000\u01a4\u01a2"+
+		"\u0001\u0000\u0000\u0000\u01a4\u01a5\u0001\u0000\u0000\u0000\u01a5\u01a6"+
+		"\u0001\u0000\u0000\u0000\u01a6\u01a7\u0005\t\u0000\u0000\u01a7K\u0001"+
+		"\u0000\u0000\u0000\u01a8\u01ab\u0005\b\u0000\u0000\u01a9\u01ac\u0003P"+
+		"(\u0000\u01aa\u01ac\u0003R)\u0000\u01ab\u01a9\u0001\u0000\u0000\u0000"+
 		"\u01ab\u01aa\u0001\u0000\u0000\u0000\u01ac\u01ad\u0001\u0000\u0000\u0000"+
 		"\u01ad\u01ae\u0005`\u0000\u0000\u01ae\u01af\u0003R)\u0000\u01af\u01b0"+
 		"\u0005\t\u0000\u0000\u01b0M\u0001\u0000\u0000\u0000\u01b1\u01b4\u0005"+
@@ -4076,14 +4076,14 @@ public class BladeAntlrParser extends Parser {
 		"\u0000\u0000\u01ed\u01f0\u0001\u0000\u0000\u0000\u01ee\u01ec\u0001\u0000"+
 		"\u0000\u0000\u01ee\u01ef\u0001\u0000\u0000\u0000\u01ef\u01f1\u0001\u0000"+
 		"\u0000\u0000\u01f0\u01ee\u0001\u0000\u0000\u0000\u01f1\u01f2\u0007\u0003"+
-		"\u0000\u0000\u01f2U\u0001\u0000\u0000\u0000\u01f3\u01f5\u0005P\u0000\u0000"+
+		"\u0000\u0000\u01f2U\u0001\u0000\u0000\u0000\u01f3\u01f5\u0005O\u0000\u0000"+
 		"\u01f4\u01f6\u0003\n\u0005\u0000\u01f5\u01f4\u0001\u0000\u0000\u0000\u01f6"+
 		"\u01f7\u0001\u0000\u0000\u0000\u01f7\u01f5\u0001\u0000\u0000\u0000\u01f7"+
 		"\u01f8\u0001\u0000\u0000\u0000\u01f8\u01f9\u0001\u0000\u0000\u0000\u01f9"+
-		"\u01fa\u0005Q\u0000\u0000\u01faW\u0001\u0000\u0000\u0000\u01fb\u01fd\u0007"+
+		"\u01fa\u0005P\u0000\u0000\u01faW\u0001\u0000\u0000\u0000\u01fb\u01fd\u0007"+
 		"\u0004\u0000\u0000\u01fc\u01fe\u0003F#\u0000\u01fd\u01fc\u0001\u0000\u0000"+
 		"\u0000\u01fd\u01fe\u0001\u0000\u0000\u0000\u01feY\u0001\u0000\u0000\u0000"+
-		"\u01ff\u0201\u0005V\u0000\u0000\u0200\u01ff\u0001\u0000\u0000\u0000\u0201"+
+		"\u01ff\u0201\u0005\f\u0000\u0000\u0200\u01ff\u0001\u0000\u0000\u0000\u0201"+
 		"\u0202\u0001\u0000\u0000\u0000\u0202\u0200\u0001\u0000\u0000\u0000\u0202"+
 		"\u0203\u0001\u0000\u0000\u0000\u0203[\u0001\u0000\u0000\u00004_hn\u008b"+
 		"\u0094\u00a1\u00aa\u00b3\u00bf\u00c3\u00d0\u00d2\u00dc\u00e5\u00ee\u00f1"+
