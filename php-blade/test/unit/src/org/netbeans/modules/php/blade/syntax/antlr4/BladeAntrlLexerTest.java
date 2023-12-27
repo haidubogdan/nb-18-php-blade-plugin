@@ -31,4 +31,5 @@ public class BladeAntrlLexerTest extends BladeAntlrLexerTestBase {
     public void test_verbatim_issue() throws Exception {
         performTest("lexer/verbatim_issue.blade.php");
     }
+
 }

@@ -122,8 +122,14 @@ mode ESCAPED_ECHO;
 ESCAPED_ECHO_END : ('}}')->popMode;
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
 ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
+ECHO_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT)->more;
 ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
-ESCAPED_ECHO_EXPR : ~[:{}]+ ->type(BLADE_PHP_ECHO_EXPR);
+ESCAPED_ECHO_EXPR : ~[ ':{}]+ ->more;
+
+ESCAPED_ECHO_EXPR_END : . [ ]* {
+        this._input.LA(1) == '}' &&
+        this._input.LA(2) == '}' }? ->type(BLADE_PHP_ECHO_EXPR);
+
 ESCAPED_ECHO_EXPR_MORE : . ->more;
 EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
 
@@ -133,8 +139,14 @@ mode NE_ECHO;
 NE_ECHO_END : ('!!}')->popMode;
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
 NE_ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
+NE_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT)->more;
 NE_ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
-NE_ECHO_EXPR : ~[:!{}]+ ->type(BLADE_PHP_ECHO_EXPR);
+NE_ECHO_EXPR : ~[ ':!{}]+ ->more;
+NE_ECHO_EXPR_END : . [ ]* {
+        this._input.LA(1) == '!' &&
+        this._input.LA(2) == '!' &&
+        this._input.LA(3) == '}'
+    }? ->type(BLADE_PHP_ECHO_EXPR);
 NE_ECHO_EXPR_MORE : . ->more;
 EXIT_NE_ECHO_EOF : EOF->type(ERROR),popMode;
 

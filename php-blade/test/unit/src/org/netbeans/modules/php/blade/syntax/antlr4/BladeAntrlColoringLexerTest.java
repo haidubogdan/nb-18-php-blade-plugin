@@ -17,4 +17,8 @@ public class BladeAntrlColoringLexerTest extends BladeAntlrColoringLexerTestBase
         performTest("lexer/general_syntax.blade.php");
     }
 
+    @Test
+    public void test_freeze_nekudo_coloring_issue() throws Exception {
+        performTest("lexer/freeze_nekudo.blade.php");
+    }
 }

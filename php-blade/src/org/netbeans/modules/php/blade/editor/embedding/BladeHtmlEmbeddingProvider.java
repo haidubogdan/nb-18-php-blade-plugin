@@ -52,7 +52,7 @@ public class BladeHtmlEmbeddingProvider extends EmbeddingProvider {
             if (id.equals(BladeTokenId.HTML)) {
                 embeddings.add(snapshot.create(offset, t.length(), TARGET_MIME_TYPE));
             } else {
-                fake = new String(new char[tText.length()]).replace("\0", " ");
+                fake = new String(new char[tText.length()]).replace("\0", "@");
                 embeddings.add(snapshot.create(fake, TARGET_MIME_TYPE));
             }
         }

@@ -354,6 +354,8 @@
                 </test-type>
             </test-dependencies>
             <public-packages>
+                <package>org.netbeans.modules.php.blade.csl.elements</package>
+                <package>org.netbeans.modules.php.blade.editor.compiler</package>
                 <package>org.netbeans.modules.php.blade.editor.completion</package>
                 <package>org.netbeans.modules.php.blade.editor.directives</package>
                 <package>org.netbeans.modules.php.blade.editor.indexing</package>
@@ -363,6 +365,7 @@
                 <package>org.netbeans.modules.php.blade.project</package>
                 <package>org.netbeans.modules.php.blade.syntax</package>
                 <package>org.netbeans.modules.php.blade.syntax.antlr4.v10</package>
+                <package>org.netbeans.modules.php.blade.syntax.antlr4.v10.compiler</package>
             </public-packages>
         </data>
     </configuration>

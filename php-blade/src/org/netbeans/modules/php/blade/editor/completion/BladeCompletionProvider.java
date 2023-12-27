@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JToolTip;
 import javax.swing.text.AbstractDocument;
@@ -59,6 +61,8 @@ import org.openide.util.Exceptions;
 })
 public class BladeCompletionProvider implements CompletionProvider {
 
+    private static final Logger LOGGER = Logger.getLogger(BladeCompletionProvider.class.getName());
+
     public enum CompletionType {
         BLADE_PATH,
         YIELD_ID,
@@ -106,6 +110,10 @@ public class BladeCompletionProvider implements CompletionProvider {
 
         @Override
         protected void query(CompletionResultSet resultSet, Document doc, int caretOffset) {
+            long startTime = 0;
+            if (LOGGER.isLoggable(Level.FINE)) {
+                startTime = System.currentTimeMillis();
+            }
             AbstractDocument adoc = (AbstractDocument) doc;
             try {
                 FileObject fo = EditorDocumentUtils.getFileObject(doc);
@@ -289,6 +297,10 @@ public class BladeCompletionProvider implements CompletionProvider {
                 }
 
             } finally {
+                if (LOGGER.isLoggable(Level.FINE)) {
+                    long time = System.currentTimeMillis() - startTime;
+                    LOGGER.fine(String.format("complete() took %d ms", time));
+                }
                 resultSet.finish();
             }
         }

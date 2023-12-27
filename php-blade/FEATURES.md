@@ -20,8 +20,7 @@ start from 10
 - Completion for blade files 100%
 - Completion for yield names 80% (for the moment no context is added)
 
-! Most probably `BladeCompletionHandler` will not be used. The main completion service will be `BladeCompletionProvider`
-Might think to autocmplete with cursor and parameters
+! it seems quite slow, need to investigate
 
 ## validation
 

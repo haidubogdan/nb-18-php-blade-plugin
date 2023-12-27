@@ -1,0 +1,1 @@
+{{ myFunc(myClass::getInstance()->test()) }}
