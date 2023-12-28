@@ -7,10 +7,11 @@ lexer grammar BladeAntlrCompilerLexer;
 options { superClass = LexerAdaptor; }
  
 //we will hide html in the end
-tokens {HTML}
+tokens {HTML, PHP_CODE}
  
 channels { COMMENT }
 
+PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? '?>';
 //
 D_ESCAPES 
     : (
@@ -32,3 +33,15 @@ D_ESCAPES
     )->type(HTML);
 
 D_IF : '@if';
+
+D_PHP : '@php'->pushMode(BLADE_INLINE_PHP);
+
+OTHER : . ->skip;
+
+mode BLADE_INLINE_PHP;
+
+D_ENDPHP : '@endphp'->popMode;
+
+PHP_CODE_GREEDY : ~[@]+->type(PHP_CODE);
+
+PHP_CODE_COMPLETION : . ->type(PHP_CODE);

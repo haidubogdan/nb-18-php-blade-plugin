@@ -23,6 +23,7 @@ import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
 import org.netbeans.modules.php.blade.csl.elements.StackIdElement;
 import org.netbeans.modules.php.blade.csl.elements.YieldIdElement;
+import org.netbeans.modules.php.blade.editor.compiler.BladeCompiler;
 import org.netbeans.modules.php.blade.editor.completion.PhpTypeCompletionProvider;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
@@ -227,12 +228,14 @@ public class BladeDeclarationFinder implements DeclarationFinder {
             case PHP_BLADE:
                 DeclarationLocation locations;
                 FileObject fo = parserResult.getSnapshot().getSource().getFileObject();
-                String phpText = info.getSnapshot().getText().subSequence(reference.defOffset.getStart(), reference.defOffset.getEnd()).toString();
-                //what we need is a compiler visitor
-                //the caretOffset will be adjusted by the results of the compiled text
-                phpText = phpText.replace("@php", "<?php").replace("@endphp", "     ?>");
+                BladeCompiler compiler = new BladeCompiler(caretOffset);
+                compiler.get(info.getSnapshot());
+//                String phpText = info.getSnapshot().getText().subSequence(reference.defOffset.getStart(), reference.defOffset.getEnd()).toString();
+//                //what we need is a compiler visitor
+//                //the caretOffset will be adjusted by the results of the compiled text
+//                phpText = phpText.replace("@php", "<?php").replace("@endphp", "     ?>");
                 ParsingUtils parsingUtils = new ParsingUtils();
-                parsingUtils.parsePhpText(phpText);
+                parsingUtils.parsePhpText(compiler.result.toString());
                 locations = PhpTypeCompletionProvider.getInstance().getItems(fo, parsingUtils.getParserResult(), caretOffset -1);
                 
                 return locations;

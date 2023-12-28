@@ -18,6 +18,13 @@ file : general_statement* EOF;
 
 general_statement :
     block_statement
+    | php_blade
+    | php_inline
 ;
 
 block_statement: D_IF;
+php_blade : D_PHP php_blade_code D_ENDPHP;
+
+php_blade_code: PHP_CODE+;
+
+php_inline : PHP_INLINE;

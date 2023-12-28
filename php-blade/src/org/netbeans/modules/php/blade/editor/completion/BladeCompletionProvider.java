@@ -248,7 +248,7 @@ public class BladeCompletionProvider implements CompletionProvider {
                                 return;
                         }
 
-                    } else if (nt.getType() == TOKEN_REF || nt.getType() == BLADE_PHP_ECHO_EXPR) {
+                    } else if (nt.getType() == BLADE_PHP_ECHO_EXPR) {
                         //completion {{ }} {!! !!}
                         List<Integer> tokensMatch = Arrays.asList(new Integer[]{ESCAPED_ECHO_START, NE_ECHO_START});
                         List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML});
