@@ -7,9 +7,7 @@ import BladeCommonLexer;
 
 options { superClass = LexerAdaptor; }
  
-tokens { TOKEN_REF,
- RULE_REF,
- LEXER_CHAR_SET,
+tokens {
  PHP_EXPRESSION,
  PHP_VARIABLE,
  PHP_KEYWORD,

@@ -121,6 +121,7 @@ Project considered complete when :
 - supports project config for : 
     - custom directives
     - custom blade template paths
+- analyze with profiler the memory usage
 
 
 

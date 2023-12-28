@@ -9,9 +9,7 @@ options { superClass = LexerAdaptor; }
 
 channels {PHP_CODE}
 
-tokens { TOKEN_REF,
- RULE_REF,
- LEXER_CHAR_SET,
+tokens {
  DIRECTIVE,
  PHP_EXPRESSION,
  BLADE_PHP_ECHO_EXPR,
@@ -124,6 +122,11 @@ ESCAPED_ECHO_END : ('}}')->popMode;
 ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
 ECHO_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT)->more;
 ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
+
+GREEDY_ESCAPED_ECHO_EXPR_END : ~[ ':{}]+ {
+        this._input.LA(1) == '}' &&
+        this._input.LA(2) == '}' }?->type(BLADE_PHP_ECHO_EXPR);
+
 ESCAPED_ECHO_EXPR : ~[ ':{}]+ ->more;
 
 ESCAPED_ECHO_EXPR_END : . [ ]* {
