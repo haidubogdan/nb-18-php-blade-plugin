@@ -1,0 +1,194 @@
+package org.netbeans.modules.php.blade.editor.completion;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import org.netbeans.editor.BaseDocument;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
+import org.antlr.v4.runtime.CharStreams;
+import org.netbeans.api.editor.document.EditorDocumentUtils;
+import org.netbeans.modules.csl.api.CodeCompletionContext;
+import org.netbeans.modules.csl.api.CodeCompletionHandler;
+import org.netbeans.modules.csl.api.CodeCompletionHandler2;
+import org.netbeans.modules.csl.api.CodeCompletionResult;
+import org.netbeans.modules.csl.api.CompletionProposal;
+import org.netbeans.modules.csl.api.Documentation;
+import org.netbeans.modules.csl.api.ElementHandle;
+import org.netbeans.modules.csl.api.ParameterInfo;
+import org.netbeans.modules.csl.spi.DefaultCompletionResult;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.csl.spi.support.CancelSupport;
+import org.netbeans.modules.php.blade.csl.elements.PathElement;
+import org.netbeans.modules.php.blade.editor.compiler.BladeCompiler;
+import org.netbeans.modules.php.blade.editor.parser.ParsingUtils;
+import org.netbeans.modules.php.editor.csl.PHPLanguage;
+import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
+import org.openide.filesystems.FileObject;
+
+/**
+ *
+ * @author bogdan
+ */
+public class BladeCompletionHandler implements CodeCompletionHandler2 {
+
+    @Override
+    public CodeCompletionResult complete(CodeCompletionContext completionContext) {
+        BaseDocument doc = (BaseDocument) completionContext.getParserResult().getSnapshot().getSource().getDocument(false);
+        if (doc == null) {
+            return CodeCompletionResult.NONE;
+        }
+
+        if (CancelSupport.getDefault().isCancelled()) {
+            return CodeCompletionResult.NONE;
+        }
+
+        final List<CompletionProposal> completionProposals = new ArrayList<>();
+        completePhp(completionProposals, completionContext);
+        return new DefaultCompletionResult(completionProposals, false);
+    }
+
+    private void completePhp(final List<CompletionProposal> completionProposals, final CodeCompletionContext completionContext) {
+        CodeCompletionHandler cc = (new PHPLanguage()).getCompletionHandler();
+        FileObject fo = completionContext.getParserResult().getSnapshot().getSource().getFileObject();
+        BladeCompiler compiler = new BladeCompiler(completionContext.getCaretOffset());
+        compiler.get(completionContext.getParserResult().getSnapshot());
+//                String phpText = info.getSnapshot().getText().subSequence(reference.defOffset.getStart(), reference.defOffset.getEnd()).toString();
+//                //what we need is a compiler visitor
+//                //the caretOffset will be adjusted by the results of the compiled text
+//                phpText = phpText.replace("@php", "<?php").replace("@endphp", "     ?>");
+        ParsingUtils parsingUtils = new ParsingUtils();
+        parsingUtils.parsePhpText(compiler.result.toString());
+        ParserResult phpParserResult = parsingUtils.getParserResult();
+        if (phpParserResult == null) {
+            return;
+        }
+        String prefix = cc.getPrefix(phpParserResult, completionContext.getCaretOffset() + 1, true);
+
+        if (prefix == null){
+            return;
+        }
+        
+        if (prefix.length() == 0) {
+            prefix = cc.getPrefix(phpParserResult, completionContext.getCaretOffset() -1, true);
+        }
+
+        String phpPrefix = prefix;
+
+        CodeCompletionContext context = new CodeCompletionContext() {
+            @Override
+            public int getCaretOffset() {
+                //the offset should be taken from compiler
+                return completionContext.getCaretOffset() +1;
+            }
+
+            @Override
+            public ParserResult getParserResult() {
+                return phpParserResult;
+            }
+
+            @Override
+            public String getPrefix() {
+                return phpPrefix;
+            }
+
+            @Override
+            public boolean isPrefixMatch() {
+                return true;
+            }
+
+            @Override
+            public QueryType getQueryType() {
+                return QueryType.COMPLETION;
+            }
+
+            @Override
+            public boolean isCaseSensitive() {
+                return true;
+            }
+        };
+
+        CodeCompletionResult completionResult = cc.complete(context);
+        List<CompletionProposal> proposals = completionResult.getItems();
+        for (CompletionProposal proposal : proposals) {
+            String proposalPrefix = proposal.getInsertPrefix();
+            if (proposalPrefix.startsWith(prefix)){
+                if (proposal.getAnchorOffset() == (completionContext.getCaretOffset() + 1)){
+                    completionProposals.add(proposal);
+                } else {
+                    //proposal.
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public String document(ParserResult pr, ElementHandle eh) {
+        return null;
+    }
+
+    @Override
+    public ElementHandle resolveLink(String string, ElementHandle eh) {
+        return null;
+    }
+
+    @Override
+    public String getPrefix(ParserResult info, int offset, boolean upToOffset) {
+        return "";
+    }
+
+    @Override
+    public QueryType getAutoQuery(JTextComponent component, String typedText) {
+        if (typedText.length() == 0) {
+            return QueryType.NONE;
+        }
+
+        char lastChar = typedText.charAt(typedText.length() - 1);
+
+        switch (lastChar) {
+            case '\n':
+                return QueryType.STOP;
+            default:
+                return QueryType.TOOLTIP;
+        }
+    }
+
+    @Override
+    @SuppressWarnings("rawtypes")
+    public String resolveTemplateVariable(String string, ParserResult pr, int i, String string1, Map map) {
+        return null;
+    }
+
+    @Override
+    public Set<String> getApplicableTemplates(Document dcmnt, int i, int i1) {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public ParameterInfo parameters(ParserResult pr, int i, CompletionProposal cp) {
+        return new ParameterInfo(new ArrayList<String>(), 0, 0);
+    }
+
+    /**
+     * used also for tooltip in blade mime context
+     *
+     * @param parserResult
+     * @param elementHandle
+     * @param cancel
+     * @return
+     */
+    @Override
+    public Documentation documentElement(ParserResult parserResult, ElementHandle elementHandle, Callable<Boolean> cancel) {
+        Documentation result = null;
+        if (elementHandle instanceof PathElement) {
+            return Documentation.create(String.format("<div align=\"right\"><font size=-1>%s</font></div>", "blade path"), null);
+        }
+        return result;
+    }
+}

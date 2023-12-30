@@ -33,6 +33,7 @@ import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
 import org.netbeans.modules.php.blade.editor.parser.ParsingUtils;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
+import org.netbeans.modules.php.blade.editor.phpCsl.PhpTypeDeclarationProvider;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 import org.openide.filesystems.FileObject;
@@ -236,7 +237,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 //                phpText = phpText.replace("@php", "<?php").replace("@endphp", "     ?>");
                 ParsingUtils parsingUtils = new ParsingUtils();
                 parsingUtils.parsePhpText(compiler.result.toString());
-                locations = PhpTypeCompletionProvider.getInstance().getItems(fo, parsingUtils.getParserResult(), caretOffset -1);
+                locations = PhpTypeDeclarationProvider.getInstance().getItems(fo, parsingUtils.getParserResult(), caretOffset -1);
                 
                 return locations;
         }
