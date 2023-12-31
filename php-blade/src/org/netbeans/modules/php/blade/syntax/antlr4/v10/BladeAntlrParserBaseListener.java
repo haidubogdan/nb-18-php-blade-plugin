@@ -291,13 +291,13 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterYield(BladeAntlrParser.YieldContext ctx) { }
+	@Override public void enterYieldD(BladeAntlrParser.YieldDContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitYield(BladeAntlrParser.YieldContext ctx) { }
+	@Override public void exitYieldD(BladeAntlrParser.YieldDContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -310,6 +310,18 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStack(BladeAntlrParser.StackContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUseD(BladeAntlrParser.UseDContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUseD(BladeAntlrParser.UseDContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

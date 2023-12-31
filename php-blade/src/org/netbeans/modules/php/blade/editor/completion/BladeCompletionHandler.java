@@ -25,7 +25,8 @@ import org.netbeans.modules.csl.spi.DefaultCompletionResult;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.csl.spi.support.CancelSupport;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
-import org.netbeans.modules.php.blade.editor.compiler.BladeCompiler;
+import org.netbeans.modules.php.blade.editor.compiler.BladePhpCompiler;
+import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.ParsingUtils;
 import org.netbeans.modules.php.editor.csl.PHPLanguage;
 import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
@@ -48,34 +49,29 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             return CodeCompletionResult.NONE;
         }
 
+        BladeParserResult parserResult = (BladeParserResult) completionContext.getParserResult();
+
         final List<CompletionProposal> completionProposals = new ArrayList<>();
-        completePhp(completionProposals, completionContext);
+        completePhp(completionProposals, completionContext, parserResult);
         return new DefaultCompletionResult(completionProposals, false);
     }
 
-    private void completePhp(final List<CompletionProposal> completionProposals, final CodeCompletionContext completionContext) {
+    private void completePhp(final List<CompletionProposal> completionProposals,
+            final CodeCompletionContext completionContext, BladeParserResult parserResult) {
         CodeCompletionHandler cc = (new PHPLanguage()).getCompletionHandler();
-        FileObject fo = completionContext.getParserResult().getSnapshot().getSource().getFileObject();
-        BladeCompiler compiler = new BladeCompiler(completionContext.getCaretOffset());
-        compiler.get(completionContext.getParserResult().getSnapshot());
-//                String phpText = info.getSnapshot().getText().subSequence(reference.defOffset.getStart(), reference.defOffset.getEnd()).toString();
-//                //what we need is a compiler visitor
-//                //the caretOffset will be adjusted by the results of the compiled text
-//                phpText = phpText.replace("@php", "<?php").replace("@endphp", "     ?>");
-        ParsingUtils parsingUtils = new ParsingUtils();
-        parsingUtils.parsePhpText(compiler.result.toString());
-        ParserResult phpParserResult = parsingUtils.getParserResult();
+
+        ParserResult phpParserResult = parserResult.getPhpParserResult();
         if (phpParserResult == null) {
             return;
         }
-        String prefix = cc.getPrefix(phpParserResult, completionContext.getCaretOffset() + 1, true);
+        String prefix = cc.getPrefix(phpParserResult, completionContext.getCaretOffset(), true);
 
-        if (prefix == null){
+        if (prefix == null) {
             return;
         }
-        
+
         if (prefix.length() == 0) {
-            prefix = cc.getPrefix(phpParserResult, completionContext.getCaretOffset() -1, true);
+            prefix = cc.getPrefix(phpParserResult, completionContext.getCaretOffset() - 1, true);
         }
 
         String phpPrefix = prefix;
@@ -84,7 +80,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             @Override
             public int getCaretOffset() {
                 //the offset should be taken from compiler
-                return completionContext.getCaretOffset() +1;
+                return completionContext.getCaretOffset();
             }
 
             @Override
@@ -117,12 +113,8 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         List<CompletionProposal> proposals = completionResult.getItems();
         for (CompletionProposal proposal : proposals) {
             String proposalPrefix = proposal.getInsertPrefix();
-            if (proposalPrefix.startsWith(prefix)){
-                if (proposal.getAnchorOffset() == (completionContext.getCaretOffset() + 1)){
-                    completionProposals.add(proposal);
-                } else {
-                    //proposal.
-                }
+            if (proposalPrefix.startsWith(prefix)) {
+                completionProposals.add(proposal);
             }
         }
 

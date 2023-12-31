@@ -106,7 +106,7 @@ D_JSON  : '@json'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_DD : '@dd'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
 //php injection
-D_USE : '@use'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_USE : '@use'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_INJECT : '@inject'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_PHP : '@php'->pushMode(BLADE_INLINE_PHP);
 

@@ -32,4 +32,10 @@ public class BladeAntrlLexerTest extends BladeAntlrLexerTestBase {
         performTest("lexer/verbatim_issue.blade.php");
     }
 
+    @Test
+    public void test_format_issue() throws Exception {
+        performTest("lexer/format_issue.blade.php");
+    }
+    
+
 }

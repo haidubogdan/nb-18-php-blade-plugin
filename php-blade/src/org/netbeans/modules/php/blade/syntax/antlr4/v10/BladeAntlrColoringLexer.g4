@@ -13,6 +13,7 @@ tokens {
  DIRECTIVE,
  PHP_EXPRESSION,
  BLADE_PHP_ECHO_EXPR,
+ HTML,
  ERROR
 }
 
@@ -111,10 +112,24 @@ D_CUSTOM : ('@' NameString {this._input.LA(1) == '(' ||
 ESCAPED_ECHO_START : '{{' ->pushMode(ESCAPED_ECHO);
 NE_ECHO_START : '{!!' ->pushMode(NE_ECHO);
 
+//might not be necessary
+STYLE_OPEN : '<style' .*? '>'->type(HTML);
+STYLE_CLOSE : '</style>'->type(HTML);
+SCRIPT_OPEN : '<script' .*? '>'->type(HTML);
+SCRIPT_CLOSE : '</script>'->type(HTML);
+
+HTML_CLOSE_TAG : '<' '/'?  NameString '>'->type(HTML); 
+
+//hack for the last unclosed tags
+UNCLOSED_TAG : '<' NameString [\r\n]+; 
+
+LAST_NL : [\r\n]+ EOF; 
+
 HTML : ~[<?@{!]+;
 
 OTHER : . ->type(HTML);
 
+// {{  }}
 mode ESCAPED_ECHO;
 
 ESCAPED_ECHO_END : ('}}')->popMode;
@@ -136,7 +151,7 @@ ESCAPED_ECHO_EXPR_END : . [ ]* {
 ESCAPED_ECHO_EXPR_MORE : . ->more;
 EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
 
-//not escaped blade echo
+// {!!  !!}
 mode NE_ECHO;
 
 NE_ECHO_END : ('!!}')->popMode;
@@ -153,6 +168,7 @@ NE_ECHO_EXPR_END : . [ ]* {
 NE_ECHO_EXPR_MORE : . ->more;
 EXIT_NE_ECHO_EOF : EOF->type(ERROR),popMode;
 
+// @directive ()?
 mode LOOK_FOR_PHP_EXPRESSION;
 
 WS_EXPR : [ ]+ {this._input.LA(1) == '('}? ->pushMode(INSIDE_PHP_EXPRESSION);
@@ -160,6 +176,7 @@ OPEN_EXPR_PAREN_MORE : '(' {this.increaseRoundParenBalance();} ->more,pushMode(I
 
 L_OTHER : . ->type(HTML), popMode;
 
+// @directive (?)
 mode INSIDE_PHP_EXPRESSION;
 
 OPEN_EXPR_PAREN : {this.roundParenBalance == 0}? '(' {this.increaseRoundParenBalance();} ->more;
@@ -185,6 +202,7 @@ PHP_EXPRESSION_MORE : . ->more;
 
 EXIT_EOF : EOF->type(ERROR),popMode;
 
+// @php
 mode BLADE_INLINE_PHP;
 
 D_ENDPHP : '@endphp'->popMode;
@@ -203,6 +221,7 @@ BLADE_PHP_INLINE_MORE : . ->more;
 
 EXIT_INLINE_PHP_EOF : EOF->type(ERROR),popMode;
 
+// @verbatim
 mode VERBATIM_MODE;
 
 D_ENDVERBATIM_IN_MODE : '@endverbatim'->type(DIRECTIVE), popMode;

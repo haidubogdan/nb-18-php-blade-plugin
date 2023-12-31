@@ -80,6 +80,27 @@ public class BladeAntlrUtils {
         return null;
     }
 
+    public static Token findForward(AntlrTokenSequence tokens,
+            List<Integer> tokensMatch, List<Integer> tokensStop) {
+
+        while (tokens.hasNext()) {
+            Token pt = tokens.next().get();
+            if (pt == null) {
+                continue;
+            }
+
+            if (tokensMatch.contains(pt.getType())) {
+                return pt;
+            }
+
+            if (tokensStop.contains(pt.getType())) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
     public static Token findBackward(Document doc, Token start,
             List<String> stopTokenText, List<String> openTokensText) {
 
@@ -168,7 +189,7 @@ public class BladeAntlrUtils {
         return null;
 
     }
-    
+
     public static Token findBackward(Document doc, Token start,
             int tokensMatch, List<Integer> skipableTokens) {
         AntlrTokenSequence tokens = getTokens(doc);
@@ -200,8 +221,8 @@ public class BladeAntlrUtils {
 
     }
 
-    public static int getTagPairTokenType(int tokenType){
-        switch (tokenType){
+    public static int getTagPairTokenType(int tokenType) {
+        switch (tokenType) {
             case ESCAPED_ECHO_START:
                 return ESCAPED_ECHO_END;
             case ESCAPED_ECHO_END:

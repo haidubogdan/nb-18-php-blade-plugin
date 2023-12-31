@@ -32,7 +32,7 @@ inline_statement:
 inline_directive: 
     extends
     | section_inline
-    | yield
+    | yieldD //yield identifier will be used by antlr
     | stack
     | include
     | includeIf
@@ -43,7 +43,7 @@ inline_directive:
     | (D_METHOD) php_expression
     | D_PROPS php_expression
     | D_CSRF
-    | D_USE singleArgWrapper
+    | useD
     | D_INJECT doubleArgWrapper
     | D_HTML_ATTR_EXPR php_expression
     //using basic inline case statement to not add complexity to parser
@@ -83,7 +83,7 @@ non_blade_statement:
 
 extends : D_EXTENDS singleArgWrapper;
 section_inline: D_SECTION doubleArgWrapper;
-section : D_SECTION singleArgWrapper (general_statement | D_SHOW | D_PARENT)* (D_STOP | D_OVERWRITE | D_ENDSECTION);
+section : D_SECTION singleArgWrapper (general_statement | D_PARENT)* (D_SHOW | D_STOP | D_OVERWRITE | D_ENDSECTION);
 push : D_PUSH singleArgWrapper general_statement+ D_ENDPUSH;
 pushOnce : D_PUSH_ONCE singleArgWrapper general_statement+ D_ENDPUSH_ONCE;
 
@@ -106,8 +106,9 @@ foreach : D_FOREACH php_expression (general_statement)+ D_ENDFOREACH;
 forelse : D_FORELSE php_expression (general_statement | D_EMPTY)+ D_ENDFORELSE;
 
 //layout
-yield : D_YIELD singleArgWrapper;
+yieldD : D_YIELD singleArgWrapper;
 stack : D_STACK singleArgWrapper;
+useD : D_USE singleArgWrapper;
 
 include : D_INCLUDE singleArgAndDefaultWrapper;
 includeIf : D_INCLUDE_IF singleArgAndDefaultWrapper;

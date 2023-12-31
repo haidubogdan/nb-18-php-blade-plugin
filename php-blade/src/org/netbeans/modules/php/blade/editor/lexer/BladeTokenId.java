@@ -94,6 +94,7 @@ public enum BladeTokenId implements TokenId {
         @Override
         protected LanguageEmbedding<? extends TokenId> embedding(Token<BladeTokenId> token,
                 LanguagePath languagePath, InputAttributes inputAttributes) {
+            boolean joinHtml = true;
             switch (token.id()) {
                 case PHP_INLINE:
                     Language<? extends TokenId> phpLanguageCode = PHPTokenId.language();
@@ -104,6 +105,9 @@ public enum BladeTokenId implements TokenId {
                     Language<? extends TokenId> phpLanguage = PHPTokenId.languageInPHP();
                     return phpLanguage != null ? LanguageEmbedding.create(phpLanguage, 0, 0, false) : null;
                 case HTML:
+//                    if (token.text() == null || token.text().toString().endsWith("\n") || token.text().toString().equals("<")){
+//                        joinHtml = false;
+//                    }
                     LanguageEmbedding<?> lang;
 
                     if (tokenLangCache.containsKey(token.id())) {
@@ -120,7 +124,7 @@ public enum BladeTokenId implements TokenId {
                             }
                         }
 
-                        lang = htmlLanguage != null ? LanguageEmbedding.create(htmlLanguage, 0, 0, true) : null;
+                        lang = htmlLanguage != null ? LanguageEmbedding.create(htmlLanguage, 0, 0, joinHtml) : null;
                         tokenLangCache.put(token.id(), lang);
                     }
 

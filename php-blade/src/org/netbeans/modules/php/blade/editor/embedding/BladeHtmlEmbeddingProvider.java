@@ -22,7 +22,7 @@ import org.netbeans.modules.php.blade.editor.lexer.BladeTokenId;
         mimeType = BladeLanguage.MIME_TYPE,
         targetMimeType = "text/html")
 public class BladeHtmlEmbeddingProvider extends EmbeddingProvider {
-
+    public static final String FILLER = " ";
     public static final String TARGET_MIME_TYPE = "text/html"; //NOI18N
 
     @Override
@@ -39,7 +39,7 @@ public class BladeHtmlEmbeddingProvider extends EmbeddingProvider {
         int len = 0;
 
         String fake;
-
+        
         while (sequence.moveNext()) {
             Token<?> t = sequence.token();
             offset = sequence.offset();
@@ -52,7 +52,7 @@ public class BladeHtmlEmbeddingProvider extends EmbeddingProvider {
             if (id.equals(BladeTokenId.HTML)) {
                 embeddings.add(snapshot.create(offset, t.length(), TARGET_MIME_TYPE));
             } else {
-                fake = new String(new char[tText.length()]).replace("\0", "@");
+                fake = new String(new char[tText.length()]).replace("\0", FILLER);
                 embeddings.add(snapshot.create(fake, TARGET_MIME_TYPE));
             }
         }

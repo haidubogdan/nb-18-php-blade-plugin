@@ -32,6 +32,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.Severity;
+import org.netbeans.modules.php.blade.editor.compiler.BladePhpCompiler;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.navigator.BladeStructureItem;
 import org.netbeans.modules.php.blade.editor.navigator.BladeStructureItem.DirectiveBlockStructureItem;
@@ -40,6 +41,7 @@ import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrParser;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrParserBaseListener;
+import org.netbeans.modules.php.editor.parser.PHPParseResult;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
@@ -49,7 +51,7 @@ import org.openide.util.Exceptions;
  */
 public class BladeParserResult<T extends Parser> extends ParserResult {
 
-    public final List<DefaultError> errors = new ArrayList<>();
+    public final List<Error> errors = new ArrayList<>();
     public final Map<String, Reference> references = new TreeMap<>();
     private final Map<String, Reference> yieldReferences = new TreeMap<>();
     private final Map<String, Reference> stackReferences = new TreeMap<>();
@@ -60,25 +62,29 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     public final List<BladeStructureItem> structure = new ArrayList<>();
     public final List<OffsetRange> folds = new ArrayList<>();
 
+    protected PHPParseResult phpParserResult;
+
     protected BladeIndex bladeIndex = null;
 
     volatile boolean finished = false;
     volatile boolean indexLoaded = false;
 
     public enum ReferenceType {
-        YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION, CUSTOM_DIRECTIVE, PHP_INLINE, PHP_BLADE
+        YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION, USE,
+        CUSTOM_DIRECTIVE, PHP_INLINE, PHP_BLADE
     }
 
     public enum ParserContext {
         EXTENDS(BladeAntlrParser.ExtendsContext.class.getSimpleName()),
         INCLUDE(BladeAntlrParser.IncludeContext.class.getSimpleName()),
-        YIELD(BladeAntlrParser.YieldContext.class.getSimpleName()),
+        YIELD(BladeAntlrParser.YieldDContext.class.getSimpleName()),
         STACK(BladeAntlrParser.StackContext.class.getSimpleName()),
         SECTION(BladeAntlrParser.SectionContext.class.getSimpleName()),
         SECTION_INLINE(BladeAntlrParser.Section_inlineContext.class.getSimpleName()),
         PUSH(BladeAntlrParser.PushContext.class.getSimpleName()),
         HAS_SECTION(BladeAntlrParser.HasSectionContext.class.getSimpleName()),
-        EACH(BladeAntlrParser.EachContext.class.getSimpleName());
+        EACH(BladeAntlrParser.EachContext.class.getSimpleName()),
+        USE(BladeAntlrParser.UseDContext.class.getSimpleName());
 
         String className;
 
@@ -121,6 +127,14 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
             parser.addParseListener(createStructureListener());
             parser.addParseListener(createSemanticsListener());
             evaluateParser(parser);
+            BladePhpCompiler phpCompiler = new BladePhpCompiler();
+            phpParserResult = phpCompiler.extractPhpContent(
+                    this.getSnapshot()).getPhpParserResult();
+
+            if (phpParserResult != null) {
+                //double errors for php inline
+                this.errors.addAll(phpParserResult.getDiagnostics());
+            }
 
             finished = true;
         }
@@ -147,14 +161,14 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
                 OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
                 occurancesForDeclaration.put(range, new Reference(ReferenceType.CUSTOM_DIRECTIVE, directiveName, range));
             }
-            
+
             @Override
             public void exitPhpInline(BladeAntlrParser.PhpInlineContext ctx) {
                 OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
                 //no need to store php_inline text, but who knows ?
                 occurancesForDeclaration.put(range, new Reference(ReferenceType.PHP_INLINE, "php_inline", range));
             }
-            
+
             @Override
             public void exitPhp_blade(BladeAntlrParser.Php_bladeContext ctx) {
                 OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
@@ -299,6 +313,8 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
                 return ReferenceType.PUSH;
             case HAS_SECTION:
                 return ReferenceType.HAS_SECTION;
+            case USE:
+                return ReferenceType.USE;
             default:
                 return null;
         }
@@ -440,6 +456,10 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
 
     public Map<String, Reference> getStackReferences() {
         return stackReferences;
+    }
+
+    public PHPParseResult getPhpParserResult() {
+        return phpParserResult;
     }
 
     protected ANTLRErrorListener createErrorListener() {

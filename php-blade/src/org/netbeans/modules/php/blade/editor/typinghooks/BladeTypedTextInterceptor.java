@@ -115,7 +115,6 @@ public class BladeTypedTextInterceptor implements TypedTextInterceptor {
      */
     @MimeRegistrations(value = {
         @MimeRegistration(mimeType = BladeLanguage.MIME_TYPE, service = TypedTextInterceptor.Factory.class),
-        @MimeRegistration(mimeType = "text/xhtml", service = TypedTextInterceptor.Factory.class),
         @MimeRegistration(mimeType = "text/html", service = TypedTextInterceptor.Factory.class)
     })
     public static class Factory implements TypedTextInterceptor.Factory {

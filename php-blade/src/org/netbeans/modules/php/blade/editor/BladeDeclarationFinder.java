@@ -23,7 +23,7 @@ import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
 import org.netbeans.modules.php.blade.csl.elements.StackIdElement;
 import org.netbeans.modules.php.blade.csl.elements.YieldIdElement;
-import org.netbeans.modules.php.blade.editor.compiler.BladeCompiler;
+import org.netbeans.modules.php.blade.editor.compiler.BladePhpCompiler;
 import org.netbeans.modules.php.blade.editor.completion.PhpTypeCompletionProvider;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
@@ -54,7 +54,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
     //not used for the moment
     static enum DeclarationType {
-        BLADE_PATH, SECTION, HAS_SECTION, PHP, CUSTOM_DIRECTIVE, NONE
+        BLADE_PATH, SECTION, USE, HAS_SECTION, PHP, CUSTOM_DIRECTIVE, NONE
     }
 
     @Override
@@ -121,7 +121,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
             if (nt.getType() == BL_PARAM_STRING) {
                 List<Integer> tokensMatch = Arrays.asList(new Integer[]{
-                    D_EXTENDS, D_INCLUDE, D_EACH, D_SECTION, D_HAS_SECTION, D_PUSH
+                    D_EXTENDS, D_INCLUDE, D_EACH, D_SECTION, D_HAS_SECTION, D_PUSH, D_USE
                 });
                 List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML});
                 org.antlr.v4.runtime.Token matchedToken = BladeAntlrUtils.findBackward(tokens, tokensMatch, tokensStop);
@@ -229,15 +229,8 @@ public class BladeDeclarationFinder implements DeclarationFinder {
             case PHP_BLADE:
                 DeclarationLocation locations;
                 FileObject fo = parserResult.getSnapshot().getSource().getFileObject();
-                BladeCompiler compiler = new BladeCompiler(caretOffset);
-                compiler.get(info.getSnapshot());
-//                String phpText = info.getSnapshot().getText().subSequence(reference.defOffset.getStart(), reference.defOffset.getEnd()).toString();
-//                //what we need is a compiler visitor
-//                //the caretOffset will be adjusted by the results of the compiled text
-//                phpText = phpText.replace("@php", "<?php").replace("@endphp", "     ?>");
-                ParsingUtils parsingUtils = new ParsingUtils();
-                parsingUtils.parsePhpText(compiler.result.toString());
-                locations = PhpTypeDeclarationProvider.getInstance().getItems(fo, parsingUtils.getParserResult(), caretOffset -1);
+                 locations = PhpTypeDeclarationProvider.getInstance()
+                         .getItems(fo, parserResult.getPhpParserResult(), caretOffset);
                 
                 return locations;
         }
