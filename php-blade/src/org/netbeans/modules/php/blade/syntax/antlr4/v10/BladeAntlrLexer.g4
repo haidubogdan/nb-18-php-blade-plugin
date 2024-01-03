@@ -40,7 +40,7 @@ D_COND_BLOCK_START : ('@unless' | '@isset')->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_COND_BLOCK_END : ('@endunless' | '@endisset');
 
 //loops
-D_FOREACH : '@foreach'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_FOREACH : '@foreach'->pushMode(FOREACH_LOOP_EXPRESSION);
 D_ENDFOREACH : '@endforeach';
 D_FOR : '@for'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_ENDFOR : '@endfor';
@@ -176,6 +176,20 @@ OPEN_BL_PARAM_PAREN_MORE : '(' ->type(BLADE_PARAM_LPAREN),pushMode(INSIDE_BLADE_
 
 L_BL_PARAM_OTHER : . ->type(HTML), popMode;
 
+mode FOREACH_LOOP_EXPRESSION;
+
+FOREACH_WS_EXPR : [ ]+->skip;
+FOREACH_LOOP_LPAREN : '(' {this.increaseRoundParenBalance();};
+FOREACH_LOOP_RPAREN : ')' {this.decreaseRoundParenBalance(); if (this.roundParenBalance == 0){this.popMode();}};
+
+FOREACH_AS : 'as';
+
+FOREACH_PHP_VARIABLE : PhpVariable->type(PHP_VARIABLE);
+
+FOREACH_PARAM_ASSIGN : '=>';
+
+LOOP_PHP_EXPRESSION : . ->type(PHP_EXPRESSION);
+FOREACH_EOF : EOF->type(ERROR),popMode;
 //( )
 mode INSIDE_BLADE_PARAMETERS;
 
@@ -187,8 +201,8 @@ CLOSE_BL_PARAM_PAREN : {this.roundParenBalance <= 0}? ')'
 BL_PARAM_LPAREN : {this.roundParenBalance >= 0}? '(' {this.increaseRoundParenBalance();}->type(BLADE_PARAM_EXTRA);
 BL_PARAM_RPAREN : {this.roundParenBalance > 0}? ')' {this.decreaseRoundParenBalance();}->type(BLADE_PARAM_EXTRA);
 
-BL_SQ_LPAREN : '[' {this.squareParenBalance++;}->type(BLADE_PARAM_EXTRA);
-BL_SQ_RPAREN : '[' {this.squareParenBalance--;}->type(BLADE_PARAM_EXTRA);
+BL_SQ_LPAREN : '[' {this.squareParenBalance++;};
+BL_SQ_RPAREN : ']' {this.squareParenBalance--;};
 
 BL_CURLY_LPAREN : '{' {this.curlyParenBalance++;}->type(BLADE_PARAM_EXTRA);
 BL_CURLY_RPAREN : '}' {this.curlyParenBalance--;}->type(BLADE_PARAM_EXTRA);

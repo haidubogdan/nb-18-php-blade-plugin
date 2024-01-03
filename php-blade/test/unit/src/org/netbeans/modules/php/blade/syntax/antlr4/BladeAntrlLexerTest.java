@@ -37,5 +37,13 @@ public class BladeAntrlLexerTest extends BladeAntlrLexerTestBase {
         performTest("lexer/format_issue.blade.php");
     }
     
-
+    @Test
+    public void test_include_array() throws Exception {
+        performTest("lexer/include_array_var.blade.php");
+    }
+    
+    @Test
+    public void test_foreach_loop() throws Exception {
+        performTest("lexer/foreach_loop.blade.php");
+    }
 }

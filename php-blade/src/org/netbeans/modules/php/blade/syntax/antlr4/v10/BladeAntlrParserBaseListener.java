@@ -471,6 +471,30 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterLoop_expression(BladeAntlrParser.Loop_expressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLoop_expression(BladeAntlrParser.Loop_expressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSimple_foreach_expr(BladeAntlrParser.Simple_foreach_exprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSimple_foreach_expr(BladeAntlrParser.Simple_foreach_exprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSingleArgWrapper(BladeAntlrParser.SingleArgWrapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -538,6 +562,42 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitComposedArgument(BladeAntlrParser.ComposedArgumentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPhpExpr(BladeAntlrParser.PhpExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPhpExpr(BladeAntlrParser.PhpExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIdentifiableArray(BladeAntlrParser.IdentifiableArrayContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIdentifiableArray(BladeAntlrParser.IdentifiableArrayContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArray(BladeAntlrParser.ArrayContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArray(BladeAntlrParser.ArrayContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

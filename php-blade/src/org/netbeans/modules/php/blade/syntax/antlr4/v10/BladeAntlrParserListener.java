@@ -388,6 +388,26 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitPhp_expression(BladeAntlrParser.Php_expressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#loop_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterLoop_expression(BladeAntlrParser.Loop_expressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#loop_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitLoop_expression(BladeAntlrParser.Loop_expressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#simple_foreach_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterSimple_foreach_expr(BladeAntlrParser.Simple_foreach_exprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#simple_foreach_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitSimple_foreach_expr(BladeAntlrParser.Simple_foreach_exprContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#singleArgWrapper}.
 	 * @param ctx the parse tree
 	 */
@@ -447,6 +467,36 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitComposedArgument(BladeAntlrParser.ComposedArgumentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#phpExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterPhpExpr(BladeAntlrParser.PhpExprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#phpExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitPhpExpr(BladeAntlrParser.PhpExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#identifiableArray}.
+	 * @param ctx the parse tree
+	 */
+	void enterIdentifiableArray(BladeAntlrParser.IdentifiableArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#identifiableArray}.
+	 * @param ctx the parse tree
+	 */
+	void exitIdentifiableArray(BladeAntlrParser.IdentifiableArrayContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#array}.
+	 * @param ctx the parse tree
+	 */
+	void enterArray(BladeAntlrParser.ArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#array}.
+	 * @param ctx the parse tree
+	 */
+	void exitArray(BladeAntlrParser.ArrayContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#paramAssign}.
 	 * @param ctx the parse tree

@@ -102,7 +102,7 @@ switch: D_SWITCH php_expression (general_statement | D_BREAK)+ D_ENDSWITCH;
 //loops
 while : D_WHILE php_expression (general_statement)+ D_ENDWHILE;
 for : D_FOR php_expression (general_statement)+ D_ENDFOR;
-foreach : D_FOREACH php_expression (general_statement)+ D_ENDFOREACH;
+foreach : D_FOREACH FOREACH_LOOP_LPAREN loop_expression FOREACH_LOOP_RPAREN (general_statement)+ D_ENDFOREACH;
 forelse : D_FORELSE php_expression (general_statement | D_EMPTY)+ D_ENDFORELSE;
 
 //layout
@@ -144,6 +144,11 @@ echo : ESCAPED_ECHO_START BLADE_PHP_ECHO_EXPR ESCAPED_ECHO_END;
 echo_ne : NE_ECHO_START BLADE_PHP_ECHO_EXPR NE_ECHO_END;
 
 php_expression: PHP_EXPRESSION;
+loop_expression : PHP_VARIABLE simple_foreach_expr
+| (PHP_VARIABLE | PHP_EXPRESSION | FOREACH_PARAM_ASSIGN | FOREACH_LOOP_LPAREN | FOREACH_LOOP_RPAREN | FOREACH_AS)+ //complex expression (lazy handling)
+;
+
+simple_foreach_expr: PHP_VARIABLE FOREACH_AS PHP_VARIABLE (FOREACH_PARAM_ASSIGN PHP_VARIABLE)?;
 
 singleArgWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BLADE_PARAM_RPAREN;
 singleArgAndDefaultWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
@@ -151,7 +156,14 @@ doubleArgWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) 
 multiArgWrapper :  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
 
 identifiableArgument : BL_PARAM_WS* BL_PARAM_STRING BL_PARAM_WS*;
-composedArgument : BL_PARAM_WS* (paramAssign | BLADE_PARAM_EXTRA | PHP_VARIABLE | PHP_KEYWORD |  BL_PARAM_WS | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_PARAM_ASSIGN | BL_NAME_STRING | BL_COMMA)+ BL_PARAM_WS*;
+composedArgument : BL_PARAM_WS* (phpExpr)+ BL_PARAM_WS*;
+
+phpExpr : identifiableArray | array | BLADE_PARAM_EXTRA | PHP_VARIABLE | PHP_KEYWORD |  BL_PARAM_WS | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_PARAM_ASSIGN | BL_NAME_STRING | BL_COMMA;
+
+//['key' => $value]
+identifiableArray : BL_SQ_LPAREN paramAssign+ BL_SQ_RPAREN;
+array : BL_SQ_LPAREN phpExpr+ BL_SQ_RPAREN
+| BL_SQ_LPAREN BL_SQ_RPAREN;
 
 paramAssign : BL_PARAM_STRING BL_PARAM_WS* BL_PARAM_ASSIGN BL_PARAM_WS* (PHP_VARIABLE | PHP_KEYWORD | BL_PARAM_STRING);
 verbatim_block : D_VERBATIM non_blade_statement+ D_ENDVERBATIM;

@@ -51,11 +51,11 @@ import org.openide.util.Exceptions;
  * @author bhaidu
  */
 @MimeRegistrations(value = {
-    @MimeRegistration(mimeType = BladeLanguage.MIME_TYPE, service = CompletionProvider.class),
+    @MimeRegistration(mimeType = "text/html", service = CompletionProvider.class)
 })
-public class BladeCompletionProvider implements CompletionProvider {
+public class BladeHtmlCompletionProvider implements CompletionProvider {
 
-    private static final Logger LOGGER = Logger.getLogger(BladeCompletionProvider.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(BladeHtmlCompletionProvider.class.getName());
 
     public enum CompletionType {
         BLADE_PATH,
@@ -74,7 +74,9 @@ public class BladeCompletionProvider implements CompletionProvider {
         if (fo == null || !fo.getMIMEType().equals(BladeLanguage.MIME_TYPE)) {
             return 0;
         }
-
+        if (typedText.equals("@")) {
+            return COMPLETION_QUERY_TYPE;
+        }
         if (typedText.length() == 0) {
             return 0;
         }
@@ -89,7 +91,6 @@ public class BladeCompletionProvider implements CompletionProvider {
             case ')':
             case '\n':
             case '<':
-            case '>':
                 return 0;
         }
         return COMPLETION_QUERY_TYPE;
@@ -170,92 +171,29 @@ public class BladeCompletionProvider implements CompletionProvider {
                     }
 
                     switch (nt.getType()) {
-                        case BL_PARAM_STRING: {
-                            String pathName = nt.getText().substring(1, nt.getText().length() - 1);
-                            List<Integer> tokensMatch = Arrays.asList(new Integer[]{
-                                D_EXTENDS, D_INCLUDE, D_SECTION, D_HAS_SECTION,
-                                D_INCLUDE_IF, D_INCLUDE_WHEN, D_INCLUDE_UNLESS, D_INCLUDE_FIRST,
-                                D_EACH, D_PUSH
-                            });     //todo 
-                            //we should have the stop tokens depending on context
-                            List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML, BL_COMMA, BL_PARAM_CONCAT_OPERATOR});
-                            Token directiveToken = BladeAntlrUtils.findBackward(tokens, tokensMatch, tokensStop);
-                            if (directiveToken == null) {
-                                return;
+                        case HTML:
+                            String nText = nt.getText();
+                            if (nText.startsWith("@")) {
+                                completeDirectives(nText, doc, caretOffset, resultSet);
                             }
-                            switch (directiveToken.getType()) {
-                                case D_EXTENDS:
-                                case D_INCLUDE:
-                                case D_INCLUDE_IF:
-                                case D_INCLUDE_WHEN:
-                                case D_INCLUDE_UNLESS:
-                                case D_EACH:
-
-                                    int lastDotPos;
-
-                                    if (pathName.endsWith(".")) {
-                                        lastDotPos = pathName.length();
-                                    } else {
-                                        lastDotPos = pathName.lastIndexOf(".");
-                                    }
-                                    int pathOffset;
-
-                                    if (lastDotPos > 0) {
-                                        pathOffset = caretOffset - pathName.length() + lastDotPos;
-                                    } else {
-                                        pathOffset = caretOffset - pathName.length();
-                                    }
-                                    List<FileObject> childrenFiles = PathUtils.getParentChildrenFromPrefixPath(fo, pathName);
-                                    for (FileObject file : childrenFiles) {
-                                        String pathFileName = file.getName();
-                                        if (!file.isFolder()) {
-                                            pathFileName = pathFileName.replace(".blade", "");
-                                        }
-                                        completeBladePath(pathFileName, file, pathOffset, resultSet);
-                                    }
-                                    return;
-                                case D_SECTION:
-                                case D_HAS_SECTION:
-                                    completeYieldIdFromIndex(pathName, fo, caretOffset, resultSet);
-                            }
-                            break;
-                        }
-                        case BLADE_PHP_ECHO_EXPR: {
-                            //completion {{ }} {!! !!}
-                            List<Integer> tokensMatch = Arrays.asList(new Integer[]{ESCAPED_ECHO_START, NE_ECHO_START});
-                            List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML, ESCAPED_ECHO_END, NE_ECHO_END});
-                            Token curlyStartToken = BladeAntlrUtils.findBackward(tokens, tokensMatch, tokensStop);
-                            if (curlyStartToken != null) {
-                                switch (curlyStartToken.getType()) {
-                                    case ESCAPED_ECHO_START:
-                                        closeTag = "}}"; //NOI18N
-                                        break;
-                                    case NE_ECHO_START:
-                                        closeTag = "!!}"; //NOI18N
-                                        break;
-                                }
-                                tokens.next();
-                                tokens.next();
-
-                                if (tokens.hasNext()) {
-                                    Token closeTagToken = tokens.next().get();
-                                    switch (closeTagToken.getType()) {
-                                        case ESCAPED_ECHO_END:
-                                        case NE_ECHO_END:
-                                            return;
-                                    }
-                                }
-
-                                if (closeTag != null) {
-                                    completeCloseTag(curlyStartToken, doc, closeTag, caretOffset, resultSet);
-                                }
-                            }
-                            break;
-                        }
-                        default:
                             break;
                     }
+                } else if (tokens.hasPrevious()) {
+                    Token pt = tokens.previous().get();
+                    if (pt == null) {
+                        return;
+                    }
+                    if (pt.getType() == PHP_EXPRESSION || pt.getType() == BLADE_PHP_ECHO_EXPR) {
+                        return;
+                    }
+
+                    String pText = pt.getText();
+                    if (pText.startsWith("@")) {
+                        prefix = pt.getText();
+                        completeDirectives(prefix, doc, caretOffset, resultSet);
+                    }
                 }
+
             } finally {
                 if (LOGGER.isLoggable(Level.FINE)) {
                     long time = System.currentTimeMillis() - startTime;
@@ -264,6 +202,58 @@ public class BladeCompletionProvider implements CompletionProvider {
                 resultSet.finish();
             }
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private void completeDirectives(String prefix, Document doc, int carretOffset, CompletionResultSet resultSet) {
+        int startOffset = carretOffset - prefix.length();
+        HashMap<String, HashMap> yamlCompletionList = BladeCompletionService.getDirectiveCompletionList();
+
+        for (String group : yamlCompletionList.keySet()) {
+            Set<Entry<String, HashMap>> directiveList = yamlCompletionList.get(group).entrySet();
+            for (Entry directiveEntry : directiveList) {
+                String directive = (String) directiveEntry.getKey();
+                Object info = directiveEntry.getValue();
+                String hasArgument = null, description = null, endtag = null;
+                if (info instanceof HashMap) {
+                    HashMap<String, String> infoList = (HashMap) info;
+                    hasArgument = infoList.get("takes_parameter");
+                    description = infoList.get("description");
+                    endtag = infoList.get("end_tag");
+                }
+
+                if (directive.startsWith(prefix)) {
+                    if (hasArgument != null && hasArgument.equals("1")) {
+                        resultSet.addItem(DirectiveCompletionBuilder.itemWithArg(
+                                startOffset, carretOffset, prefix, directive, description, doc));
+                        if (endtag != null) {
+                            resultSet.addItem(DirectiveCompletionBuilder.itemWithArg(
+                                    startOffset, carretOffset, prefix, directive, endtag, description, doc));
+                        }
+                    } else {
+                        resultSet.addItem(DirectiveCompletionBuilder.simpleItem(
+                                startOffset, directive, description));
+                        if (endtag != null) {
+                            resultSet.addItem(DirectiveCompletionBuilder.simpleItem(
+                                    startOffset, carretOffset, prefix, directive, endtag, description, doc));
+                        }
+                    }
+                }
+            }
+        }
+        FileObject fo = EditorDocumentUtils.getFileObject(doc);
+        Project project = FileOwnerQuery.getOwner(fo);
+
+        CustomDirectives.getInstance(project).filterAction(new FilterCallback() {
+            @Override
+            public void filterDirectiveName(String directiveName, FileObject file) {
+                if (directiveName.startsWith(prefix)) {
+                    resultSet.addItem(DirectiveCompletionBuilder.itemWithArg(
+                            startOffset, carretOffset, prefix, directiveName,
+                            "custom directive", doc, file));
+                }
+            }
+        });
     }
 
     private void completeYieldIdFromIndex(String prefixIdentifier, FileObject fo,

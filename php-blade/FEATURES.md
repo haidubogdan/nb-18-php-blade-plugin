@@ -15,12 +15,13 @@ start from 10
 ## Completion
 
 - Completion for directives 80% (might add some documentation)
-- Completion for custom directives 0%
+- Completion for custom directives 80%
 - Completion for echo tags 80% (to add icon and possible description)
 - Completion for blade files 100%
 - Completion for yield names 80% (for the moment no context is added)
+- Completion inside echo statement 0%
 
-! it seems quite slow, need to investigate
+?? the include statement
 
 ## validation
 
