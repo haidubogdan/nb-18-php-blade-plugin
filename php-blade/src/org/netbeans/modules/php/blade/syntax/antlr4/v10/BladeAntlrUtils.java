@@ -40,7 +40,14 @@ public class BladeAntlrUtils {
             return null;
         }
 
-        return tokens.next().get();
+        Token token = tokens.next().get();
+
+        //need to move back
+        if ( token != null && tokens.hasPrevious() && token.getStartIndex() > offset){
+            token = tokens.previous().get();
+        }
+        
+        return token;
     }
 
     public static Token findForward(Document doc, Token start,

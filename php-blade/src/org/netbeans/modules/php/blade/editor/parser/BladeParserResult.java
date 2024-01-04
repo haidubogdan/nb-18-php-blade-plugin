@@ -53,6 +53,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     private final Map<String, Reference> stackReferences = new TreeMap<>();
     public final Map<OffsetRange, Reference> occurancesForDeclaration = new TreeMap<>();
     public final Map<OffsetRange, Reference> customDirectivesReferences = new TreeMap<>();
+    public final Map<OffsetRange, Set<String>> scopedVariables = new TreeMap<>();
 
     public final Set<String> includeFilePaths = new LinkedHashSet<>();
     public final List<BladeStructureItem> structure = new ArrayList<>();
@@ -119,6 +120,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
             parser.addErrorListener(createErrorListener());
 //            parser.addParseListener(createFoldListener());
             parser.addParseListener(createDeclarationReferencesListener());
+            parser.addParseListener(createVariableListener());
             parser.addParseListener(createLayoutTreeListener());
             parser.addParseListener(createStructureListener());
             parser.addParseListener(createSemanticsListener());
@@ -221,6 +223,39 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
             }
         };
 
+    }
+
+    private ParseTreeListener createVariableListener() {
+        return new BladeAntlrParserBaseListener() {
+            ForeachVariables foreachVariables;
+
+            @Override
+            public void exitSimple_foreach_expr(BladeAntlrParser.Simple_foreach_exprContext ctx) {
+                foreachVariables.arrayVariable = ctx.loop_array.getText();
+                if (ctx.item != null) {
+                    foreachVariables.keyVariable = ctx.key.getText();
+                    foreachVariables.itemVariable = ctx.item.getText();
+                } else {
+
+                    foreachVariables.itemVariable = ctx.key.getText();
+                }
+            }
+
+            @Override public void exitForeach(BladeAntlrParser.ForeachContext ctx) { 
+                if (foreachVariables != null){
+                    Set<String> varList = new LinkedHashSet<>();
+                    varList.add(foreachVariables.arrayVariable);
+                    if (foreachVariables.keyVariable != null){
+                        varList.add(foreachVariables.keyVariable);
+                    }
+                    varList.add(foreachVariables.itemVariable);
+                    OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex()+1);
+                    scopedVariables.put(range, varList);
+                }
+                //reset
+                foreachVariables = null;
+            }
+        };
     }
 
     private ParseTreeListener createStructureListener() {
@@ -334,6 +369,25 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         return null;
     }
 
+    //todo append variables
+    public Set<String> findVariablesForScope(int offset) {
+
+        for (Map.Entry<OffsetRange, Set<String>> entry : scopedVariables.entrySet()) {
+            OffsetRange range = entry.getKey();
+
+            if (offset < range.getStart()) {
+                //excedeed the offset range
+                return null;
+            }
+
+            if (range.containsInclusive(offset)) {
+                return entry.getValue();
+            }
+        }
+
+        return null;
+    }
+    
     /**
      * to be implemented in the future
      *
@@ -488,5 +542,12 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
             this.name = name;
             this.defOffset = defOffset;
         }
+    }
+
+    public class ForeachVariables {
+
+        public String arrayVariable;
+        public String keyVariable;
+        public String itemVariable;
     }
 }

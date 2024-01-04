@@ -3090,11 +3090,14 @@ public class BladeAntlrParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class Simple_foreach_exprContext extends ParserRuleContext {
+		public Token loop_array;
+		public Token key;
+		public Token item;
+		public TerminalNode FOREACH_AS() { return getToken(BladeAntlrParser.FOREACH_AS, 0); }
 		public List<TerminalNode> PHP_VARIABLE() { return getTokens(BladeAntlrParser.PHP_VARIABLE); }
 		public TerminalNode PHP_VARIABLE(int i) {
 			return getToken(BladeAntlrParser.PHP_VARIABLE, i);
 		}
-		public TerminalNode FOREACH_AS() { return getToken(BladeAntlrParser.FOREACH_AS, 0); }
 		public TerminalNode FOREACH_PARAM_ASSIGN() { return getToken(BladeAntlrParser.FOREACH_PARAM_ASSIGN, 0); }
 		public Simple_foreach_exprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -3118,11 +3121,11 @@ public class BladeAntlrParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(435);
-			match(PHP_VARIABLE);
+			((Simple_foreach_exprContext)_localctx).loop_array = match(PHP_VARIABLE);
 			setState(436);
 			match(FOREACH_AS);
 			setState(437);
-			match(PHP_VARIABLE);
+			((Simple_foreach_exprContext)_localctx).key = match(PHP_VARIABLE);
 			setState(440);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -3131,7 +3134,7 @@ public class BladeAntlrParser extends Parser {
 				setState(438);
 				match(FOREACH_PARAM_ASSIGN);
 				setState(439);
-				match(PHP_VARIABLE);
+				((Simple_foreach_exprContext)_localctx).item = match(PHP_VARIABLE);
 				}
 			}
 

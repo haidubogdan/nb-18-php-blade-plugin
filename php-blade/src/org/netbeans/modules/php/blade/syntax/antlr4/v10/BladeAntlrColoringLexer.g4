@@ -87,6 +87,7 @@ D_AWARE : '@aware'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 //misc
 D_EMPTY : '@empty'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 D_ENDEMPTY : '@endempty'->type(DIRECTIVE);
+D_AUTH : '@auth'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 D_JSON  : '@json'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 D_INJECT : '@inject'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 D_DD : '@dd'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
@@ -138,17 +139,9 @@ ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
 ECHO_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT)->more;
 ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
 
-GREEDY_ESCAPED_ECHO_EXPR_END : ~[ ':{}]+ {
-        this._input.LA(1) == '}' &&
-        this._input.LA(2) == '}' }?->type(BLADE_PHP_ECHO_EXPR);
+GREEDY_ESCAPED_ECHO_EXPR : ~[ ':{}]+ {this.consumeEscapedEchoToken();};
 
-ESCAPED_ECHO_EXPR : ~[ ':{}]+ ->more;
-
-ESCAPED_ECHO_EXPR_END : . [ ]* {
-        this._input.LA(1) == '}' &&
-        this._input.LA(2) == '}' }? ->type(BLADE_PHP_ECHO_EXPR);
-
-ESCAPED_ECHO_EXPR_MORE : . ->more;
+ESCAPED_ECHO_EXPR : . [ ]* {this.consumeEscapedEchoToken();};
 EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
 
 // {!!  !!}
@@ -159,13 +152,8 @@ NE_ECHO_END : ('!!}')->popMode;
 NE_ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
 NE_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT)->more;
 NE_ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
-NE_ECHO_EXPR : ~[ ':!{}]+ ->more;
-NE_ECHO_EXPR_END : . [ ]* {
-        this._input.LA(1) == '!' &&
-        this._input.LA(2) == '!' &&
-        this._input.LA(3) == '}'
-    }? ->type(BLADE_PHP_ECHO_EXPR);
-NE_ECHO_EXPR_MORE : . ->more;
+NE_ECHO_EXPR : ~[ ':!{}]+ {this.consumeNotEscapedEchoToken();};
+NE_ECHO_EXPR_MORE : . [ ]* {this.consumeNotEscapedEchoToken();};
 EXIT_NE_ECHO_EOF : EOF->type(ERROR),popMode;
 
 // @directive ()?

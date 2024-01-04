@@ -31,6 +31,8 @@ public class BladeDirectivesUtils {
                 return new String[]{"@endempty"};
             case "@verbatim":
                 return new String[]{"@endverbatim"};
+            case "@auth":
+                return new String[]{"@endauth"};
             case "@error":
                 return new String[]{"@enderror"};
 
@@ -60,6 +62,8 @@ public class BladeDirectivesUtils {
                 return new String[]{"@empty"};
             case "@endverbatim":
                 return new String[]{"@verbatim"};
+            case "@endauth":
+                return new String[]{"@auth"};
             case "@enderror":
                 return new String[]{"@error"};
         }

@@ -32,12 +32,12 @@ public abstract class LexerAdaptor extends Lexer {
     public void setCurrentRuleType(int ruleType) {
         this._currentRuleType = ruleType;
     }
-    
+
     @Override
     public Token emit() {
         return super.emit();
     }
-    
+
     @Override
     public void reset() {
         setCurrentRuleType(Token.INVALID_TYPE);
@@ -46,48 +46,65 @@ public abstract class LexerAdaptor extends Lexer {
 
     /**
      * eager check to see if the character position in a line is at the start
-     * 
-     * @return 
+     *
+     * @return
      */
-    public boolean IsNewLineOrStart(){
+    public boolean IsNewLineOrStart() {
         return this._tokenStartCharPositionInLine <= 2;
     }
-    
-    public boolean peekNextChar(char peekChar){
+
+    public boolean peekNextChar(char peekChar) {
         return (char) this._input.LA(1) == peekChar;
     }
 
-    public boolean peekNextChars(char peekChar, int number){
-        for (int i = 1;i< number ; i++){
-            if((char) this._input.LA(i) != peekChar){
+    public boolean peekNextChars(char peekChar, int number) {
+        for (int i = 1; i < number; i++) {
+            if ((char) this._input.LA(i) != peekChar) {
                 return false;
             }
         }
         return true;
     }
-    
-    public void increaseRoundParenBalance(){
+
+    public void increaseRoundParenBalance() {
         this.roundParenBalance++;
     }
-    
-    public void decreaseRoundParenBalance(){
+
+    public void decreaseRoundParenBalance() {
         this.roundParenBalance--;
     }
-    
-    public boolean endsWith(char ch1, char ch2){
+
+    public boolean endsWith(char ch1, char ch2) {
         return this._input.LA(1) == ch1 && this._input.LA(2) == ch2;
     }
-    
-    public boolean endsWith(char ch1, char ch2, char ch3){
-        return this._input.LA(1) == ch1 &&
-               this._input.LA(2) == ch2 &&
-               this._input.LA(3) == ch3;
+
+    public boolean endsWith(char ch1, char ch2, char ch3) {
+        return this._input.LA(1) == ch1
+                && this._input.LA(2) == ch2
+                && this._input.LA(3) == ch3;
     }
 
-    public boolean hasNoBladeParamOpenBracket(){
-        return this.roundParenBalance == 1 &&
-                this.squareParenBalance == 0 &&
-                this.curlyParenBalance == 0;
+    public boolean hasNoBladeParamOpenBracket() {
+        return this.roundParenBalance == 1
+                && this.squareParenBalance == 0
+                && this.curlyParenBalance == 0;
     }
 
+    //blade coloring lexer
+    public void consumeEscapedEchoToken() {
+        if (this._input.LA(1) == '}' && this._input.LA(2) == '}') {
+            this.setType(BladeAntlrColoringLexer.BLADE_PHP_ECHO_EXPR);
+        } else {
+            this.more();
+        }
+    }
+
+    //blade coloring lexer
+    public void consumeNotEscapedEchoToken() {
+        if (this._input.LA(1) == '!' && this._input.LA(2) == '!' && this._input.LA(3) == '}') {
+            this.setType(BladeAntlrColoringLexer.BLADE_PHP_ECHO_EXPR);
+        } else {
+            this.more();
+        }
+    }
 }
