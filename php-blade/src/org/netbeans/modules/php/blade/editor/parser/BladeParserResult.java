@@ -67,8 +67,8 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     volatile boolean indexLoaded = false;
 
     public enum ReferenceType {
-        YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION, USE,
-        CUSTOM_DIRECTIVE, PHP_INLINE, PHP_BLADE
+        YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION,
+        SECTION_MISSING, USE, CUSTOM_DIRECTIVE, PHP_INLINE, PHP_BLADE
     }
 
     public enum ParserContext {
@@ -80,6 +80,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         SECTION_INLINE(BladeAntlrParser.Section_inlineContext.class.getSimpleName()),
         PUSH(BladeAntlrParser.PushContext.class.getSimpleName()),
         HAS_SECTION(BladeAntlrParser.HasSectionContext.class.getSimpleName()),
+        SECTION_MISSING(BladeAntlrParser.SectionMissingContext.class.getSimpleName()),
         EACH(BladeAntlrParser.EachContext.class.getSimpleName()),
         USE(BladeAntlrParser.UseDContext.class.getSimpleName());
 
@@ -227,11 +228,12 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
 
     private ParseTreeListener createVariableListener() {
         return new BladeAntlrParserBaseListener() {
-            ForeachVariables foreachVariables;
+            List<ForeachVariables> foreachVariableList = new ArrayList<>();
+            int foreachBalance = 0;
 
             @Override
             public void exitSimple_foreach_expr(BladeAntlrParser.Simple_foreach_exprContext ctx) {
-                foreachVariables = new ForeachVariables();
+                ForeachVariables foreachVariables = new ForeachVariables();
                 foreachVariables.arrayVariable = ctx.loop_array.getText();
                 if (ctx.item != null) {
                     foreachVariables.keyVariable = ctx.key.getText();
@@ -240,21 +242,62 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
 
                     foreachVariables.itemVariable = ctx.key.getText();
                 }
+                foreachVariableList.add(foreachVariables);
             }
 
-            @Override public void exitForeach(BladeAntlrParser.ForeachContext ctx) { 
-                if (foreachVariables != null){
+            @Override
+            public void enterForeach(BladeAntlrParser.ForeachContext ctx) {
+                foreachBalance++;
+            }
+
+            @Override
+            public void exitForeach(BladeAntlrParser.ForeachContext ctx) {
+                if (!foreachVariableList.isEmpty()) {
                     Set<String> varList = new LinkedHashSet<>();
-                    varList.add(foreachVariables.arrayVariable);
-                    if (foreachVariables.keyVariable != null){
-                        varList.add(foreachVariables.keyVariable);
+                    for (ForeachVariables foreachVariables : foreachVariableList) {
+
+                        varList.add(foreachVariables.arrayVariable);
+                        if (foreachVariables.keyVariable != null) {
+                            varList.add(foreachVariables.keyVariable);
+                        }
+                        varList.add(foreachVariables.itemVariable);
+
                     }
-                    varList.add(foreachVariables.itemVariable);
-                    OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex()+1);
+                    OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
                     scopedVariables.put(range, varList);
                 }
+
+                foreachBalance--;
                 //reset
-                foreachVariables = null;
+                if (foreachBalance < 0) {
+                    foreachVariableList.clear();
+                }
+            }
+
+            @Override
+            public void exitForelse(BladeAntlrParser.ForelseContext ctx) {
+                if (!foreachVariableList.isEmpty()) {
+                    Set<String> varList = new LinkedHashSet<>();
+                    for (ForeachVariables foreachVariables : foreachVariableList) {
+
+                        varList.add(foreachVariables.arrayVariable);
+                        if (foreachVariables.keyVariable != null) {
+                            varList.add(foreachVariables.keyVariable);
+                        }
+                        varList.add(foreachVariables.itemVariable);
+
+                    }
+                    OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
+                    scopedVariables.put(range, varList);
+                }
+
+                //reset
+                foreachVariableList.clear();
+            }
+
+            @Override
+            public void exitFile(BladeAntlrParser.FileContext ctx) {
+                foreachVariableList.clear();
             }
         };
     }
@@ -345,6 +388,8 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
                 return ReferenceType.PUSH;
             case HAS_SECTION:
                 return ReferenceType.HAS_SECTION;
+            case SECTION_MISSING:
+                return ReferenceType.SECTION_MISSING;
             case USE:
                 return ReferenceType.USE;
             default:
@@ -370,25 +415,29 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         return null;
     }
 
-    //todo append variables
     public Set<String> findVariablesForScope(int offset) {
+
+        Set<String> variableList = new LinkedHashSet<>();
 
         for (Map.Entry<OffsetRange, Set<String>> entry : scopedVariables.entrySet()) {
             OffsetRange range = entry.getKey();
 
             if (offset < range.getStart()) {
                 //excedeed the offset range
-                return null;
+                break;
             }
 
             if (range.containsInclusive(offset)) {
-                return entry.getValue();
+                variableList.addAll(entry.getValue());
             }
         }
 
-        return null;
+        if (variableList.isEmpty()) {
+            return null;
+        }
+        return variableList;
     }
-    
+
     /**
      * to be implemented in the future
      *

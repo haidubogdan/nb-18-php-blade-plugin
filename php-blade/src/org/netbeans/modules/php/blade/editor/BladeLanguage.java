@@ -201,7 +201,7 @@ public class BladeLanguage extends DefaultLanguageConfig {
             hasQuote = true;
         }
         return Character.isJavaIdentifierPart(c)
-                || (c == '-') || (c == '@')
+                || (c == '@')
                 || (hasQuote && c == '.') || (c == '_');
     }
 

@@ -6,7 +6,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
@@ -19,19 +18,15 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.HtmlFormatter;
 import org.netbeans.modules.php.blade.csl.elements.CustomDirectiveElement;
-import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
 import org.netbeans.modules.php.blade.csl.elements.StackIdElement;
 import org.netbeans.modules.php.blade.csl.elements.YieldIdElement;
-import org.netbeans.modules.php.blade.editor.compiler.BladePhpCompiler;
-import org.netbeans.modules.php.blade.editor.completion.PhpTypeCompletionProvider;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
 import org.netbeans.modules.php.blade.editor.lexer.BladeLexerUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
-import org.netbeans.modules.php.blade.editor.parser.ParsingUtils;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.editor.phpCsl.PhpTypeDeclarationProvider;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
@@ -40,8 +35,6 @@ import org.openide.filesystems.FileObject;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
-import org.netbeans.spi.editor.completion.CompletionItem;
-import org.netbeans.spi.editor.completion.support.CompletionUtilities;
 import org.openide.filesystems.FileUtil;
 
 /**
@@ -121,7 +114,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
             if (nt.getType() == BL_PARAM_STRING) {
                 List<Integer> tokensMatch = Arrays.asList(new Integer[]{
-                    D_EXTENDS, D_INCLUDE, D_EACH, D_SECTION, D_HAS_SECTION, D_PUSH, D_USE
+                    D_EXTENDS, D_INCLUDE, D_EACH, D_SECTION, D_HAS_SECTION, D_SECTION_MISSING, D_PUSH, D_USE
                 });
                 List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML});
                 org.antlr.v4.runtime.Token matchedToken = BladeAntlrUtils.findBackward(tokens, tokensMatch, tokensStop);
@@ -166,6 +159,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 return dln;
             case SECTION:
             case HAS_SECTION:
+            case SECTION_MISSING:    
                 String yieldId = reference.name;
                 List<BladeIndex.IndexedReference> yields = QueryUtils.getYieldReferences(yieldId, currentFile);
                 if (yields == null) {

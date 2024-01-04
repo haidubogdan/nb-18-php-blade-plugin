@@ -49,7 +49,11 @@ loop_directives:
     - takes_parameter : 1
     - end_tag : '@endforeach'
   - '@endforeach' :
+  - '@forelse':
+      - takes_parameter : 1
+      - end_tag : '@endforelse'
   - '@break' :
+  - '@continue' :
 
 form_directives:
     - '@csrf':

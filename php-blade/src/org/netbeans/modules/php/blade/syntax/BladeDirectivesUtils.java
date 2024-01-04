@@ -17,6 +17,8 @@ public class BladeDirectivesUtils {
                 return new String[]{"@endonce"};
             case "@foreach":
                 return new String[]{"@endforeach"};
+            case "@forelse":
+                return new String[]{"@endforelse"};
             case "@for":
                 return new String[]{"@endfor"};
             case "@while":
@@ -33,6 +35,8 @@ public class BladeDirectivesUtils {
                 return new String[]{"@endverbatim"};
             case "@auth":
                 return new String[]{"@endauth"};
+            case "@guest":
+                return new String[]{"@endguest"};
             case "@error":
                 return new String[]{"@enderror"};
 
@@ -50,6 +54,8 @@ public class BladeDirectivesUtils {
                 return new String[]{"@once"};
             case "@endforeach":
                 return new String[]{"@foreach"};
+            case "@endforelse":
+                return new String[]{"@forelse"};
             case "@endfor":
                 return new String[]{"@for"};
             case "@endphp":
@@ -64,6 +70,8 @@ public class BladeDirectivesUtils {
                 return new String[]{"@verbatim"};
             case "@endauth":
                 return new String[]{"@auth"};
+            case "@endguest":
+                return new String[]{"@guest"};
             case "@enderror":
                 return new String[]{"@error"};
         }

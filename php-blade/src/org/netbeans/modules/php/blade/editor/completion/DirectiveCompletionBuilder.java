@@ -84,6 +84,7 @@ public class DirectiveCompletionBuilder {
             StringBuilder sb = new StringBuilder();
             sb.append(directive);
             sb.append("(${cursor})");
+
             try {
                 doc.remove(carretOffset - prefix.length(), prefix.length());
                 CodeTemplateManager.get(doc).createTemporary(sb.toString()).insert(ctx.getComponent());
@@ -110,6 +111,7 @@ public class DirectiveCompletionBuilder {
             StringBuilder sb = new StringBuilder();
             sb.append(directive);
             sb.append("(${cursor})\n");
+            sb.append("\n${cursor}");
             sb.append(endtag);
             try {
                 doc.remove(carretOffset - prefix.length(), prefix.length());

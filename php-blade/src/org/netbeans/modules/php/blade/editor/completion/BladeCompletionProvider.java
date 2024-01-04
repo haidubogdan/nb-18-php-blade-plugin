@@ -2,6 +2,7 @@ package org.netbeans.modules.php.blade.editor.completion;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -234,16 +235,19 @@ public class BladeCompletionProvider implements CompletionProvider {
                                         closeTag = "!!}"; //NOI18N
                                         break;
                                 }
-                                tokens.next();
-                                tokens.next();
 
-                                if (tokens.hasNext()) {
-                                    Token closeTagToken = tokens.next().get();
-                                    switch (closeTagToken.getType()) {
-                                        case ESCAPED_ECHO_END:
-                                        case NE_ECHO_END:
-                                            return;
-                                    }
+                                int matchTokenType = BladeAntlrUtils.getTagPairTokenType(curlyStartToken.getType());
+                                List<Integer> skipableTokenTypes = new ArrayList<>();
+                                skipableTokenTypes.add(BLADE_PHP_ECHO_EXPR);
+                                skipableTokenTypes.add(PHP_VARIABLE);
+
+                                Token curlyEndToken = BladeAntlrUtils.findForward(doc,
+                                        curlyStartToken,
+                                        matchTokenType,
+                                        skipableTokenTypes);
+
+                                if (curlyEndToken != null){
+                                    return;
                                 }
 
                                 if (closeTag != null) {

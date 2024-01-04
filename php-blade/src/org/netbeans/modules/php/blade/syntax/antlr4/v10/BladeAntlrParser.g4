@@ -56,6 +56,7 @@ inline_directive:
 block_statement: 
     section
     | hasSection
+    | sectionMissing
     | push
     | D_ONCE general_statement+ D_ENDONCE
     | if
@@ -63,6 +64,7 @@ block_statement:
     | else
     | switch
     | D_ENV  singleArgWrapper general_statement+ D_ENDENV
+    | D_PRODUCTION general_statement+ D_ENDPRODUCTION
     | D_EMPTY php_expression general_statement+ D_ENDEMPTY
     | D_ERROR php_expression general_statement+ D_ENDERROR
     //we can consider the statements not being empty
@@ -103,7 +105,7 @@ switch: D_SWITCH php_expression (general_statement | D_BREAK)+ D_ENDSWITCH;
 while : D_WHILE php_expression (general_statement)+ D_ENDWHILE;
 for : D_FOR php_expression (general_statement)+ D_ENDFOR;
 foreach : D_FOREACH FOREACH_LOOP_LPAREN loop_expression FOREACH_LOOP_RPAREN (general_statement)+ D_ENDFOREACH;
-forelse : D_FORELSE php_expression (general_statement | D_EMPTY)+ D_ENDFORELSE;
+forelse : D_FORELSE FOREACH_LOOP_LPAREN loop_expression FOREACH_LOOP_RPAREN (general_statement | D_EMPTY)+ D_ENDFORELSE;
 
 //layout
 yieldD : D_YIELD singleArgWrapper;
@@ -132,6 +134,7 @@ each : D_EACH BLADE_PARAM_LPAREN
     BLADE_PARAM_RPAREN;
 
 hasSection : D_HAS_SECTION singleArgWrapper general_statement* D_ENDIF;
+sectionMissing : D_SECTION_MISSING singleArgWrapper general_statement* D_ENDIF;
 
 custom_directive : D_CUSTOM multiArgWrapper;
     

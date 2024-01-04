@@ -399,6 +399,18 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSectionMissing(BladeAntlrParser.SectionMissingContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSectionMissing(BladeAntlrParser.SectionMissingContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCustom_directive(BladeAntlrParser.Custom_directiveContext ctx) { }
 	/**
 	 * {@inheritDoc}

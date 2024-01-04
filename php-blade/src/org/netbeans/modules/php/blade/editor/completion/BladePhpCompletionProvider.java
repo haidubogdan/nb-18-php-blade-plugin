@@ -34,6 +34,7 @@ public class BladePhpCompletionProvider implements CompletionProvider {
     @Override
     public int getAutoQueryTypes(JTextComponent component, String typedText) {
         FileObject fo = EditorDocumentUtils.getFileObject(component.getDocument());
+        
         if (fo == null || !fo.getMIMEType().equals(BladeLanguage.MIME_TYPE)) {
             return 0;
         }

@@ -328,6 +328,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitHasSection(BladeAntlrParser.HasSectionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#sectionMissing}.
+	 * @param ctx the parse tree
+	 */
+	void enterSectionMissing(BladeAntlrParser.SectionMissingContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#sectionMissing}.
+	 * @param ctx the parse tree
+	 */
+	void exitSectionMissing(BladeAntlrParser.SectionMissingContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#custom_directive}.
 	 * @param ctx the parse tree
 	 */
