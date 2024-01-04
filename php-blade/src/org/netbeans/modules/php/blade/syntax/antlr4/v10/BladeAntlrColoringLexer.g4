@@ -111,7 +111,7 @@ D_CUSTOM : ('@' NameString {this._input.LA(1) == '(' ||
 
 //display
 ESCAPED_ECHO_START : '{{' ->pushMode(ESCAPED_ECHO);
-NE_ECHO_START : '{!!' ->pushMode(NE_ECHO);
+RAW_ECHO_START : '{!!' ->pushMode(RAW_ECHO);
 
 //might not be necessary
 STYLE_OPEN : '<style' .*? '>'->type(HTML);
@@ -135,8 +135,8 @@ mode ESCAPED_ECHO;
 
 ESCAPED_ECHO_END : ('}}')->popMode;
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
-ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
-ECHO_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT)->more;
+ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH {this.consumeEscapedEchoToken();};
+ECHO_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT) {this.consumeEscapedEchoToken();};
 ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
 
 GREEDY_ESCAPED_ECHO_EXPR : ~[ ':{}]+ {this.consumeEscapedEchoToken();};
@@ -145,16 +145,16 @@ ESCAPED_ECHO_EXPR : . [ ]* {this.consumeEscapedEchoToken();};
 EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
 
 // {!!  !!}
-mode NE_ECHO;
+mode RAW_ECHO;
 
-NE_ECHO_END : ('!!}')->popMode;
+RAW_ECHO_END : ('!!}')->popMode;
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
-NE_ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
-NE_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT)->more;
-NE_ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
-NE_ECHO_EXPR : ~[ ':!{}]+ {this.consumeNotEscapedEchoToken();};
-NE_ECHO_EXPR_MORE : . [ ]* {this.consumeNotEscapedEchoToken();};
-EXIT_NE_ECHO_EOF : EOF->type(ERROR),popMode;
+RAW_ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH {this.consumeNotEscapedEchoToken();};
+RAW_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT) {this.consumeNotEscapedEchoToken();};
+RAW_ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
+RAW_ECHO_EXPR : ~[ ':!{}]+ {this.consumeNotEscapedEchoToken();};
+RAW_ECHO_EXPR_MORE : . [ ]* {this.consumeNotEscapedEchoToken();};
+EXIT_RAW_ECHO_EOF : EOF->type(ERROR),popMode;
 
 // @directive ()?
 mode LOOK_FOR_PHP_EXPRESSION;

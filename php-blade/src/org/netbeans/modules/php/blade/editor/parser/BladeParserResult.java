@@ -231,6 +231,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
 
             @Override
             public void exitSimple_foreach_expr(BladeAntlrParser.Simple_foreach_exprContext ctx) {
+                foreachVariables = new ForeachVariables();
                 foreachVariables.arrayVariable = ctx.loop_array.getText();
                 if (ctx.item != null) {
                     foreachVariables.keyVariable = ctx.key.getText();

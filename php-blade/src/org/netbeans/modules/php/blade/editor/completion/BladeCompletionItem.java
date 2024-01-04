@@ -29,7 +29,7 @@ public class BladeCompletionItem implements CompletionProposal {
     private final ElementHandle element;
     final String previewValue;
 
-    public BladeCompletionItem(ElementHandle element, CompletionRequest request, String previewValue) {
+    BladeCompletionItem(ElementHandle element, CompletionRequest request, String previewValue) {
         this.element = element;
         this.request = request;
         this.previewValue = previewValue;
@@ -74,7 +74,7 @@ public class BladeCompletionItem implements CompletionProposal {
 
     @Override
     public ImageIcon getIcon() {
-        return ImageUtilities.loadImageIcon(ICON_BASE + "icons/at.png", false);
+        return null;
     }
 
     @Override
@@ -119,11 +119,23 @@ public class BladeCompletionItem implements CompletionProposal {
         return true;
     }
 
+    public static class VariableItem extends BladeCompletionItem {
+
+        public VariableItem(ElementHandle element, CompletionRequest request, String previewValue) {
+            super(element, request, previewValue);
+        }
+
+        @Override
+        public ElementKind getKind() {
+            return ElementKind.VARIABLE;
+        }
+        
+    }
+
     public static class CompletionRequest {
 
         public int anchorOffset;
         public int carretOffset;
         public String prefix;
-        public Project project;
     }
 }

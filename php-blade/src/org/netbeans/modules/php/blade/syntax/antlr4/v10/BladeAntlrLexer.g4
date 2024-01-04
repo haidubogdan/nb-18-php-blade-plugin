@@ -131,17 +131,19 @@ OTHER : . ->type(HTML);
 
 mode ESCAPED_ECHO;
 
+ESCAPED_ECHO_PHP_VAR : PhpVariable->type(PHP_VARIABLE);
 ESCAPED_ECHO_END : ('}}')->popMode;
-ESCAPED_ECHO_EXPR : ~[{}]+ ->type(BLADE_PHP_ECHO_EXPR);
-ESCAPED_ECHO_EXPR_MORE : . ->more;
+ESCAPED_ECHO_EXPR : ~[${}]+ ->type(BLADE_PHP_ECHO_EXPR);
+ESCAPED_ECHO_EXPR_MORE : . ->type(BLADE_PHP_ECHO_EXPR);
 EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
 
 //not escaped blade echo
 mode NE_ECHO;
 
+NE_ECHO_PHP_VAR : PhpVariable->type(PHP_VARIABLE);
 NE_ECHO_END : ('!!}')->popMode;
 NE_ECHO_EXPR : ~[!{}]+ ->type(BLADE_PHP_ECHO_EXPR);
-NE_ECHO_EXPR_MORE : . ->more;
+NE_ECHO_EXPR_MORE : . ->type(BLADE_PHP_ECHO_EXPR);
 EXIT_NE_ECHO_EOF : EOF->type(ERROR),popMode;
 
 mode LOOK_FOR_PHP_EXPRESSION;

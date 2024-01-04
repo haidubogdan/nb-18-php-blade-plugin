@@ -92,6 +92,8 @@ public abstract class LexerAdaptor extends Lexer {
 
     //blade coloring lexer
     public void consumeEscapedEchoToken() {
+        char el = (char) this._input.LA(1);
+        char el2 = (char) this._input.LA(2);
         if (this._input.LA(1) == '}' && this._input.LA(2) == '}') {
             this.setType(BladeAntlrColoringLexer.BLADE_PHP_ECHO_EXPR);
         } else {

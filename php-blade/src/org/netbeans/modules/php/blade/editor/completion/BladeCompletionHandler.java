@@ -25,8 +25,12 @@ import org.netbeans.modules.csl.api.ParameterInfo;
 import org.netbeans.modules.csl.spi.DefaultCompletionResult;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.csl.spi.support.CancelSupport;
+import org.netbeans.modules.php.blade.csl.elements.CompletionElement;
+import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
+import org.netbeans.modules.php.blade.csl.elements.VariableElement;
 import org.netbeans.modules.php.blade.editor.compiler.BladePhpCompiler;
+import org.netbeans.modules.php.blade.editor.completion.BladeCompletionItem.CompletionRequest;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.ParsingUtils;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
@@ -53,11 +57,15 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             return CodeCompletionResult.NONE;
         }
 
+        if (completionContext.getCaretOffset() < 1){
+            return CodeCompletionResult.NONE;
+        }
+        
         BladeParserResult parserResult = (BladeParserResult) completionContext.getParserResult();
 
         final List<CompletionProposal> completionProposals = new ArrayList<>();
 
-        Token currentToken = BladeAntlrUtils.getToken(doc, completionContext.getCaretOffset());
+        Token currentToken = BladeAntlrUtils.getToken(doc, completionContext.getCaretOffset() - 1);
 
         if (currentToken == null) {
             return CodeCompletionResult.NONE;
@@ -67,8 +75,8 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             case BLADE_PHP_INLINE:
                 completePhp(completionProposals, completionContext, parserResult);
                 break;
-            case BLADE_PHP_ECHO_EXPR:
-                completeScopedVariables(completionProposals, completionContext, parserResult);
+            case PHP_VARIABLE:
+                completeScopedVariables(completionProposals, completionContext, parserResult, currentToken);
                 break;
         }
 
@@ -141,11 +149,19 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
     }
 
     private void completeScopedVariables(final List<CompletionProposal> completionProposals,
-            CodeCompletionContext completionContext, BladeParserResult parserResult) {
+            CodeCompletionContext completionContext, BladeParserResult parserResult, Token currentToken) {
+        String variablePrefix = currentToken.getText();
         Set<String> scopedVariables = parserResult.findVariablesForScope(completionContext.getCaretOffset());
         if (scopedVariables != null) {
             for (String variableName : scopedVariables){
-                //
+                if (variableName.startsWith(variablePrefix)){
+                    VariableElement variableElement = new VariableElement(variableName, completionContext.getParserResult().getSnapshot().getSource().getFileObject()); 
+                    CompletionRequest request = new CompletionRequest();
+                    request.anchorOffset = completionContext.getCaretOffset() - variablePrefix.length();
+                    request.carretOffset = completionContext.getCaretOffset();
+                    request.prefix = variablePrefix;
+                    completionProposals.add(new BladeCompletionItem.VariableItem(variableElement, request, variableName));
+                }
             }
         }
     }
