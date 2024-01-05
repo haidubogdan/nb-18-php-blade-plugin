@@ -62,6 +62,9 @@ public class BladeAntlrLexerTestBase extends NbTestCase {
                 case BL_NAME_STRING:
                     result.append("BL_NAME_STRING ");
                     break;
+                case BL_COMMA:
+                    result.append("BL_COMMA ");
+                    break;
                 case BL_PARAM_COMMA:
                     result.append("BL_PARAM_COMMA ");
                     break;

@@ -5,7 +5,7 @@ import BladeCommonLexer;
   package org.netbeans.modules.php.blade.syntax.antlr4.v10;
 }
 
-options { superClass = LexerAdaptor; }
+options { superClass = ColoringLexerAdaptor; }
 
 channels {PHP_CODE}
 
@@ -19,6 +19,9 @@ tokens {
 
 fragment
 NEKUDO_WHITELIST_MATCH : '::' | '?:' | ' : ';
+
+fragment DOUBLE_QUOTED_STRING_FRAGMENT_WITH_PHP 
+    : '"' (ESC_DOUBLE_QUOTED_STRING | '{' PhpVariable '}' | . | ~[:])*?  '"';
 
 //conditionals
 D_IF : '@if'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
@@ -113,13 +116,7 @@ D_CUSTOM : ('@' NameString {this._input.LA(1) == '(' ||
 ESCAPED_ECHO_START : '{{' ->pushMode(ESCAPED_ECHO);
 RAW_ECHO_START : '{!!' ->pushMode(RAW_ECHO);
 
-//might not be necessary
-STYLE_OPEN : '<style' .*? '>'->type(HTML);
-STYLE_CLOSE : '</style>'->type(HTML);
-SCRIPT_OPEN : '<script' .*? '>'->type(HTML);
-SCRIPT_CLOSE : '</script>'->type(HTML);
-
-HTML_CLOSE_TAG : '<' '/'?  NameString '>'->type(HTML); 
+HTML_CLOSE_TAG : '<' '/'?  NameString [ ]* '>'->type(HTML); 
 
 //hack for the last unclosed tags
 UNCLOSED_TAG : '<' NameString [\r\n]+; 
@@ -136,7 +133,7 @@ mode ESCAPED_ECHO;
 ESCAPED_ECHO_END : ('}}')->popMode;
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
 ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH {this.consumeEscapedEchoToken();};
-ECHO_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT) {this.consumeEscapedEchoToken();};
+ECHO_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT | DOUBLE_QUOTED_STRING_FRAGMENT_WITH_PHP) {this.consumeEscapedEchoToken();};
 ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
 
 GREEDY_ESCAPED_ECHO_EXPR : ~[ ':{}]+ {this.consumeEscapedEchoToken();};
@@ -150,7 +147,7 @@ mode RAW_ECHO;
 RAW_ECHO_END : ('!!}')->popMode;
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
 RAW_ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH {this.consumeNotEscapedEchoToken();};
-RAW_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT) {this.consumeNotEscapedEchoToken();};
+RAW_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT | DOUBLE_QUOTED_STRING_FRAGMENT_WITH_PHP) {this.consumeNotEscapedEchoToken();};
 RAW_ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
 RAW_ECHO_EXPR : ~[ ':!{}]+ {this.consumeNotEscapedEchoToken();};
 RAW_ECHO_EXPR_MORE : . [ ]* {this.consumeNotEscapedEchoToken();};

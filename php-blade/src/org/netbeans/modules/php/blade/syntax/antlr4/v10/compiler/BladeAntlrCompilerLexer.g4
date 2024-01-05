@@ -34,7 +34,7 @@ D_ESCAPES
 
 D_IF : '@if';
 
-D_PHP : '@php'->pushMode(BLADE_INLINE_PHP);
+D_PHP : '@php' {this._input.LA(1) == ' ' || this._input.LA(1) == '\n'}?->pushMode(BLADE_INLINE_PHP);
 
 OTHER : . ->skip;
 

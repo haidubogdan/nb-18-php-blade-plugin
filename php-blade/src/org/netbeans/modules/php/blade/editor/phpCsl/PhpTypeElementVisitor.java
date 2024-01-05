@@ -6,6 +6,7 @@ import org.netbeans.modules.php.editor.parser.astnodes.ClassInstanceCreation;
 import org.netbeans.modules.php.editor.parser.astnodes.ClassName;
 import org.netbeans.modules.php.editor.parser.astnodes.Expression;
 import org.netbeans.modules.php.editor.parser.astnodes.FunctionInvocation;
+import org.netbeans.modules.php.editor.parser.astnodes.FunctionName;
 import org.netbeans.modules.php.editor.parser.astnodes.Identifier;
 import org.netbeans.modules.php.editor.parser.astnodes.InstanceOfExpression;
 import org.netbeans.modules.php.editor.parser.astnodes.MethodInvocation;
@@ -87,6 +88,9 @@ public class PhpTypeElementVisitor extends org.netbeans.modules.php.editor.parse
     @Override
     public void visit(FunctionInvocation node) {
         if (indexBetween(node)) {
+            FunctionName functionName = node.getFunctionName();
+            //bad approach if the parameter is a function inside a function
+            int x = 1;
         }
     }
 

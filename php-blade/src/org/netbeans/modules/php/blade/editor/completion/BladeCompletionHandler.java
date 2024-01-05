@@ -73,7 +73,8 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
 
         switch (currentToken.getType()) {
             case PHP_EXPRESSION:
-                completePhpSnippet(completionProposals, completionContext, parserResult, currentToken);
+                //case BLADE_PHP_ECHO_EXPR:
+                completePhpSnippet(completionProposals, completionContext.getCaretOffset(), currentToken);
                 break;
             case BLADE_PHP_INLINE:
                 completePhp(completionProposals, completionContext, parserResult);
@@ -88,9 +89,8 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
     }
 
     private void completePhpSnippet(final List<CompletionProposal> completionProposals,
-            final CodeCompletionContext completionContext, BladeParserResult parserResult, Token currentToken) {
+            int offset, Token currentToken) {
         String phpSnippet = currentToken.getText();
-        int offset = completionContext.getCaretOffset();
         String phpStart = "<?php";
         if (phpSnippet.length() < 1 || currentToken.getStartIndex() < phpStart.length()) {
             return;
@@ -103,48 +103,23 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             return;
         }
         CodeCompletionHandler cc = (new PHPLanguage()).getCompletionHandler();
-        String prefix = cc.getPrefix(phpParserResult, completionContext.getCaretOffset(), true);
+        String prefix = cc.getPrefix(phpParserResult, offset, true);
 
         if (prefix == null) {
             return;
         }
 
         if (prefix.length() == 0) {
-            prefix = cc.getPrefix(phpParserResult, completionContext.getCaretOffset() - 1, true);
+            prefix = cc.getPrefix(phpParserResult, offset - 1, true);
+        }
+
+        if (prefix == null || prefix.length() == 0) {
+            return;
         }
         String phpPrefix = prefix;
-        CodeCompletionContext context = new CodeCompletionContext() {
-            @Override
-            public int getCaretOffset() {
-                //the offset should be taken from compiler
-                return completionContext.getCaretOffset();
-            }
 
-            @Override
-            public ParserResult getParserResult() {
-                return phpParserResult;
-            }
-
-            @Override
-            public String getPrefix() {
-                return phpPrefix;
-            }
-
-            @Override
-            public boolean isPrefixMatch() {
-                return true;
-            }
-
-            @Override
-            public QueryType getQueryType() {
-                return QueryType.COMPLETION;
-            }
-
-            @Override
-            public boolean isCaseSensitive() {
-                return true;
-            }
-        };
+        CodeCompletionContext context = PhpCodeCompletionContext.completionContext(offset,
+                phpParserResult, phpPrefix);
 
         CodeCompletionResult completionResult = cc.complete(context);
         List<CompletionProposal> proposals = completionResult.getItems();
@@ -158,55 +133,30 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
 
     private void completePhp(final List<CompletionProposal> completionProposals,
             final CodeCompletionContext completionContext, BladeParserResult parserResult) {
+        int offset = completionContext.getCaretOffset();
         ParserResult phpParserResult = parserResult.getPhpParserResult();
         if (phpParserResult == null) {
             return;
         }
         CodeCompletionHandler cc = (new PHPLanguage()).getCompletionHandler();
-        String prefix = cc.getPrefix(phpParserResult, completionContext.getCaretOffset(), true);
+        String prefix = cc.getPrefix(phpParserResult, offset, true);
 
         if (prefix == null) {
             return;
         }
 
         if (prefix.length() == 0) {
-            prefix = cc.getPrefix(phpParserResult, completionContext.getCaretOffset() - 1, true);
+            prefix = cc.getPrefix(phpParserResult, offset - 1, true);
+        }
+
+        if (prefix == null || prefix.length() == 0) {
+            return;
         }
 
         String phpPrefix = prefix;
 
-        CodeCompletionContext context = new CodeCompletionContext() {
-            @Override
-            public int getCaretOffset() {
-                //the offset should be taken from compiler
-                return completionContext.getCaretOffset();
-            }
-
-            @Override
-            public ParserResult getParserResult() {
-                return phpParserResult;
-            }
-
-            @Override
-            public String getPrefix() {
-                return phpPrefix;
-            }
-
-            @Override
-            public boolean isPrefixMatch() {
-                return true;
-            }
-
-            @Override
-            public QueryType getQueryType() {
-                return QueryType.COMPLETION;
-            }
-
-            @Override
-            public boolean isCaseSensitive() {
-                return true;
-            }
-        };
+        CodeCompletionContext context = PhpCodeCompletionContext.completionContext(offset,
+                phpParserResult, phpPrefix);
 
         CodeCompletionResult completionResult = cc.complete(context);
         List<CompletionProposal> proposals = completionResult.getItems();
@@ -217,12 +167,34 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             }
         }
 
+        if (phpPrefix.startsWith("@")) {
+            completeScopedVariables(completionProposals, completionContext, parserResult, phpPrefix);
+        }
     }
 
     private void completeScopedVariables(final List<CompletionProposal> completionProposals,
             CodeCompletionContext completionContext, BladeParserResult parserResult, Token currentToken) {
         String variablePrefix = currentToken.getText();
         Set<String> scopedVariables = parserResult.findVariablesForScope(completionContext.getCaretOffset());
+        if (scopedVariables != null) {
+            for (String variableName : scopedVariables) {
+                if (variableName.startsWith(variablePrefix)) {
+                    VariableElement variableElement = new VariableElement(variableName, completionContext.getParserResult().getSnapshot().getSource().getFileObject());
+                    CompletionRequest request = new CompletionRequest();
+                    request.anchorOffset = completionContext.getCaretOffset() - variablePrefix.length();
+                    request.carretOffset = completionContext.getCaretOffset();
+                    request.prefix = variablePrefix;
+                    completionProposals.add(new BladeCompletionItem.VariableItem(variableElement, request, variableName));
+                }
+            }
+        }
+    }
+
+    private void completeScopedVariables(final List<CompletionProposal> completionProposals,
+            CodeCompletionContext completionContext, BladeParserResult parserResult,
+            String variablePrefix) {
+        Set<String> scopedVariables = parserResult.findVariablesForScope(completionContext.getCaretOffset());
+
         if (scopedVariables != null) {
             for (String variableName : scopedVariables) {
                 if (variableName.startsWith(variablePrefix)) {

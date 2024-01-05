@@ -603,13 +603,13 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArray(BladeAntlrParser.ArrayContext ctx) { }
+	@Override public void enterArrayDefine(BladeAntlrParser.ArrayDefineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArray(BladeAntlrParser.ArrayContext ctx) { }
+	@Override public void exitArrayDefine(BladeAntlrParser.ArrayDefineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

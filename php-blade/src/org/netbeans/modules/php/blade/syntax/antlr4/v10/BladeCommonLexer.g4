@@ -35,14 +35,14 @@ PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? ('?>' | EOF);
 
 EMAIL_SUBSTRING : ('@' NameString '.')->type(HTML);
 
-VERSION_WITH_AT: '@' (Digit '.')+->type(HTML);
+VERSION_WITH_AT: '@' (Digit '.'?)+->type(HTML);
 
 //escapes
 D_ESCAPES 
     : (
       '@@' '@'?
     | '@{' '{'?
-    | '@media'
+    | '@media' [ ]*
     | '@charset'
     | '@import'
     | '@namespace'

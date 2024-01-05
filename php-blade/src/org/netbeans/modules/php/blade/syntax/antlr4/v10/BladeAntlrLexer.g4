@@ -108,7 +108,7 @@ D_DD : '@dd'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 //php injection
 D_USE : '@use'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_INJECT : '@inject'->pushMode(LOOK_FOR_PHP_EXPRESSION);
-D_PHP : '@php'->pushMode(BLADE_INLINE_PHP);
+D_PHP : '@php' {this._input.LA(1) == ' ' || this._input.LA(1) == '\n'}?->pushMode(BLADE_INLINE_PHP);
 
 D_VERBATIM : '@verbatim' ->pushMode(VERBATIM_MODE);
 D_ENDVERBATIM : '@endverbatim';
@@ -174,7 +174,7 @@ EXIT_EOF : EOF->type(ERROR),popMode;
 mode LOOK_FOR_BLADE_PARAMETERS;
 
 WS_BL_PARAM : [ ]+->skip;
-OPEN_BL_PARAM_PAREN_MORE : '(' ->type(BLADE_PARAM_LPAREN),pushMode(INSIDE_BLADE_PARAMETERS);
+OPEN_BL_PARAM_PAREN_MORE : '(' {this.roundParenBalance = 0;} ->type(BLADE_PARAM_LPAREN),pushMode(INSIDE_BLADE_PARAMETERS);
 
 L_BL_PARAM_OTHER : . ->type(HTML), popMode;
 
@@ -197,17 +197,14 @@ mode INSIDE_BLADE_PARAMETERS;
 
 BL_PARAM_LINE_COMMENT : LineComment->channel(COMMENT);
 
-CLOSE_BL_PARAM_PAREN : {this.roundParenBalance <= 0}? ')' 
-    {this.roundParenBalance = 0;}->type(BLADE_PARAM_RPAREN),mode(DEFAULT_MODE);
-
-BL_PARAM_LPAREN : {this.roundParenBalance >= 0}? '(' {this.increaseRoundParenBalance();}->type(BLADE_PARAM_EXTRA);
-BL_PARAM_RPAREN : {this.roundParenBalance > 0}? ')' {this.decreaseRoundParenBalance();}->type(BLADE_PARAM_EXTRA);
-
 BL_SQ_LPAREN : '[' {this.squareParenBalance++;};
 BL_SQ_RPAREN : ']' {this.squareParenBalance--;};
 
 BL_CURLY_LPAREN : '{' {this.curlyParenBalance++;}->type(BLADE_PARAM_EXTRA);
 BL_CURLY_RPAREN : '}' {this.curlyParenBalance--;}->type(BLADE_PARAM_EXTRA);
+
+BL_PARAM_LPAREN : '(' {this.increaseRoundParenBalance();}->type(BLADE_PARAM_EXTRA);
+BL_PARAM_RPAREN : ')' {consumeRParen();};
 
 BL_PARAM_STRING : DOUBLE_QUOTED_STRING_FRAGMENT | SINGLE_QUOTED_STRING_FRAGMENT;
 

@@ -43,7 +43,22 @@ public class BladeAntrlLexerTest extends BladeAntlrLexerTestBase {
     }
     
     @Test
+    public void test_include_param_array() throws Exception {
+        performTest("lexer/include_param_array_issue.blade.php");
+    }
+    
+    @Test
+    public void test_custom_param() throws Exception {
+        performTest("lexer/custom_directive_param.blade.php");
+    }
+    
+    @Test
     public void test_foreach_loop() throws Exception {
         performTest("lexer/foreach_loop.blade.php");
+    }
+    
+    @Test
+    public void test_custom_directive_with_no_arg() throws Exception {
+        performTest("lexer/custom_directive_with_no_arg.blade.php");
     }
 }

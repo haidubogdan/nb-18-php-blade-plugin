@@ -136,7 +136,8 @@ each : D_EACH BLADE_PARAM_LPAREN
 hasSection : D_HAS_SECTION singleArgWrapper general_statement* D_ENDIF;
 sectionMissing : D_SECTION_MISSING singleArgWrapper general_statement* D_ENDIF;
 
-custom_directive : D_CUSTOM multiArgWrapper;
+custom_directive : D_CUSTOM (multiArgWrapper 
+| (BLADE_PARAM_LPAREN BLADE_PARAM_RPAREN));
     
 php_blade : D_PHP BLADE_PHP_INLINE D_ENDPHP;
 
@@ -161,11 +162,11 @@ multiArgWrapper :  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) 
 identifiableArgument : BL_PARAM_WS* BL_PARAM_STRING BL_PARAM_WS*;
 composedArgument : BL_PARAM_WS* (phpExpr)+ BL_PARAM_WS*;
 
-phpExpr : identifiableArray | array | BLADE_PARAM_EXTRA | PHP_VARIABLE | PHP_KEYWORD |  BL_PARAM_WS | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_PARAM_ASSIGN | BL_NAME_STRING | BL_COMMA;
+phpExpr : identifiableArray | arrayDefine | BLADE_PARAM_EXTRA | PHP_VARIABLE | PHP_KEYWORD |  BL_PARAM_WS | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_PARAM_ASSIGN | BL_NAME_STRING | BL_PARAM_COMMA;
 
 //['key' => $value]
 identifiableArray : BL_SQ_LPAREN paramAssign+ BL_SQ_RPAREN;
-array : BL_SQ_LPAREN phpExpr+ BL_SQ_RPAREN
+arrayDefine : BL_SQ_LPAREN phpExpr+ BL_SQ_RPAREN
 | BL_SQ_LPAREN BL_SQ_RPAREN;
 
 paramAssign : BL_PARAM_STRING BL_PARAM_WS* BL_PARAM_ASSIGN BL_PARAM_WS* (PHP_VARIABLE | PHP_KEYWORD | BL_PARAM_STRING);

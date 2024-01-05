@@ -41,7 +41,7 @@ public class BladeAntlrCompilerParser extends Parser {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, null, null, null, "'@if'", "'@php'", null, "'@endphp'"
+			null, null, null, null, "'@if'", null, null, "'@endphp'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();

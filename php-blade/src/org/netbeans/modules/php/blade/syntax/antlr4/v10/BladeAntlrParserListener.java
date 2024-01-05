@@ -498,15 +498,15 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitIdentifiableArray(BladeAntlrParser.IdentifiableArrayContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BladeAntlrParser#array}.
+	 * Enter a parse tree produced by {@link BladeAntlrParser#arrayDefine}.
 	 * @param ctx the parse tree
 	 */
-	void enterArray(BladeAntlrParser.ArrayContext ctx);
+	void enterArrayDefine(BladeAntlrParser.ArrayDefineContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BladeAntlrParser#array}.
+	 * Exit a parse tree produced by {@link BladeAntlrParser#arrayDefine}.
 	 * @param ctx the parse tree
 	 */
-	void exitArray(BladeAntlrParser.ArrayContext ctx);
+	void exitArrayDefine(BladeAntlrParser.ArrayDefineContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#paramAssign}.
 	 * @param ctx the parse tree

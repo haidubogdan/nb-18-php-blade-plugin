@@ -6,14 +6,12 @@ package org.netbeans.modules.php.blade.syntax.antlr4.v10;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.misc.Interval;
 
 /**
  *
  * @author bogdan
  */
-public abstract class LexerAdaptor extends Lexer {
+public abstract class ColoringLexerAdaptor extends Lexer {
 
     private int _currentRuleType = Token.INVALID_TYPE;
     public int roundParenBalance = 0;
@@ -21,7 +19,7 @@ public abstract class LexerAdaptor extends Lexer {
     public int curlyParenBalance = 0;
     public int exitIfModePosition = 0;
 
-    public LexerAdaptor(CharStream input) {
+    public ColoringLexerAdaptor(CharStream input) {
         super(input);
     }
 

@@ -134,6 +134,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
         Reference reference = parserResult.findReferenceForDeclaration(caretOffset);
 
         if (reference == null) {
+            //what to do with constants??
             return DeclarationLocation.NONE;
         }
 
