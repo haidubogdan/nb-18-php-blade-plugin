@@ -231,11 +231,13 @@ public class BladeHtmlCompletionProvider implements CompletionProvider {
                                     startOffset, carretOffset, prefix, directive, endtag, description, doc));
                         }
                     } else {
-                        resultSet.addItem(DirectiveCompletionBuilder.simpleItem(
-                                startOffset, directive, description));
+                        //directives with end tag will be completed as block always
                         if (endtag != null) {
                             resultSet.addItem(DirectiveCompletionBuilder.simpleItem(
                                     startOffset, carretOffset, prefix, directive, endtag, description, doc));
+                        } else {
+                            resultSet.addItem(DirectiveCompletionBuilder.simpleItem(
+                                    startOffset, directive, description));
                         }
                     }
                 }

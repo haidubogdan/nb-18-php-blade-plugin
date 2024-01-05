@@ -144,6 +144,7 @@ public class BladeBracesMatcher implements BracesMatcher {
         int matchTokenType = BladeAntlrUtils.getTagPairTokenType(originToken.getType());
         List<Integer> skipableTokenTypes = new ArrayList<>();
         skipableTokenTypes.add(BLADE_PHP_ECHO_EXPR);
+        skipableTokenTypes.add(PHP_VARIABLE);
         Token startToken = BladeAntlrUtils.findBackward(context.getDocument(),
                 originToken,
                 matchTokenType,
@@ -162,6 +163,7 @@ public class BladeBracesMatcher implements BracesMatcher {
         int matchTokenType = BladeAntlrUtils.getTagPairTokenType(originToken.getType());
         List<Integer> skipableTokenTypes = new ArrayList<>();
         skipableTokenTypes.add(BLADE_PHP_ECHO_EXPR);
+        skipableTokenTypes.add(PHP_VARIABLE);
         Token endToken = BladeAntlrUtils.findForward(context.getDocument(),
                 originToken,
                 matchTokenType,

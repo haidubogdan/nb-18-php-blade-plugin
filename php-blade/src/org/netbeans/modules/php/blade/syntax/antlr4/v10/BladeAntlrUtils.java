@@ -43,7 +43,7 @@ public class BladeAntlrUtils {
         Token token = tokens.next().get();
 
         //need to move back
-        if ( token != null && tokens.hasPrevious() && token.getStartIndex() > offset){
+        if ( token != null && tokens.hasPrevious() && token.getStartIndex() > offset && token.getStopIndex() > offset){
             token = tokens.previous().get();
         }
         
