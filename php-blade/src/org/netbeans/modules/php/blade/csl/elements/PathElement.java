@@ -10,7 +10,7 @@ import org.openide.filesystems.FileObject;
 public class PathElement extends NamedElement {
 
     public PathElement(String name, FileObject file) {
-        super(name, file);
+        super(name, file, ElementType.PATH);
     }
 
     //for better visibility on type searcher

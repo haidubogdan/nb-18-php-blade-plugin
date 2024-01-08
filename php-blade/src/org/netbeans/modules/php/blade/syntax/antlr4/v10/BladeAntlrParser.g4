@@ -144,8 +144,10 @@ php_blade : D_PHP BLADE_PHP_INLINE D_ENDPHP;
 phpInline : PHP_INLINE;
 //echo
 
-echo : ESCAPED_ECHO_START (BLADE_PHP_ECHO_EXPR | PHP_VARIABLE)* ESCAPED_ECHO_END;
-echo_ne : NE_ECHO_START (BLADE_PHP_ECHO_EXPR | PHP_VARIABLE)* NE_ECHO_END;
+echo : ESCAPED_ECHO_START echo_expr* ESCAPED_ECHO_END;
+echo_ne : NE_ECHO_START echo_expr* NE_ECHO_END;
+
+echo_expr : (BLADE_PHP_ECHO_EXPR | PHP_VARIABLE | PHP_IDENTIFIER | PHP_STATIC_ACCESS);
 
 php_expression: PHP_EXPRESSION;
 loop_expression : simple_foreach_expr
@@ -155,7 +157,7 @@ loop_expression : simple_foreach_expr
 simple_foreach_expr: loop_array=PHP_VARIABLE FOREACH_AS key=PHP_VARIABLE (FOREACH_PARAM_ASSIGN item=PHP_VARIABLE)?;
 
 singleArgWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BLADE_PARAM_RPAREN;
-singleArgAndDefaultWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
+singleArgAndDefaultWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? (BL_COMMA BL_PARAM_WS*)? BLADE_PARAM_RPAREN;
 doubleArgWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BL_COMMA composedArgument BLADE_PARAM_RPAREN;
 multiArgWrapper :  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
 
@@ -165,7 +167,7 @@ composedArgument : BL_PARAM_WS* (phpExpr)+ BL_PARAM_WS*;
 phpExpr : identifiableArray | arrayDefine | BLADE_PARAM_EXTRA | PHP_VARIABLE | PHP_KEYWORD |  BL_PARAM_WS | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_PARAM_ASSIGN | BL_NAME_STRING | BL_PARAM_COMMA;
 
 //['key' => $value]
-identifiableArray : BL_SQ_LPAREN paramAssign+ BL_SQ_RPAREN;
+identifiableArray : BL_SQ_LPAREN paramAssign (BL_PARAM_COMMA paramAssign)* BL_PARAM_COMMA? BL_SQ_RPAREN;
 arrayDefine : BL_SQ_LPAREN phpExpr+ BL_SQ_RPAREN
 | BL_SQ_LPAREN BL_SQ_RPAREN;
 

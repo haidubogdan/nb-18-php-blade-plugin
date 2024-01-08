@@ -229,6 +229,8 @@ public class BladeCompletionProvider implements CompletionProvider {
                                 List<Integer> skipableTokenTypes = new ArrayList<>();
                                 skipableTokenTypes.add(BLADE_PHP_ECHO_EXPR);
                                 skipableTokenTypes.add(PHP_VARIABLE);
+                                skipableTokenTypes.add(PHP_IDENTIFIER);
+                                skipableTokenTypes.add(PHP_STATIC_ACCESS);
 
                                 Token curlyEndToken = BladeAntlrUtils.findForward(doc,
                                         curlyStartToken,

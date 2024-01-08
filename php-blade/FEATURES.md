@@ -16,16 +16,19 @@ start from 10
 
 - Completion for directives 80% (might add some documentation)
 - Completion for custom directives 80%
-- Completion for echo tags 80% (to add icon and possible description)
-- Completion for blade files 100%
+- Completion for echo tags 80% (to add icon and possible description, add comment typehook ?)
+- Completion for blade files 90% (double results filtering)
 - Completion for yield names 80% (for the moment no context is added)
-- Completion inside echo statement 0%
+- Completion inside echo statement 20% (class names)
 
-?? the include statement
+what should we complete :
+    - classes
+    - constants
+    - global functions
 
-## validation
+## Syntax error handling
 
-if conditions are broken
+confusing messages
 
 ## Braces matcher
 
@@ -46,7 +49,7 @@ Check for formating and code optimisation
 
 ## Html embedding
 
-tags are not paired
+- possible context issue (<script> new lines issue)
 
 ## Php embedding
 

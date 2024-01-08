@@ -388,6 +388,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitEcho_ne(BladeAntlrParser.Echo_neContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#echo_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterEcho_expr(BladeAntlrParser.Echo_exprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#echo_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitEcho_expr(BladeAntlrParser.Echo_exprContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#php_expression}.
 	 * @param ctx the parse tree
 	 */

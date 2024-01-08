@@ -99,15 +99,12 @@ public enum BladeTokenId implements TokenId {
                 case PHP_INLINE:
                     Language<? extends TokenId> phpLanguageCode = PHPTokenId.language();
                     return phpLanguageCode != null ? LanguageEmbedding.create(phpLanguageCode, 0, 0, false) : null;
-                case PHP_BLADE_ECHO_EXPR:
                 case PHP_BLADE_EXPRESSION:
+                case PHP_BLADE_ECHO_EXPR:
                 case PHP_BLADE_INLINE_CODE:
                     Language<? extends TokenId> phpLanguage = PHPTokenId.languageInPHP();
                     return phpLanguage != null ? LanguageEmbedding.create(phpLanguage, 0, 0, false) : null;
                 case HTML:
-//                    if (token.text() == null || token.text().toString().endsWith("\n") || token.text().toString().equals("<")){
-//                        joinHtml = false;
-//                    }
                     LanguageEmbedding<?> lang;
 
                     if (tokenLangCache.containsKey(token.id())) {

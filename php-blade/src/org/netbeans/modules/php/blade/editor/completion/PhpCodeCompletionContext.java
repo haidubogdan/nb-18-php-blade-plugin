@@ -9,9 +9,10 @@ import org.netbeans.modules.csl.spi.ParserResult;
  * @author bhaidu
  */
 public class PhpCodeCompletionContext {
+
     public static CodeCompletionContext completionContext(int carretOffset,
             ParserResult phpParserResult,
-            String phpPrefix){
+            String phpPrefix) {
         return new CodeCompletionContext() {
             @Override
             public int getCaretOffset() {

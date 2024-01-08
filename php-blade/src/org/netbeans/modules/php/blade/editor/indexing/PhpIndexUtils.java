@@ -1,10 +1,13 @@
 package org.netbeans.modules.php.blade.editor.indexing;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexResult;
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
 import org.netbeans.modules.php.editor.api.QuerySupportFactory;
+import org.netbeans.modules.php.editor.index.Signature;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
@@ -35,5 +38,37 @@ public class PhpIndexUtils {
             }
         }
         int x = 1;
+    }
+
+    /**
+     * @todo implement a parser for php elements
+     * 
+     * @param fo
+     * @param prefix
+     * @return 
+     */
+    public static Collection<PhpIndexResult> queryClass(FileObject fo, String prefix) {
+        QuerySupport phpindex = QuerySupportFactory.get(fo);
+        Collection<PhpIndexResult> results = new ArrayList<>();
+        String queryPrefix = prefix.toLowerCase();
+        try {
+            Collection<? extends IndexResult> indexResults = phpindex.query("clz", queryPrefix, QuerySupport.Kind.PREFIX, new String[]{"clz"});
+            for (IndexResult indexResult : indexResults) {
+                FileObject indexFile = indexResult.getFile();
+                //internal php index
+
+                String[] values = indexResult.getValues("clz");
+                for (String value : values) {
+                    Signature sig = Signature.get(value);
+                    String name = sig.string(1);
+                    if (name.length() > 0 && name.startsWith(prefix)) {
+                        results.add(new PhpIndexResult(name, indexFile, PhpIndexResult.Type.CLASS));
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return results;
     }
 }

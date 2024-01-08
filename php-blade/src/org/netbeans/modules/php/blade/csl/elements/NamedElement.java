@@ -14,15 +14,24 @@ import org.openide.filesystems.FileObject;
  *
  * @author bhaidu
  */
-public abstract class NamedElement implements ElementHandle {
+public class NamedElement implements ElementHandle {
 
         protected final String name;
         protected final FileObject file;
+        protected final ElementType type;
 
         public NamedElement(String name, FileObject file) {
             //we can add a file object from element
             this.name = name;
             this.file = file;
+            this.type = ElementType.NA;
+        }
+        
+        public NamedElement(String name, FileObject file, ElementType type) {
+            //we can add a file object from element
+            this.name = name;
+            this.file = file;
+            this.type = type;
         }
 
         @Override
@@ -63,5 +72,9 @@ public abstract class NamedElement implements ElementHandle {
         @Override
         public OffsetRange getOffsetRange(ParserResult pr) {
             return OffsetRange.NONE;
+        }
+
+        public ElementType getType(){
+            return type;
         }
     }

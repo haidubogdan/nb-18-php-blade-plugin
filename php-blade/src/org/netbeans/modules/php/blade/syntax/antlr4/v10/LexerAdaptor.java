@@ -85,9 +85,17 @@ public abstract class LexerAdaptor extends Lexer {
     }
 
     public boolean hasNoBladeParamOpenBracket() {
-        return this.roundParenBalance > 0
+        return this.roundParenBalance == 0
                 && this.squareParenBalance == 0
                 && this.curlyParenBalance == 0;
+    }
+    
+    public void consumeBladeParamComma(){
+        if (this.hasNoBladeParamOpenBracket()){
+            this.setType(BladeAntlrLexer.BL_COMMA);
+        } else {
+            this.setType(BladeAntlrLexer.BL_PARAM_COMMA);
+        }
     }
     
     public void consumeRParen(){

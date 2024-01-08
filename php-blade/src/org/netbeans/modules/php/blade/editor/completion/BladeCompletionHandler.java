@@ -1,19 +1,16 @@
 package org.netbeans.modules.php.blade.editor.completion;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import org.netbeans.editor.BaseDocument;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
-import org.netbeans.api.editor.document.EditorDocumentUtils;
 import org.netbeans.modules.csl.api.CodeCompletionContext;
 import org.netbeans.modules.csl.api.CodeCompletionHandler;
 import org.netbeans.modules.csl.api.CodeCompletionHandler2;
@@ -25,20 +22,18 @@ import org.netbeans.modules.csl.api.ParameterInfo;
 import org.netbeans.modules.csl.spi.DefaultCompletionResult;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.csl.spi.support.CancelSupport;
-import org.netbeans.modules.php.blade.csl.elements.CompletionElement;
+import org.netbeans.modules.php.blade.csl.elements.ElementType;
 import org.netbeans.modules.php.blade.csl.elements.NamedElement;
-import org.netbeans.modules.php.blade.csl.elements.PathElement;
-import org.netbeans.modules.php.blade.csl.elements.VariableElement;
-import org.netbeans.modules.php.blade.editor.compiler.BladePhpCompiler;
 import org.netbeans.modules.php.blade.editor.completion.BladeCompletionItem.CompletionRequest;
+import org.netbeans.modules.php.blade.editor.indexing.PhpIndexResult;
+import org.netbeans.modules.php.blade.editor.indexing.PhpIndexUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.ParsingUtils;
+import org.netbeans.modules.php.blade.project.PhpProjectIndex;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
 import org.netbeans.modules.php.editor.csl.PHPLanguage;
-import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
-import org.openide.filesystems.FileObject;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
-import org.netbeans.modules.php.editor.completion.PHPCompletionItem;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -73,7 +68,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
 
         switch (currentToken.getType()) {
             case PHP_EXPRESSION:
-                //case BLADE_PHP_ECHO_EXPR:
+            //case PHP_IDENTIFIER:
                 completePhpSnippet(completionProposals, completionContext.getCaretOffset(), currentToken);
                 break;
             case BLADE_PHP_INLINE:
@@ -95,9 +90,11 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         if (phpSnippet.length() < 1 || currentToken.getStartIndex() < phpStart.length()) {
             return;
         }
+        int previousSpace = currentToken.getStartIndex() - phpStart.length();
         ParsingUtils parsingUtils = new ParsingUtils();
-        String whitespaceFill = new String(new char[currentToken.getStartIndex() - phpStart.length()]).replace("\0", " ");
-        parsingUtils.parsePhpText(whitespaceFill + phpStart + currentToken.getText());
+        String whitespaceFill = new String(new char[previousSpace]).replace("\0", " ");
+        String phpSnippetText = whitespaceFill + phpStart + currentToken.getText();
+        parsingUtils.parsePhpText(phpSnippetText);
         ParserResult phpParserResult = parsingUtils.getParserResult();
         if (phpParserResult == null) {
             return;
@@ -127,6 +124,20 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             String proposalPrefix = proposal.getInsertPrefix();
             if (proposalPrefix.startsWith(prefix)) {
                 completionProposals.add(proposal);
+            }
+        }
+        if (!prefix.startsWith("$") && proposals.isEmpty()) {
+            PhpProjectIndex phpProjectIndex = PhpProjectIndex.getInstance();
+            Collection<PhpIndexResult> classes = PhpIndexUtils.queryClass(phpProjectIndex.rootFile, prefix);
+            
+            for (PhpIndexResult indexedClass : classes){
+                CompletionRequest request = new CompletionRequest();
+                request.anchorOffset = offset - prefix.length();
+                request.carretOffset = offset;
+                request.prefix = prefix;
+                NamedElement classElement = new NamedElement(indexedClass.name,
+                        indexedClass.declarationFile, ElementType.PHP_CLASS);
+                completionProposals.add(new BladeCompletionItem.ClassItem(classElement, request, indexedClass.name));
             }
         }
     }
@@ -176,10 +187,11 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             CodeCompletionContext completionContext, BladeParserResult parserResult, Token currentToken) {
         String variablePrefix = currentToken.getText();
         Set<String> scopedVariables = parserResult.findVariablesForScope(completionContext.getCaretOffset());
+        FileObject fo = completionContext.getParserResult().getSnapshot().getSource().getFileObject();
         if (scopedVariables != null) {
             for (String variableName : scopedVariables) {
                 if (variableName.startsWith(variablePrefix)) {
-                    VariableElement variableElement = new VariableElement(variableName, completionContext.getParserResult().getSnapshot().getSource().getFileObject());
+                    NamedElement variableElement = new NamedElement(variableName,fo, ElementType.VARIABLE );
                     CompletionRequest request = new CompletionRequest();
                     request.anchorOffset = completionContext.getCaretOffset() - variablePrefix.length();
                     request.carretOffset = completionContext.getCaretOffset();
@@ -194,11 +206,11 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             CodeCompletionContext completionContext, BladeParserResult parserResult,
             String variablePrefix) {
         Set<String> scopedVariables = parserResult.findVariablesForScope(completionContext.getCaretOffset());
-
+        FileObject fo = completionContext.getParserResult().getSnapshot().getSource().getFileObject();
         if (scopedVariables != null) {
             for (String variableName : scopedVariables) {
                 if (variableName.startsWith(variablePrefix)) {
-                    VariableElement variableElement = new VariableElement(variableName, completionContext.getParserResult().getSnapshot().getSource().getFileObject());
+                    NamedElement variableElement = new NamedElement(variableName, fo, ElementType.VARIABLE);
                     CompletionRequest request = new CompletionRequest();
                     request.anchorOffset = completionContext.getCaretOffset() - variablePrefix.length();
                     request.carretOffset = completionContext.getCaretOffset();
@@ -253,7 +265,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
 
     @Override
     public ParameterInfo parameters(ParserResult pr, int i, CompletionProposal cp) {
-        return new ParameterInfo(new ArrayList<String>(), 0, 0);
+        return new ParameterInfo(new ArrayList<>(), 0, 0);
     }
 
     /**
@@ -267,8 +279,9 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
     @Override
     public Documentation documentElement(ParserResult parserResult, ElementHandle elementHandle, Callable<Boolean> cancel) {
         Documentation result = null;
-        if (elementHandle instanceof PathElement) {
-            return Documentation.create(String.format("<div align=\"right\"><font size=-1>%s</font></div>", "blade path"), null);
+        
+        if (elementHandle instanceof NamedElement) {
+            return TooltipDoc.generateDoc((NamedElement) elementHandle);
         }
         return result;
     }

@@ -1,3 +1,3 @@
 @foreach($array as $key => $value)
-    {{ $value }}
+    {{ $key }}
 @endforeach

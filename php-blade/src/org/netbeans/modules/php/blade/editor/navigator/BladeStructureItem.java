@@ -36,7 +36,7 @@ public abstract class BladeStructureItem implements ElementHandle, StructureItem
 
     @Override
     public String getSortText() {
-        return name;
+        return String.format("[%8d]", this.startOffset).replace(' ', '0');
     }
 
     @Override

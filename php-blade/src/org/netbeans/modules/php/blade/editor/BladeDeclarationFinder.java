@@ -17,10 +17,9 @@ import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.HtmlFormatter;
-import org.netbeans.modules.php.blade.csl.elements.CustomDirectiveElement;
+import org.netbeans.modules.php.blade.csl.elements.ElementType;
+import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
-import org.netbeans.modules.php.blade.csl.elements.StackIdElement;
-import org.netbeans.modules.php.blade.csl.elements.YieldIdElement;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
@@ -171,7 +170,8 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
                 for (BladeIndex.IndexedReference yieldReference : yields) {
                     String yieldReferenceId = yieldReference.getReference().name;
-                    YieldIdElement yieldIdHandle = new YieldIdElement(yieldReferenceId, yieldReference.getOriginFile());
+                    NamedElement yieldIdHandle = new NamedElement(yieldReferenceId,
+                            yieldReference.getOriginFile(), ElementType.YIELD_ID);
                     int startOccurence = yieldReference.getReference().defOffset.getStart();
                     dlyield = new DeclarationFinder.DeclarationLocation(yieldReference.getOriginFile(), startOccurence, yieldIdHandle);
                     dlyield.addAlternative(new AlternativeLocationImpl(dlyield));
@@ -190,7 +190,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
                 for (BladeIndex.IndexedReference stackReference : stacks) {
                     String stackReferenceId = stackReference.getReference().name;
-                    StackIdElement yieldIdHandle = new StackIdElement(stackReferenceId, stackReference.getOriginFile());
+                    NamedElement yieldIdHandle = new NamedElement(stackReferenceId, stackReference.getOriginFile(), ElementType.STACK_ID);
                     int startOccurence = stackReference.getReference().defOffset.getStart();
                     dlstack = new DeclarationFinder.DeclarationLocation(stackReference.getOriginFile(), startOccurence, yieldIdHandle);
                     dlstack.addAlternative(new AlternativeLocationImpl(dlstack));
@@ -207,7 +207,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                     @Override
                     public void filterDirectiveName(String directiveName, FileObject file) {
                         if (directiveName.equals(directiveNameFound)) {
-                            CustomDirectiveElement customDirectiveHandle = new CustomDirectiveElement(directiveNameFound, file);
+                            NamedElement customDirectiveHandle = new NamedElement(directiveNameFound, file, ElementType.CUSTOM_DIRECTIVE);
                             DeclarationFinder.DeclarationLocation newLoc = new DeclarationFinder.DeclarationLocation(file, 0, customDirectiveHandle);
                             this.location.addAlternative(new AlternativeLocationImpl(newLoc));
                         }

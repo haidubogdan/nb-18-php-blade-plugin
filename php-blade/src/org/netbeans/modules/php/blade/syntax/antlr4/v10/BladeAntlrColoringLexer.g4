@@ -134,7 +134,7 @@ ESCAPED_ECHO_END : ('}}')->popMode;
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
 ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH {this.consumeEscapedEchoToken();};
 ECHO_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT | DOUBLE_QUOTED_STRING_FRAGMENT_WITH_PHP) {this.consumeEscapedEchoToken();};
-ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
+ECHO_PHP_FREEZE_SYNTAX : (':)' | ':') ->skip;
 
 GREEDY_ESCAPED_ECHO_EXPR : ~[ ':{}]+ {this.consumeEscapedEchoToken();};
 
@@ -148,7 +148,7 @@ RAW_ECHO_END : ('!!}')->popMode;
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
 RAW_ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH {this.consumeNotEscapedEchoToken();};
 RAW_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT | DOUBLE_QUOTED_STRING_FRAGMENT_WITH_PHP) {this.consumeNotEscapedEchoToken();};
-RAW_ECHO_PHP_FREEZE_SYNTAX : ':' ->skip;
+RAW_ECHO_PHP_FREEZE_SYNTAX : (':)' | ':') ->skip;
 RAW_ECHO_EXPR : ~[ ':!{}]+ {this.consumeNotEscapedEchoToken();};
 RAW_ECHO_EXPR_MORE : . [ ]* {this.consumeNotEscapedEchoToken();};
 EXIT_RAW_ECHO_EOF : EOF->type(ERROR),popMode;
@@ -176,12 +176,12 @@ EXIT_RPAREN : ')' {this.roundParenBalance == 0}?->type(PHP_EXPRESSION),mode(DEFA
 
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
 DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH ->more;
-
+PHP_FREEZE_SYNTAX : (':)' | ':' ) ->skip;
 //no string interpolation for the moment
 //freeze issue
 EXPR_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT)->more;
 
-PHP_FREEZE_SYNTAX : ':' ->skip;
+
 
 PHP_EXPRESSION_MORE : . ->more;
 

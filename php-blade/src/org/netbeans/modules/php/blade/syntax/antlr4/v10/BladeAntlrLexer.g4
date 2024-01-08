@@ -8,14 +8,18 @@ import BladeCommonLexer;
 options { superClass = LexerAdaptor; }
  
 tokens {
- PHP_EXPRESSION,
- PHP_VARIABLE,
- PHP_KEYWORD,
- BLADE_PARAM_EXTRA,
- BLADE_PARAM_LPAREN,
- BLADE_PARAM_RPAREN,
- BLADE_PHP_ECHO_EXPR,
- ERROR
+   PHP_EXPRESSION,
+   PHP_VARIABLE,
+   PHP_KEYWORD,
+   PHP_IDENTIFIER,
+   PHP_STATIC_ACCESS,
+   BLADE_PARAM_EXTRA,
+   BLADE_PARAM_LPAREN,
+   BLADE_PARAM_RPAREN,
+   BLADE_PHP_ECHO_EXPR,
+   BL_COMMA,
+   BL_PARAM_COMMA,
+   ERROR
 }
  
 channels { COMMENT, PHP_CODE }
@@ -129,11 +133,14 @@ HTML : ~[<?@{!]+;
 
 OTHER : . ->type(HTML);
 
+
 mode ESCAPED_ECHO;
 
 ESCAPED_ECHO_PHP_VAR : PhpVariable->type(PHP_VARIABLE);
+ESCAPED_ECHO_PHP_IDENTIFIER : NameString->type(PHP_IDENTIFIER);
+ESCAPED_ECHO_STATIC_ACCESS : '::'->type(PHP_STATIC_ACCESS);
 ESCAPED_ECHO_END : ('}}')->popMode;
-ESCAPED_ECHO_EXPR : ~[${}]+ ->type(BLADE_PHP_ECHO_EXPR);
+
 ESCAPED_ECHO_EXPR_MORE : . ->type(BLADE_PHP_ECHO_EXPR);
 EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
 
@@ -141,6 +148,8 @@ EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
 mode NE_ECHO;
 
 NE_ECHO_PHP_VAR : PhpVariable->type(PHP_VARIABLE);
+NE_ECHO_PHP_IDENTIFIER : NameString->type(PHP_IDENTIFIER);
+NE_ECHO_STATIC_ACCESS : '::'->type(PHP_STATIC_ACCESS);
 NE_ECHO_END : ('!!}')->popMode;
 NE_ECHO_EXPR : ~[!{}]+ ->type(BLADE_PHP_ECHO_EXPR);
 NE_ECHO_EXPR_MORE : . ->type(BLADE_PHP_ECHO_EXPR);
@@ -216,9 +225,7 @@ BL_PARAM_PHP_KEYWORD : PhpKeyword->type(PHP_KEYWORD);
 
 BL_PARAM_CONCAT_OPERATOR : '.';
 
-BL_PARAM_COMMA : {this.hasNoBladeParamOpenBracket()}? ',' ;
-
-BL_COMMA : ',';
+BL_COMMA_EL : ','  {this.consumeBladeParamComma();};
 
 BL_PARAM_WS : [ \t\r\n]+;
 

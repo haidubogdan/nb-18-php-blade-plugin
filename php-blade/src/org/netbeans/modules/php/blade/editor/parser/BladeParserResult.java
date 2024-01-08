@@ -356,12 +356,17 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
 
                         blockItem.nestedItems.addAll(lexerStructure);
                         lexerStructure.clear();
-                        if (blockBalance > 0) {
+                        if (blockBalance > 0 && !directiveName.startsWith("@else")) {
                             lexerStructure.add(blockItem);
                         } else {
                             structure.add(blockItem);
                         }
-
+                        //folds
+                        OffsetRange range = new OffsetRange(ctx.getStart().getStopIndex() + 1,
+                                ctx.getStop().getStartIndex());
+                        if (!folds.contains(range)) {
+                            folds.add(range);
+                        }
                     }
 
                 }

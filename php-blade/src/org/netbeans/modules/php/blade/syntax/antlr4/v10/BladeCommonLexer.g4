@@ -6,7 +6,10 @@ tokens {
 
 fragment NameString 
     : [a-zA-Z_\u0080-\ufffe][a-zA-Z0-9_\u0080-\ufffe]*;    
-    
+   
+fragment FullIdentifier 
+    : [a-zA-Z_\u0080-\ufffe][a-zA-Z0-9_\u0080-\ufffe-]*;    
+ 
 fragment ESC_DOUBLE_QUOTED_STRING 
     : [\\"];
 
@@ -33,7 +36,7 @@ BLADE_COMMENT : '{{--' .*? '--}}';
 
 PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? ('?>' | EOF);
 
-EMAIL_SUBSTRING : ('@' NameString '.')->type(HTML);
+EMAIL_SUBSTRING : ('@' FullIdentifier '.')->type(HTML);
 
 VERSION_WITH_AT: '@' (Digit '.'?)+->type(HTML);
 

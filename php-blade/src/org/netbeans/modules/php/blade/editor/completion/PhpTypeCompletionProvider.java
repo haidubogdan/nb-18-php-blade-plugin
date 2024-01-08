@@ -15,6 +15,7 @@ import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.ParsingUtils;
 
 import org.netbeans.modules.php.blade.project.BladeProjectProperties;
+import org.netbeans.modules.php.blade.project.PhpProjectIndex;
 import org.netbeans.modules.php.editor.CodeUtils;
 import org.netbeans.modules.php.editor.api.ElementQuery;
 import org.netbeans.modules.php.editor.api.ElementQueryFactory;
@@ -85,68 +86,62 @@ public final class PhpTypeCompletionProvider {
             }
 
             Project project = FileOwnerQuery.getOwner(sourceFile);
-            if (project == null){
+            if (project == null) {
                 return DeclarationLocation.NONE;
             }
-            FileObject files[] = project.getProjectDirectory().getChildren();
-            for (FileObject file : files) {
-                if (file.isFolder()) {
-                    continue;
-                }
-                //parse an existing root file to get all the info
-                if (file.getExt().equals("php")) {
-                    ParsingUtils parsingUtils = new ParsingUtils();
-                    parsingUtils.parseFileObject(file);
-                    ElementQuery.Index phpIndexQuery = ElementQueryFactory.createIndexQuery(QuerySupportFactory.get(parsingUtils.getParserResult()));
 
-                    if (nodeFound instanceof Identifier) {
-                        Set<ClassElement> classes = phpIndexQuery.getClasses(NameKind.create(prefix, QuerySupport.Kind.PREFIX));
-                        for (ClassElement classElement : classes) {
-                            if (!CodeUtils.isSyntheticTypeName(classElement.getName())) {
-                                FileObject fo = classElement.getFileObject();
-                                DeclarationLocation declLocation = new DeclarationLocation(
-                                        fo, classElement.getOffset());
+            ElementQuery.Index phpIndexQuery = PhpProjectIndex.getInstance().getPhpIndex();
 
-                                AlternativeLocation al = new BladeAlternativeLocation(classElement, declLocation);
-                                if (alternatives == DeclarationLocation.NONE) {
-                                    alternatives = al.getLocation();
-                                }
-                                alternatives.addAlternative(al);
-                            }
+            if (phpIndexQuery == null){
+                return DeclarationLocation.NONE;
+            }
+            
+            if (nodeFound instanceof Identifier) {
+                Set<ClassElement> classes = phpIndexQuery.getClasses(NameKind.create(prefix, QuerySupport.Kind.PREFIX));
+                for (ClassElement classElement : classes) {
+                    if (!CodeUtils.isSyntheticTypeName(classElement.getName())) {
+                        FileObject fo = classElement.getFileObject();
+                        DeclarationLocation declLocation = new DeclarationLocation(
+                                fo, classElement.getOffset());
+
+                        AlternativeLocation al = new BladeAlternativeLocation(classElement, declLocation);
+                        if (alternatives == DeclarationLocation.NONE) {
+                            alternatives = al.getLocation();
                         }
-                    } else if (nodeFound instanceof MethodInvocation) {
-                        Set<MethodElement> functions = phpIndexQuery.getMethods(NameKind.create(prefix, QuerySupport.Kind.PREFIX));
-                        for (MethodElement functionElement : functions) {
-                            if (!CodeUtils.isSyntheticTypeName(functionElement.getName())) {
-                                FileObject fo = functionElement.getFileObject();
-                                DeclarationLocation declLocation = new DeclarationLocation(
-                                        fo, functionElement.getOffset());
-
-                                AlternativeLocation al = new BladeAlternativeLocation(functionElement, declLocation);
-                                if (alternatives == DeclarationLocation.NONE) {
-                                    alternatives = al.getLocation();
-                                }
-                                alternatives.addAlternative(al);
-                            }
-                        }
-                    } else if (nodeFound instanceof FunctionInvocation) {
-                        Set<FunctionElement> functions = phpIndexQuery.getFunctions(NameKind.create(prefix, QuerySupport.Kind.PREFIX));
-                        for (FunctionElement functionElement : functions) {
-                            if (!CodeUtils.isSyntheticTypeName(functionElement.getName())) {
-                                FileObject fo = functionElement.getFileObject();
-                                DeclarationLocation declLocation = new DeclarationLocation(
-                                        fo, functionElement.getOffset());
-
-                                AlternativeLocation al = new BladeAlternativeLocation(functionElement, declLocation);
-                                if (alternatives == DeclarationLocation.NONE) {
-                                    alternatives = al.getLocation();
-                                }
-                                alternatives.addAlternative(al);
-                            }
-                        }
+                        alternatives.addAlternative(al);
                     }
-                    break;
                 }
+            } else if (nodeFound instanceof MethodInvocation) {
+                Set<MethodElement> functions = phpIndexQuery.getMethods(NameKind.create(prefix, QuerySupport.Kind.PREFIX));
+                for (MethodElement functionElement : functions) {
+                    if (!CodeUtils.isSyntheticTypeName(functionElement.getName())) {
+                        FileObject fo = functionElement.getFileObject();
+                        DeclarationLocation declLocation = new DeclarationLocation(
+                                fo, functionElement.getOffset());
+
+                        AlternativeLocation al = new BladeAlternativeLocation(functionElement, declLocation);
+                        if (alternatives == DeclarationLocation.NONE) {
+                            alternatives = al.getLocation();
+                        }
+                        alternatives.addAlternative(al);
+                    }
+                }
+            } else if (nodeFound instanceof FunctionInvocation) {
+                Set<FunctionElement> functions = phpIndexQuery.getFunctions(NameKind.create(prefix, QuerySupport.Kind.PREFIX));
+                for (FunctionElement functionElement : functions) {
+                    if (!CodeUtils.isSyntheticTypeName(functionElement.getName())) {
+                        FileObject fo = functionElement.getFileObject();
+                        DeclarationLocation declLocation = new DeclarationLocation(
+                                fo, functionElement.getOffset());
+
+                        AlternativeLocation al = new BladeAlternativeLocation(functionElement, declLocation);
+                        if (alternatives == DeclarationLocation.NONE) {
+                            alternatives = al.getLocation();
+                        }
+                        alternatives.addAlternative(al);
+                    }
+                }
+
             }
         }
 

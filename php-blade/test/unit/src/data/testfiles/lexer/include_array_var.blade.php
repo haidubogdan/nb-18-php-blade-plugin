@@ -1,8 +1,3 @@
 
 @include("my_path", [])
-@include("my_path", [
-    'myVar' => $myValue,
-    'myArray' => [
-        'key1' => $myKey,
-    ]
-])
+@include("components.menu", ['a' => "ss"],)
