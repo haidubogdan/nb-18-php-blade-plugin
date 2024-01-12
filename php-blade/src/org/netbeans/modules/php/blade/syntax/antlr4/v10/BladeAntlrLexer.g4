@@ -16,6 +16,12 @@ tokens {
    BLADE_PARAM_EXTRA,
    BLADE_PARAM_LPAREN,
    BLADE_PARAM_RPAREN,
+   BLADE_EXPR_LPAREN,
+   BLADE_EXPR_RPAREN,
+   BL_SQ_LPAREN,
+   BL_SQ_LRAREN,
+   BL_PARAM_STRING,
+   BL_PARAM_ASSIGN,
    BLADE_PHP_ECHO_EXPR,
    BL_COMMA,
    BL_PARAM_COMMA,
@@ -28,7 +34,7 @@ channels { COMMENT, PHP_CODE }
 
 
 //conditionals
-D_IF : '@if'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_IF : '@if'->pushMode(LOOK_FOR_PHP_COMPOSED_EXPRESSION);
 D_ELSEIF : '@elseif'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_ELSE : '@else';
 D_ENDIF : '@endif';
@@ -179,6 +185,38 @@ PHP_EXPRESSION_MORE : . ->more;
 
 EXIT_EOF : EOF->type(ERROR),popMode;
 
+//@if
+mode LOOK_FOR_PHP_COMPOSED_EXPRESSION;
+
+WS_COMPOSED_EXPR : [ ]+->skip;
+BLADE_EXPR_LPAREN : '(' {this.roundParenBalance = 0;} ->pushMode(INSIDE_PHP_COMPOSED_EXPRESSION);
+
+L_COMPOSED_EXPR_OTHER : . ->type(HTML), popMode;
+
+//{{}}, @if, @foreach
+mode INSIDE_PHP_COMPOSED_EXPRESSION;
+
+EXPR_SQ_LPAREN : '[' {this.squareParenBalance++;}->type(PHP_EXPRESSION);
+EXPR_SQ_RPAREN : ']' {this.squareParenBalance--;}->type(PHP_EXPRESSION);
+
+EXPR_CURLY_LPAREN : '{' {this.curlyParenBalance++;}->type(PHP_EXPRESSION);
+EXPR_CURLY_RPAREN : '}' {this.curlyParenBalance--;}->type(PHP_EXPRESSION);
+
+EXPR_STRING : DOUBLE_QUOTED_STRING_FRAGMENT | SINGLE_QUOTED_STRING_FRAGMENT;
+
+//EXPR_ASSIGN : '=>'->type(BL_PARAM_ASSIGN);
+
+COMPOSED_EXPR_PHP_VAR : PhpVariable->type(PHP_VARIABLE);
+COMPOSED_EXPR_PHP_IDENTIFIER : NameString->type(PHP_IDENTIFIER);
+COMPOSED_EXPR_STATIC_ACCESS : '::'->type(PHP_STATIC_ACCESS);
+
+COMPOSED_EXPR_LPAREN : '(' {this.increaseRoundParenBalance();}->type(BLADE_EXPR_LPAREN);
+COMPOSED_EXPR_RPAREN : ')' {consumeExprRParen();};
+
+PHP_COMPOSED_EXPRESSION : . ->type(PHP_EXPRESSION);
+
+EXIT_COMPOSED_EXPRESSION_EOF : EOF->type(ERROR),popMode;
+
 //@section, @include etc
 mode LOOK_FOR_BLADE_PARAMETERS;
 
@@ -213,7 +251,7 @@ BL_CURLY_LPAREN : '{' {this.curlyParenBalance++;}->type(BLADE_PARAM_EXTRA);
 BL_CURLY_RPAREN : '}' {this.curlyParenBalance--;}->type(BLADE_PARAM_EXTRA);
 
 BL_PARAM_LPAREN : '(' {this.increaseRoundParenBalance();}->type(BLADE_PARAM_EXTRA);
-BL_PARAM_RPAREN : ')' {consumeRParen();};
+BL_PARAM_RPAREN : ')' {consumeParamRParen();};
 
 BL_PARAM_STRING : DOUBLE_QUOTED_STRING_FRAGMENT | SINGLE_QUOTED_STRING_FRAGMENT;
 

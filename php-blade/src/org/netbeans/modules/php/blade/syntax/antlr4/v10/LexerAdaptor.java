@@ -110,6 +110,28 @@ public abstract class LexerAdaptor extends Lexer {
         }
     }
 
+    public void consumeParamRParen(){
+        //we start from 0 balance
+        this.roundParenBalance--;
+        if (this.roundParenBalance < 0) {
+            this.roundParenBalance = 0;
+            this.setType(BladeAntlrLexer.BLADE_PARAM_RPAREN);
+            this.mode(DEFAULT_MODE);
+        } else {
+             this.setType(BladeAntlrLexer.BLADE_PARAM_EXTRA);
+        }
+    }
+    
+    public void consumeExprRParen(){
+        //we start from 0 balance
+        this.roundParenBalance--;
+        this.setType(BladeAntlrLexer.BLADE_EXPR_RPAREN);
+        if (this.roundParenBalance < 0) {
+            this.roundParenBalance = 0;
+            this.mode(DEFAULT_MODE);
+        }
+    }
+    
     //blade coloring lexer
     public void consumeEscapedEchoToken() {
         if (this._input.LA(1) == '}' && this._input.LA(2) == '}') {

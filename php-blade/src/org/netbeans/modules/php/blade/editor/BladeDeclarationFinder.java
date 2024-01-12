@@ -46,8 +46,10 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
     //not used for the moment
     static enum DeclarationType {
-        BLADE_PATH, SECTION, USE, HAS_SECTION, PHP, CUSTOM_DIRECTIVE, NONE
+        BLADE_PATH, SECTION, USE, HAS_SECTION, PHP, CUSTOM_DIRECTIVE, NONE, PHP_CLASS
     }
+    
+    DeclarationType currentDeclarationType;
 
     @Override
     public OffsetRange getReferenceSpan(Document document, int caretOffset) {
@@ -60,6 +62,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
         org.netbeans.api.lexer.Token<?> tokenPhp = null;
         OffsetRange offsetRange = OffsetRange.NONE;
         int lineOffset = caretOffset;
+        currentDeclarationType = null;
         try {
             th = TokenHierarchy.get(document);
             tsPhp = BladeLexerUtils.getPhpTokenSequence(th, caretOffset);
@@ -87,6 +90,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
             baseDoc.readUnlock();
         }
 
+        //inside php expression context ??
         if (tokens == null || tokens.isEmpty()) {
             return getPhpReferenceSpan(tsPhp, tokenPhp);
         }
@@ -235,6 +239,15 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
     private OffsetRange getPhpReferenceSpan(TokenSequence<? extends PHPTokenId> tsPhp, org.netbeans.api.lexer.Token<?> tokenPhp) {
         if (tsPhp != null && tokenPhp != null && !tokenPhp.id().equals(PHPTokenId.PHP_CONSTANT_ENCAPSED_STRING)) {
+            if (tsPhp.moveNext()){
+                org.netbeans.api.lexer.Token nPhpToken = tsPhp.token();
+                if (nPhpToken != null){
+                    TokenId nPhpId = nPhpToken.id();
+                    if (nPhpId.equals(PHPTokenId.PHP_PAAMAYIM_NEKUDOTAYIM)){
+                        currentDeclarationType = DeclarationType.PHP_CLASS;
+                    }
+                }
+            }
             TokenId phpId = tokenPhp.id();
             if (phpId.equals(PHPTokenId.PHP_STRING) || phpId.equals(PHPTokenId.PHP_VARIABLE)) {
                 return new OffsetRange(tsPhp.offset(), tsPhp.offset() + tokenPhp.length());

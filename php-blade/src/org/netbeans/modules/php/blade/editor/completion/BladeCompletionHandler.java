@@ -68,7 +68,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
 
         switch (currentToken.getType()) {
             case PHP_EXPRESSION:
-            //case PHP_IDENTIFIER:
+            case PHP_IDENTIFIER:
                 completePhpSnippet(completionProposals, completionContext.getCaretOffset(), currentToken);
                 break;
             case BLADE_PHP_INLINE:
@@ -86,7 +86,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
     private void completePhpSnippet(final List<CompletionProposal> completionProposals,
             int offset, Token currentToken) {
         String phpSnippet = currentToken.getText();
-        String phpStart = "<?php";
+        String phpStart = "<?php ";
         if (phpSnippet.length() < 1 || currentToken.getStartIndex() < phpStart.length()) {
             return;
         }

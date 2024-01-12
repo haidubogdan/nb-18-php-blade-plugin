@@ -52,6 +52,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     private final Map<String, Reference> yieldReferences = new TreeMap<>();
     private final Map<String, Reference> stackReferences = new TreeMap<>();
     public final Map<OffsetRange, Reference> occurancesForDeclaration = new TreeMap<>();
+    public final Map<OffsetRange, String> phpClassOccurences = new TreeMap<>();
     public final Map<OffsetRange, Reference> customDirectivesReferences = new TreeMap<>();
     public final Map<OffsetRange, Set<String>> scopedVariables = new TreeMap<>();
 
@@ -121,6 +122,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
             parser.addErrorListener(createErrorListener());
 //            parser.addParseListener(createFoldListener());
             parser.addParseListener(createDeclarationReferencesListener());
+            parser.addParseListener(createPhpClassOccurencesListener());
             parser.addParseListener(createVariableListener());
             parser.addParseListener(createLayoutTreeListener());
             parser.addParseListener(createStructureListener());
@@ -302,6 +304,15 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         };
     }
 
+    private ParseTreeListener createPhpClassOccurencesListener() {
+        return new BladeAntlrParserBaseListener() {
+            @Override
+            public void exitStatic_direct_class_access(BladeAntlrParser.Static_direct_class_accessContext ctx) {
+                int x = 1;
+            }
+        };
+    }
+
     private ParseTreeListener createStructureListener() {
 
         return new BladeAntlrParserBaseListener() {
@@ -362,8 +373,12 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
                             structure.add(blockItem);
                         }
                         //folds
-                        OffsetRange range = new OffsetRange(ctx.getStart().getStopIndex() + 1,
-                                ctx.getStop().getStartIndex());
+                        int start = ctx.getStart().getStartIndex() + 1;
+                        int end = ctx.getStop().getStartIndex();//the start of the close directive
+                        if (start < end) {
+                            end = ctx.getStop().getStopIndex() + 1;
+                        }
+                        OffsetRange range = new OffsetRange(start, end);
                         if (!folds.contains(range)) {
                             folds.add(range);
                         }

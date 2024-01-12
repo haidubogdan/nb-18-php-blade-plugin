@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.netbeans.junit.NbTestCase;
+import org.netbeans.modules.php.blade.editor.parser.ParsingUtils;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrParser;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrParserBaseListener;
 
@@ -47,6 +48,8 @@ public class BladeAntlrParserTestBase extends NbTestCase {
 
     protected String getTestResult(String filename) throws Exception {
         String content = BladeUtils.getFileContent(new File(getDataDir(), "testfiles/" + filename));
+        ParsingUtils parsingUtils = new ParsingUtils();
+        parsingUtils.parsePhpText(content);
         CommonTokenStream tokenStream = BladeUtils.getTokenStream(content);
         System.out.print("\n---Psrser scan for <<" + filename + ">>\n\n");
         BladeAntlrParser parser = new BladeAntlrParser(tokenStream);

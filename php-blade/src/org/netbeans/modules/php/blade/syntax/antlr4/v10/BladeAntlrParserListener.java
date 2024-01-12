@@ -398,6 +398,36 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitEcho_expr(BladeAntlrParser.Echo_exprContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#class_expr_usage}.
+	 * @param ctx the parse tree
+	 */
+	void enterClass_expr_usage(BladeAntlrParser.Class_expr_usageContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#class_expr_usage}.
+	 * @param ctx the parse tree
+	 */
+	void exitClass_expr_usage(BladeAntlrParser.Class_expr_usageContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#class_alias_static_access}.
+	 * @param ctx the parse tree
+	 */
+	void enterClass_alias_static_access(BladeAntlrParser.Class_alias_static_accessContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#class_alias_static_access}.
+	 * @param ctx the parse tree
+	 */
+	void exitClass_alias_static_access(BladeAntlrParser.Class_alias_static_accessContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#static_direct_class_access}.
+	 * @param ctx the parse tree
+	 */
+	void enterStatic_direct_class_access(BladeAntlrParser.Static_direct_class_accessContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#static_direct_class_access}.
+	 * @param ctx the parse tree
+	 */
+	void exitStatic_direct_class_access(BladeAntlrParser.Static_direct_class_accessContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#php_expression}.
 	 * @param ctx the parse tree
 	 */
@@ -417,6 +447,26 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLoop_expression(BladeAntlrParser.Loop_expressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#main_php_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterMain_php_expression(BladeAntlrParser.Main_php_expressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#main_php_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitMain_php_expression(BladeAntlrParser.Main_php_expressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#composed_php_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterComposed_php_expression(BladeAntlrParser.Composed_php_expressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#composed_php_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitComposed_php_expression(BladeAntlrParser.Composed_php_expressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#simple_foreach_expr}.
 	 * @param ctx the parse tree

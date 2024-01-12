@@ -61,4 +61,9 @@ public class BladeAntrlLexerTest extends BladeAntlrLexerTestBase {
     public void test_custom_directive_with_no_arg() throws Exception {
         performTest("lexer/custom_directive_with_no_arg.blade.php");
     }
+    
+    @Test
+    public void test_if_expr() throws Exception {
+        performTest("lexer/if_expr.blade.php");
+    }
 }

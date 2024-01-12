@@ -83,13 +83,13 @@ non_blade_statement:
     | phpInline
     ;
 
-extends : D_EXTENDS singleArgWrapper;
+extends : D_EXTENDS singleArgAndDefaultWrapper;
 section_inline: D_SECTION doubleArgWrapper;
 section : D_SECTION singleArgWrapper (general_statement | D_PARENT)* (D_SHOW | D_STOP | D_OVERWRITE | D_ENDSECTION);
 push : D_PUSH singleArgWrapper general_statement+ D_ENDPUSH;
 pushOnce : D_PUSH_ONCE singleArgWrapper general_statement+ D_ENDPUSH_ONCE;
 
-if : D_IF php_expression general_statement+ endif?;
+if : D_IF main_php_expression general_statement+ endif?;
 elseif : D_ELSEIF php_expression general_statement+ endif?;
 else : D_ELSE general_statement+ endif?;
 endif: D_ENDIF;
@@ -147,19 +147,28 @@ phpInline : PHP_INLINE;
 echo : ESCAPED_ECHO_START echo_expr* ESCAPED_ECHO_END;
 echo_ne : NE_ECHO_START echo_expr* NE_ECHO_END;
 
-echo_expr : (BLADE_PHP_ECHO_EXPR | PHP_VARIABLE | PHP_IDENTIFIER | PHP_STATIC_ACCESS);
+echo_expr : (BLADE_PHP_ECHO_EXPR | class_expr_usage | PHP_VARIABLE | PHP_IDENTIFIER | PHP_STATIC_ACCESS);
+
+class_expr_usage: class_alias_static_access | static_direct_class_access;
+class_alias_static_access : class_name=PHP_VARIABLE PHP_STATIC_ACCESS static_property=PHP_IDENTIFIER;
+static_direct_class_access : class_name=PHP_IDENTIFIER PHP_STATIC_ACCESS static_property=PHP_IDENTIFIER;
 
 php_expression: PHP_EXPRESSION;
 loop_expression : simple_foreach_expr
 | (PHP_VARIABLE | PHP_EXPRESSION | FOREACH_PARAM_ASSIGN | FOREACH_LOOP_LPAREN | FOREACH_LOOP_RPAREN | FOREACH_AS)+ //complex expression (lazy handling)
 ;
 
+main_php_expression : BLADE_EXPR_LPAREN composed_php_expression+ BLADE_EXPR_RPAREN;
+
+composed_php_expression : class_expr_usage | PHP_VARIABLE | PHP_IDENTIFIER | EXPR_STRING |
+ PHP_EXPRESSION+ | PHP_STATIC_ACCESS | BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
+
 simple_foreach_expr: loop_array=PHP_VARIABLE FOREACH_AS key=PHP_VARIABLE (FOREACH_PARAM_ASSIGN item=PHP_VARIABLE)?;
 
 singleArgWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BLADE_PARAM_RPAREN;
 singleArgAndDefaultWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? (BL_COMMA BL_PARAM_WS*)? BLADE_PARAM_RPAREN;
 doubleArgWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BL_COMMA composedArgument BLADE_PARAM_RPAREN;
-multiArgWrapper :  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? BLADE_PARAM_RPAREN;
+multiArgWrapper :  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)* BLADE_PARAM_RPAREN;
 
 identifiableArgument : BL_PARAM_WS* BL_PARAM_STRING BL_PARAM_WS*;
 composedArgument : BL_PARAM_WS* (phpExpr)+ BL_PARAM_WS*;
