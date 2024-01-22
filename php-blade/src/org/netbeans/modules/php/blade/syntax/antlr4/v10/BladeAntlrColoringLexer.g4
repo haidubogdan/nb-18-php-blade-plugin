@@ -181,7 +181,7 @@ PHP_FREEZE_SYNTAX : (':)' | ':' ) ->skip;
 //freeze issue
 EXPR_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT)->more;
 
-
+//STATIC_STRING : //check if start of token ... check if bracket and 
 
 PHP_EXPRESSION_MORE : . ->more;
 

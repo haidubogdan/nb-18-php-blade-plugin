@@ -53,6 +53,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     private final Map<String, Reference> stackReferences = new TreeMap<>();
     public final Map<OffsetRange, Reference> occurancesForDeclaration = new TreeMap<>();
     public final Map<OffsetRange, String> phpClassOccurences = new TreeMap<>();
+    public final Map<OffsetRange, String> functionOccurences = new TreeMap<>();
     public final Map<OffsetRange, Reference> customDirectivesReferences = new TreeMap<>();
     public final Map<OffsetRange, Set<String>> scopedVariables = new TreeMap<>();
 
@@ -69,7 +70,8 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
 
     public enum ReferenceType {
         YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION,
-        SECTION_MISSING, USE, CUSTOM_DIRECTIVE, PHP_INLINE, PHP_BLADE
+        SECTION_MISSING, USE, CUSTOM_DIRECTIVE, PHP_INLINE, PHP_BLADE,
+        PHP_FUNCTION
     }
 
     public enum ParserContext {
@@ -310,6 +312,16 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
             public void exitStatic_direct_class_access(BladeAntlrParser.Static_direct_class_accessContext ctx) {
                 int x = 1;
             }
+            
+            @Override
+            public void exitFunction_call(BladeAntlrParser.Function_callContext ctx) {
+                if (ctx.func_name == null || ctx.func_name.getText() == null){
+                    return;
+                }
+                String functionName = ctx.func_name.getText();
+                OffsetRange range = new OffsetRange(ctx.func_name.getStartIndex(), ctx.func_name.getStopIndex() + 1);
+                functionOccurences.put(range, functionName);
+            }
         };
     }
 
@@ -424,7 +436,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
 
             if (offset < range.getStart()) {
                 //excedeed the offset range
-                return null;
+                break;
             }
 
             if (range.containsInclusive(offset)) {
@@ -432,6 +444,19 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
             }
         }
 
+        for (Map.Entry<OffsetRange, String> entry : functionOccurences.entrySet()){
+            OffsetRange range = entry.getKey();
+
+            if (offset < range.getStart()) {
+                //excedeed the offset range
+                break;
+            }
+
+            if (range.containsInclusive(offset)) {
+                return new Reference(ReferenceType.PHP_FUNCTION, entry.getValue(), range);
+            }
+        }
+        
         return null;
     }
 

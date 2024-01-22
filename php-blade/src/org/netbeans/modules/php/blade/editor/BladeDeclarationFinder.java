@@ -1,6 +1,7 @@
 package org.netbeans.modules.php.blade.editor;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -22,12 +23,15 @@ import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
+import org.netbeans.modules.php.blade.editor.indexing.PhpIndexResult;
+import org.netbeans.modules.php.blade.editor.indexing.PhpIndexUtils;
 import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
 import org.netbeans.modules.php.blade.editor.lexer.BladeLexerUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.editor.phpCsl.PhpTypeDeclarationProvider;
+import org.netbeans.modules.php.blade.project.PhpProjectIndex;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 import org.openide.filesystems.FileObject;
@@ -48,7 +52,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
     static enum DeclarationType {
         BLADE_PATH, SECTION, USE, HAS_SECTION, PHP, CUSTOM_DIRECTIVE, NONE, PHP_CLASS
     }
-    
+
     DeclarationType currentDeclarationType;
 
     @Override
@@ -57,34 +61,17 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
         baseDoc.readLock();
         AntlrTokenSequence tokens = null;
-        TokenHierarchy<Document> th;
         TokenSequence<? extends PHPTokenId> tsPhp = null;
         org.netbeans.api.lexer.Token<?> tokenPhp = null;
         OffsetRange offsetRange = OffsetRange.NONE;
         int lineOffset = caretOffset;
         currentDeclarationType = null;
         try {
-            th = TokenHierarchy.get(document);
-            tsPhp = BladeLexerUtils.getPhpTokenSequence(th, caretOffset);
-
-            //we are in php context
-            if (tsPhp != null) {
-                tokenPhp = tsPhp.token();
-                String name = tokenPhp.id().name();
-                int x = 1;
-            }
-
-            if (tokenPhp == null || tokenPhp.id().equals(PHPTokenId.PHP_CONSTANT_ENCAPSED_STRING)) {
-                Element lineElement = baseDoc.getParagraphElement(caretOffset);
-                int start = lineElement.getStartOffset();
-                lineOffset = caretOffset - start;
-                try {
-                    int end = lineElement.getEndOffset();
-                    String text = baseDoc.getText(start, end - start);
-                    tokens = new AntlrTokenSequence(new BladeAntlrLexer(CharStreams.fromString(text)));
-                } catch (BadLocationException ex) {
-                    //Exceptions.printStackTrace(ex);
-                }
+            try {
+                String text = baseDoc.getText(0, baseDoc.getLength());
+                tokens = new AntlrTokenSequence(new BladeAntlrLexer(CharStreams.fromString(text)));
+            } catch (BadLocationException ex) {
+                //Exceptions.printStackTrace(ex);
             }
         } finally {
             baseDoc.readUnlock();
@@ -92,7 +79,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
         //inside php expression context ??
         if (tokens == null || tokens.isEmpty()) {
-            return getPhpReferenceSpan(tsPhp, tokenPhp);
+            return offsetRange;
         }
 
         tokens.seekTo(lineOffset);
@@ -100,17 +87,12 @@ public class BladeDeclarationFinder implements DeclarationFinder {
         if (tokens.hasNext()) {
             org.antlr.v4.runtime.Token nt = tokens.next().get();
 
-            if (nt.getType() == D_CUSTOM) {
-                int offsetCorrection = caretOffset - lineOffset;
-                return new OffsetRange(nt.getStartIndex() + offsetCorrection, nt.getStopIndex() + offsetCorrection + 1);
+            switch (nt.getType()) {
+                case D_CUSTOM:
+                case PHP_IDENTIFIER:    
+                    return new OffsetRange(nt.getStartIndex(), nt.getStopIndex() + 1);
             }
 
-            //we will skip constant encapsed string and give priority to directives
-            OffsetRange phpSpanRange = getPhpReferenceSpan(tsPhp, tokenPhp);
-            if (!phpSpanRange.isEmpty()){
-                return phpSpanRange;
-            }
-            
             if (!tokens.hasPrevious()) {
                 return offsetRange;
             }
@@ -125,7 +107,15 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 if (matchedToken != null) {
                     offsetRange = new OffsetRange(nt.getStartIndex() + offsetCorrection, nt.getStopIndex() + offsetCorrection + 1);
                 }
+                return offsetRange;
             }
+            //we will skip constant encapsed string and give priority to directives
+            OffsetRange phpSpanRange = getPhpReferenceSpan(tsPhp, tokenPhp);
+            if (!phpSpanRange.isEmpty()) {
+                return phpSpanRange;
+            }
+
+
         }
         return offsetRange;
     }
@@ -142,6 +132,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
         }
 
         FileObject currentFile = parserResult.getFileObject();
+        DeclarationLocation location = DeclarationLocation.NONE;
 
         switch (reference.type) {
             case EXTENDS:
@@ -163,7 +154,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 return dln;
             case SECTION:
             case HAS_SECTION:
-            case SECTION_MISSING:    
+            case SECTION_MISSING:
                 String yieldId = reference.name;
                 List<BladeIndex.IndexedReference> yields = QueryUtils.getYieldReferences(yieldId, currentFile);
                 if (yields == null) {
@@ -224,26 +215,37 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                     }
                 }
                 return dlcustomDirective;
+            case PHP_FUNCTION:
+                PhpProjectIndex phpProjectIndex = PhpProjectIndex.getInstance();
+                Collection<PhpIndexResult> indexResults = PhpIndexUtils.queryFunctions(phpProjectIndex.rootFile, reference.name);
+                for (PhpIndexResult indexResult : indexResults){
+                    NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_FUNCTION);
+                    location = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
+                    location.addAlternative(new AlternativeLocationImpl(location));
+                }
+                return location;
             case PHP_INLINE:
             case PHP_BLADE:
                 DeclarationLocation locations;
                 FileObject fo = parserResult.getSnapshot().getSource().getFileObject();
-                 locations = PhpTypeDeclarationProvider.getInstance()
-                         .getItems(fo, parserResult.getPhpParserResult(), caretOffset);
-                
+                locations = PhpTypeDeclarationProvider.getInstance()
+                        .getItems(fo, parserResult.getPhpParserResult(), caretOffset);
+
                 return locations;
         }
+        
+        
 
         return DeclarationLocation.NONE;
     }
 
     private OffsetRange getPhpReferenceSpan(TokenSequence<? extends PHPTokenId> tsPhp, org.netbeans.api.lexer.Token<?> tokenPhp) {
         if (tsPhp != null && tokenPhp != null && !tokenPhp.id().equals(PHPTokenId.PHP_CONSTANT_ENCAPSED_STRING)) {
-            if (tsPhp.moveNext()){
+            if (tsPhp.moveNext()) {
                 org.netbeans.api.lexer.Token nPhpToken = tsPhp.token();
-                if (nPhpToken != null){
+                if (nPhpToken != null) {
                     TokenId nPhpId = nPhpToken.id();
-                    if (nPhpId.equals(PHPTokenId.PHP_PAAMAYIM_NEKUDOTAYIM)){
+                    if (nPhpId.equals(PHPTokenId.PHP_PAAMAYIM_NEKUDOTAYIM)) {
                         currentDeclarationType = DeclarationType.PHP_CLASS;
                     }
                 }
@@ -253,7 +255,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 return new OffsetRange(tsPhp.offset(), tsPhp.offset() + tokenPhp.length());
             }
         }
-        
+
         return OffsetRange.NONE;
     }
 
@@ -286,7 +288,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
         }
 
     }
-    
+
     public static class BladeAlternativeLocation implements AlternativeLocation {
 
         private ElementHandle modelElement;

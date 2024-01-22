@@ -27,7 +27,7 @@ fragment PhpVariable
     : '$' NameString;
 
 fragment PhpKeyword
-    : 'array' | 'class';
+    : 'array' | 'class' | 'empty';
 
 fragment Digit
     : ('0'..'9');

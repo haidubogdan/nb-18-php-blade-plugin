@@ -59,6 +59,10 @@ Check for formating and code optimisation
 
 ## Navigation
 
+80%
+
+issues with order and sorting
+
 ## Lexer coloring
 
 80%

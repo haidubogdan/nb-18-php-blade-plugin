@@ -108,7 +108,7 @@ foreach : D_FOREACH FOREACH_LOOP_LPAREN loop_expression FOREACH_LOOP_RPAREN (gen
 forelse : D_FORELSE FOREACH_LOOP_LPAREN loop_expression FOREACH_LOOP_RPAREN (general_statement | D_EMPTY)+ D_ENDFORELSE;
 
 //layout
-yieldD : D_YIELD singleArgWrapper;
+yieldD : D_YIELD singleArgAndDefaultWrapper;
 stack : D_STACK singleArgWrapper;
 useD : D_USE singleArgWrapper;
 
@@ -152,6 +152,7 @@ echo_expr : (BLADE_PHP_ECHO_EXPR | class_expr_usage | PHP_VARIABLE | PHP_IDENTIF
 class_expr_usage: class_alias_static_access | static_direct_class_access;
 class_alias_static_access : class_name=PHP_VARIABLE PHP_STATIC_ACCESS static_property=PHP_IDENTIFIER;
 static_direct_class_access : class_name=PHP_IDENTIFIER PHP_STATIC_ACCESS static_property=PHP_IDENTIFIER;
+function_call : func_name=PHP_IDENTIFIER BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
 
 php_expression: PHP_EXPRESSION;
 loop_expression : simple_foreach_expr
@@ -160,8 +161,8 @@ loop_expression : simple_foreach_expr
 
 main_php_expression : BLADE_EXPR_LPAREN composed_php_expression+ BLADE_EXPR_RPAREN;
 
-composed_php_expression : class_expr_usage | PHP_VARIABLE | PHP_IDENTIFIER | EXPR_STRING |
- PHP_EXPRESSION+ | PHP_STATIC_ACCESS | BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
+composed_php_expression : class_expr_usage | function_call | PHP_VARIABLE | PHP_IDENTIFIER | EXPR_STRING |
+ PHP_KEYWORD | PHP_EXPRESSION+ | PHP_STATIC_ACCESS | BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
 
 simple_foreach_expr: loop_array=PHP_VARIABLE FOREACH_AS key=PHP_VARIABLE (FOREACH_PARAM_ASSIGN item=PHP_VARIABLE)?;
 

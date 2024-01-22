@@ -428,6 +428,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitStatic_direct_class_access(BladeAntlrParser.Static_direct_class_accessContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#function_call}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunction_call(BladeAntlrParser.Function_callContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#function_call}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunction_call(BladeAntlrParser.Function_callContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#php_expression}.
 	 * @param ctx the parse tree
 	 */
