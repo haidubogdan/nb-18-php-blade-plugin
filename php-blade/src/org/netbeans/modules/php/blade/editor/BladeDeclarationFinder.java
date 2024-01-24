@@ -89,7 +89,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
             switch (nt.getType()) {
                 case D_CUSTOM:
-                case PHP_IDENTIFIER:    
+                case PHP_IDENTIFIER:
                     return new OffsetRange(nt.getStartIndex(), nt.getStopIndex() + 1);
             }
 
@@ -115,7 +115,6 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 return phpSpanRange;
             }
 
-
         }
         return offsetRange;
     }
@@ -124,13 +123,14 @@ public class BladeDeclarationFinder implements DeclarationFinder {
     public DeclarationLocation findDeclaration(ParserResult info, int caretOffset) {
         BladeParserResult parserResult = (BladeParserResult) info;
 
-        Reference reference = parserResult.findReferenceForDeclaration(caretOffset);
+        Reference reference = parserResult.findOccuredRefrence(caretOffset);
 
         if (reference == null) {
             //what to do with constants??
             return DeclarationLocation.NONE;
         }
 
+        PhpProjectIndex phpProjectIndex;
         FileObject currentFile = parserResult.getFileObject();
         DeclarationLocation location = DeclarationLocation.NONE;
 
@@ -215,10 +215,19 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                     }
                 }
                 return dlcustomDirective;
+            case PHP_CLASS:
+                phpProjectIndex = PhpProjectIndex.getInstance();
+                Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryClass(phpProjectIndex.rootFile, reference.name);
+                for (PhpIndexResult indexResult : indexClassResults) {
+                    NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_CLASS);
+                    location = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
+                    location.addAlternative(new AlternativeLocationImpl(location));
+                }
+                return location;
             case PHP_FUNCTION:
-                PhpProjectIndex phpProjectIndex = PhpProjectIndex.getInstance();
+                phpProjectIndex = PhpProjectIndex.getInstance();
                 Collection<PhpIndexResult> indexResults = PhpIndexUtils.queryFunctions(phpProjectIndex.rootFile, reference.name);
-                for (PhpIndexResult indexResult : indexResults){
+                for (PhpIndexResult indexResult : indexResults) {
                     NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_FUNCTION);
                     location = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
                     location.addAlternative(new AlternativeLocationImpl(location));
@@ -233,8 +242,6 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
                 return locations;
         }
-        
-        
 
         return DeclarationLocation.NONE;
     }

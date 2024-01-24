@@ -71,7 +71,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     public enum ReferenceType {
         YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION,
         SECTION_MISSING, USE, CUSTOM_DIRECTIVE, PHP_INLINE, PHP_BLADE,
-        PHP_FUNCTION
+        PHP_FUNCTION, PHP_CLASS
     }
 
     public enum ParserContext {
@@ -310,7 +310,12 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         return new BladeAntlrParserBaseListener() {
             @Override
             public void exitStatic_direct_class_access(BladeAntlrParser.Static_direct_class_accessContext ctx) {
-                int x = 1;
+                if (ctx.class_name == null || ctx.class_name.getText() == null){
+                    return;
+                }
+                String functionName = ctx.class_name.getText();
+                OffsetRange range = new OffsetRange(ctx.class_name.getStartIndex(), ctx.class_name.getStopIndex() + 1);
+                phpClassOccurences.put(range, functionName);
             }
             
             @Override
@@ -429,8 +434,9 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
         }
     }
 
-    public Reference findReferenceForDeclaration(int offset) {
+    public Reference findOccuredRefrence(int offset) {
 
+        //TODO could do a similar thing and generate the Reference class on loop
         for (Map.Entry<OffsetRange, Reference> entry : occurancesForDeclaration.entrySet()) {
             OffsetRange range = entry.getKey();
 
@@ -454,6 +460,19 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
 
             if (range.containsInclusive(offset)) {
                 return new Reference(ReferenceType.PHP_FUNCTION, entry.getValue(), range);
+            }
+        }
+        
+        for (Map.Entry<OffsetRange, String> entry : phpClassOccurences.entrySet()){
+            OffsetRange range = entry.getKey();
+
+            if (offset < range.getStart()) {
+                //excedeed the offset range
+                break;
+            }
+
+            if (range.containsInclusive(offset)) {
+                return new Reference(ReferenceType.PHP_CLASS, entry.getValue(), range);
             }
         }
         
