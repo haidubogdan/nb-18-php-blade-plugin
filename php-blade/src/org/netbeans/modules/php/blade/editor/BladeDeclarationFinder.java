@@ -29,6 +29,7 @@ import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
 import org.netbeans.modules.php.blade.editor.lexer.BladeLexerUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
+import static org.netbeans.modules.php.blade.editor.parser.BladeParserResult.ReferenceType.PHP_FUNCTION;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.editor.phpCsl.PhpTypeDeclarationProvider;
 import org.netbeans.modules.php.blade.project.PhpProjectIndex;
@@ -217,7 +218,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 return dlcustomDirective;
             case PHP_CLASS:
                 phpProjectIndex = PhpProjectIndex.getInstance();
-                Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryClass(phpProjectIndex.rootFile, reference.name);
+                Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryExactClass(phpProjectIndex.rootFile, reference.name);
                 for (PhpIndexResult indexResult : indexClassResults) {
                     NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_CLASS);
                     location = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
@@ -226,13 +227,22 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 return location;
             case PHP_FUNCTION:
                 phpProjectIndex = PhpProjectIndex.getInstance();
-                Collection<PhpIndexResult> indexResults = PhpIndexUtils.queryFunctions(phpProjectIndex.rootFile, reference.name);
+                Collection<PhpIndexResult> indexResults = PhpIndexUtils.queryExactFunctions(phpProjectIndex.rootFile, reference.name);
                 for (PhpIndexResult indexResult : indexResults) {
                     NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_FUNCTION);
                     location = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
                     location.addAlternative(new AlternativeLocationImpl(location));
                 }
                 return location;
+            case PHP_CONSTANT:
+                phpProjectIndex = PhpProjectIndex.getInstance();
+                Collection<PhpIndexResult> indexConstantsResults = PhpIndexUtils.queryExactConstants(phpProjectIndex.rootFile, reference.name);
+                for (PhpIndexResult indexResult : indexConstantsResults) {
+                    NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_CONSTANT);
+                    location = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
+                    location.addAlternative(new AlternativeLocationImpl(location));
+                }
+                return location;    
             case PHP_INLINE:
             case PHP_BLADE:
                 DeclarationLocation locations;
@@ -298,8 +308,8 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
     public static class BladeAlternativeLocation implements AlternativeLocation {
 
-        private ElementHandle modelElement;
-        private DeclarationLocation declaration;
+        private final ElementHandle modelElement;
+        private final DeclarationLocation declaration;
 
         public BladeAlternativeLocation(ElementHandle modelElement, DeclarationLocation declaration) {
             this.modelElement = modelElement;

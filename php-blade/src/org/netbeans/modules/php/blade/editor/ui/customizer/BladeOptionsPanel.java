@@ -265,7 +265,7 @@ public final class BladeOptionsPanel extends javax.swing.JPanel {
                             continue;
                         }
                         IndexingManager.getDefault().refreshAllIndices(file);
-                        IndexingManager.getDefault().refreshIndex(file.toURL(), null);
+                        //IndexingManager.getDefault().refreshIndex(file.toURL(), null);
                     }
                 }
             }
@@ -279,7 +279,7 @@ public final class BladeOptionsPanel extends javax.swing.JPanel {
                 while(children.hasMoreElements()){
                     FileObject file = children.nextElement();
                     IndexingManager.getDefault().refreshAllIndices(file);
-                    IndexingManager.getDefault().refreshIndex(file.toURL(), null);
+                    //IndexingManager.getDefault().refreshIndex(file.toURL(), null);
                 }
                 //it should be a recursive loop
                 
@@ -301,7 +301,7 @@ public final class BladeOptionsPanel extends javax.swing.JPanel {
                         continue;
                     }
                     IndexingManager.getDefault().refreshAllIndices(file);
-                    IndexingManager.getDefault().refreshIndex(file.toURL(), null);
+                    //IndexingManager.getDefault().refreshIndex(file.toURL(), null);
                 }
             }
         }

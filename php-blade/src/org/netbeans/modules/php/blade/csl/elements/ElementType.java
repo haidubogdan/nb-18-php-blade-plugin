@@ -14,6 +14,7 @@ public enum ElementType {
     VARIABLE,
     PHP_CLASS,
     PHP_FUNCTION,
+    PHP_CONSTANT,
     STACK_ID,
     YIELD_ID
 }

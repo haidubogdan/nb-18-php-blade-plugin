@@ -44,10 +44,10 @@ public class PhpIndexUtils {
 
     /**
      * @todo implement a parser for php elements
-     * 
+     *
      * @param fo
      * @param prefix
-     * @return 
+     * @return
      */
     public static Collection<PhpIndexResult> queryClass(FileObject fo, String prefix) {
         QuerySupport phpindex = QuerySupportFactory.get(fo);
@@ -63,7 +63,7 @@ public class PhpIndexUtils {
                 for (String value : values) {
                     Signature sig = Signature.get(value);
                     String name = sig.string(1);
-                    if (name.length() > 0 && name.startsWith(prefix)) {
+                    if (name.length() > 0 && name.equals(prefix)) {
                         results.add(new PhpIndexResult(name, indexFile, PhpIndexResult.Type.CLASS, new OffsetRange(0, 1)));
                     }
                 }
@@ -73,23 +73,129 @@ public class PhpIndexUtils {
         }
         return results;
     }
-    
+
+    public static Collection<PhpIndexResult> queryExactClass(FileObject fo, String prefix) {
+        QuerySupport phpindex = QuerySupportFactory.get(fo);
+        Collection<PhpIndexResult> results = new ArrayList<>();
+        String queryPrefix = prefix.toLowerCase();
+        try {
+            Collection<? extends IndexResult> indexResults = phpindex.query("clz", queryPrefix, QuerySupport.Kind.PREFIX, new String[]{"clz"});
+            for (IndexResult indexResult : indexResults) {
+                FileObject indexFile = indexResult.getFile();
+                //internal php index
+
+                String[] values = indexResult.getValues("clz");
+                for (String value : values) {
+                    Signature sig = Signature.get(value);
+                    String name = sig.string(1);
+                    if (name.length() > 0 && name.equals(prefix)) {
+                        results.add(new PhpIndexResult(name, indexFile, PhpIndexResult.Type.CLASS, new OffsetRange(0, 1)));
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return results;
+    }
+
     public static Collection<PhpIndexResult> queryFunctions(FileObject fo, String prefix) {
         QuerySupport phpindex = QuerySupportFactory.get(fo);
         Collection<PhpIndexResult> results = new ArrayList<>();
         String queryPrefix = prefix.toLowerCase();
         try {
-            Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_BASE, queryPrefix, QuerySupport.Kind.PREFIX, new String[]{PHPIndexer.FIELD_BASE });
+            Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_BASE, queryPrefix, QuerySupport.Kind.PREFIX, new String[]{PHPIndexer.FIELD_BASE});
             for (IndexResult indexResult : indexResults) {
                 FileObject indexFile = indexResult.getFile();
                 //internal php index
 
-                String[] values = indexResult.getValues(PHPIndexer.FIELD_BASE );
+                String[] values = indexResult.getValues(PHPIndexer.FIELD_BASE);
                 for (String value : values) {
                     Signature sig = Signature.get(value);
                     String name = sig.string(1);
-                    
-                    if (name.length() > 0 && name.startsWith(prefix)) {
+
+                    if (name.length() > 0 && name.equals(prefix)) {
+                        Integer offset = sig.integer(2);
+                        results.add(new PhpIndexResult(name, indexFile, PhpIndexResult.Type.FUNCTION, new OffsetRange(offset, offset + name.length())));
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return results;
+    }
+
+    public static Collection<PhpIndexResult> queryExactFunctions(FileObject fo, String prefix) {
+        QuerySupport phpindex = QuerySupportFactory.get(fo);
+        Collection<PhpIndexResult> results = new ArrayList<>();
+        String queryPrefix = prefix.toLowerCase();
+        try {
+            Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_BASE, queryPrefix, QuerySupport.Kind.PREFIX, new String[]{PHPIndexer.FIELD_BASE});
+            for (IndexResult indexResult : indexResults) {
+                FileObject indexFile = indexResult.getFile();
+                //internal php index
+
+                String[] values = indexResult.getValues(PHPIndexer.FIELD_BASE);
+                for (String value : values) {
+                    Signature sig = Signature.get(value);
+                    String name = sig.string(1);
+
+                    if (name.length() > 0 && name.equals(prefix)) {
+                        Integer offset = sig.integer(2);
+                        results.add(new PhpIndexResult(name, indexFile, PhpIndexResult.Type.FUNCTION, new OffsetRange(offset, offset + name.length())));
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return results;
+    }
+
+    public static Collection<PhpIndexResult> queryConstants(FileObject fo, String prefix) {
+        QuerySupport phpindex = QuerySupportFactory.get(fo);
+        Collection<PhpIndexResult> results = new ArrayList<>();
+        String queryPrefix = prefix.toLowerCase();
+        try {
+            Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_CONST, queryPrefix, QuerySupport.Kind.PREFIX, new String[]{PHPIndexer.FIELD_CONST});
+            for (IndexResult indexResult : indexResults) {
+                FileObject indexFile = indexResult.getFile();
+                //internal php index
+
+                String[] values = indexResult.getValues(PHPIndexer.FIELD_CONST);
+                for (String value : values) {
+                    Signature sig = Signature.get(value);
+                    String name = sig.string(1);
+
+                    if (name.length() > 0 && name.equals(prefix)) {
+                        Integer offset = sig.integer(2);
+                        results.add(new PhpIndexResult(name, indexFile, PhpIndexResult.Type.FUNCTION, new OffsetRange(offset, offset + name.length())));
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return results;
+    }
+
+    public static Collection<PhpIndexResult> queryExactConstants(FileObject fo, String prefix) {
+        QuerySupport phpindex = QuerySupportFactory.get(fo);
+        Collection<PhpIndexResult> results = new ArrayList<>();
+        String queryPrefix = prefix.toLowerCase();
+        try {
+            Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_CONST, queryPrefix, QuerySupport.Kind.PREFIX, new String[]{PHPIndexer.FIELD_CONST});
+            for (IndexResult indexResult : indexResults) {
+                FileObject indexFile = indexResult.getFile();
+                //internal php index
+
+                String[] values = indexResult.getValues(PHPIndexer.FIELD_CONST);
+                for (String value : values) {
+                    Signature sig = Signature.get(value);
+                    String name = sig.string(1);
+
+                    if (name.length() > 0 && name.equals(prefix)) {
                         Integer offset = sig.integer(2);
                         results.add(new PhpIndexResult(name, indexFile, PhpIndexResult.Type.FUNCTION, new OffsetRange(offset, offset + name.length())));
                     }

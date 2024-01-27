@@ -147,7 +147,7 @@ phpInline : PHP_INLINE;
 echo : ESCAPED_ECHO_START echo_expr* ESCAPED_ECHO_END;
 echo_ne : NE_ECHO_START echo_expr* NE_ECHO_END;
 
-echo_expr : (BLADE_PHP_ECHO_EXPR | class_expr_usage | PHP_VARIABLE | PHP_IDENTIFIER | PHP_STATIC_ACCESS);
+echo_expr : composed_php_expression;
 
 class_expr_usage: class_alias_static_access | static_direct_class_access;
 class_alias_static_access : class_name=PHP_VARIABLE PHP_STATIC_ACCESS static_property=PHP_IDENTIFIER;
