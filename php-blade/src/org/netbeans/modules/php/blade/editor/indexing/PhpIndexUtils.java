@@ -62,9 +62,9 @@ public class PhpIndexUtils {
                 String[] values = indexResult.getValues("clz");
                 for (String value : values) {
                     Signature sig = Signature.get(value);
-                    String name = sig.string(1);
-                    if (name.length() > 0 && name.equals(prefix)) {
-                        results.add(new PhpIndexResult(name, indexFile, PhpIndexResult.Type.CLASS, new OffsetRange(0, 1)));
+                    String fullName = sig.string(1);
+                    if (fullName.length() > 0 && fullName.startsWith(prefix)) {
+                        results.add(new PhpIndexResult(fullName, indexFile, PhpIndexResult.Type.CLASS, new OffsetRange(0, 1)));
                     }
                 }
             }
@@ -74,10 +74,10 @@ public class PhpIndexUtils {
         return results;
     }
 
-    public static Collection<PhpIndexResult> queryExactClass(FileObject fo, String prefix) {
+    public static Collection<PhpIndexResult> queryExactClass(FileObject fo, String identifier) {
         QuerySupport phpindex = QuerySupportFactory.get(fo);
         Collection<PhpIndexResult> results = new ArrayList<>();
-        String queryPrefix = prefix.toLowerCase();
+        String queryPrefix = identifier.toLowerCase();
         try {
             Collection<? extends IndexResult> indexResults = phpindex.query("clz", queryPrefix, QuerySupport.Kind.PREFIX, new String[]{"clz"});
             for (IndexResult indexResult : indexResults) {
@@ -88,7 +88,7 @@ public class PhpIndexUtils {
                 for (String value : values) {
                     Signature sig = Signature.get(value);
                     String name = sig.string(1);
-                    if (name.length() > 0 && name.equals(prefix)) {
+                    if (name.length() > 0 && name.equals(identifier)) {
                         results.add(new PhpIndexResult(name, indexFile, PhpIndexResult.Type.CLASS, new OffsetRange(0, 1)));
                     }
                 }

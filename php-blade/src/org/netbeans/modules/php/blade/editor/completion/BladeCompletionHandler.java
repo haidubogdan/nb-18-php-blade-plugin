@@ -16,6 +16,7 @@ import org.netbeans.modules.csl.api.CodeCompletionHandler;
 import org.netbeans.modules.csl.api.CodeCompletionHandler2;
 import org.netbeans.modules.csl.api.CodeCompletionResult;
 import org.netbeans.modules.csl.api.CompletionProposal;
+import org.netbeans.modules.csl.api.DeclarationFinder;
 import org.netbeans.modules.csl.api.Documentation;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.ParameterInfo;
@@ -24,6 +25,7 @@ import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.csl.spi.support.CancelSupport;
 import org.netbeans.modules.php.blade.csl.elements.ElementType;
 import org.netbeans.modules.php.blade.csl.elements.NamedElement;
+import org.netbeans.modules.php.blade.editor.BladeDeclarationFinder;
 import org.netbeans.modules.php.blade.editor.completion.BladeCompletionItem.CompletionRequest;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexUtils;
@@ -67,8 +69,10 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         }
 
         switch (currentToken.getType()) {
-            case PHP_EXPRESSION:
             case PHP_IDENTIFIER:
+                completePhpElements(completionProposals, parserResult, completionContext.getCaretOffset(), currentToken);
+                break;
+            case PHP_EXPRESSION:
                 completePhpSnippet(completionProposals, completionContext.getCaretOffset(), currentToken);
                 break;
             case BLADE_PHP_INLINE:
@@ -81,6 +85,31 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
 
         //TODO add context
         return new DefaultCompletionResult(completionProposals, false);
+    }
+
+    //we need a context
+    private void completePhpElements(final List<CompletionProposal> completionProposals,
+            BladeParserResult parserResult,
+            int offset, Token currentToken) {
+        String prefix = currentToken.getText();
+
+        if (prefix == null || prefix.length() == 1) {
+            return;
+        }
+
+        Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryClass(
+                parserResult.getSnapshot().getSource().getFileObject(), prefix);
+        if (indexClassResults.isEmpty()) {
+            return;
+        }
+        CompletionRequest request = new CompletionRequest();
+        request.anchorOffset = offset - prefix.length();
+        request.carretOffset = offset;
+        request.prefix = prefix;
+        for (PhpIndexResult indexResult : indexClassResults) {
+            NamedElement classElement = new NamedElement(indexResult.name, indexResult.declarationFile, ElementType.PHP_CLASS);
+            completionProposals.add(new BladeCompletionItem.ClassItem(classElement, request, indexResult.name));
+        }
     }
 
     private void completePhpSnippet(final List<CompletionProposal> completionProposals,
@@ -129,8 +158,8 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         if (!prefix.startsWith("$") && proposals.isEmpty()) {
             PhpProjectIndex phpProjectIndex = PhpProjectIndex.getInstance();
             Collection<PhpIndexResult> classes = PhpIndexUtils.queryClass(phpProjectIndex.rootFile, prefix);
-            
-            for (PhpIndexResult indexedClass : classes){
+
+            for (PhpIndexResult indexedClass : classes) {
                 CompletionRequest request = new CompletionRequest();
                 request.anchorOffset = offset - prefix.length();
                 request.carretOffset = offset;
@@ -191,7 +220,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         if (scopedVariables != null) {
             for (String variableName : scopedVariables) {
                 if (variableName.startsWith(variablePrefix)) {
-                    NamedElement variableElement = new NamedElement(variableName,fo, ElementType.VARIABLE );
+                    NamedElement variableElement = new NamedElement(variableName, fo, ElementType.VARIABLE);
                     CompletionRequest request = new CompletionRequest();
                     request.anchorOffset = completionContext.getCaretOffset() - variablePrefix.length();
                     request.carretOffset = completionContext.getCaretOffset();
@@ -279,7 +308,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
     @Override
     public Documentation documentElement(ParserResult parserResult, ElementHandle elementHandle, Callable<Boolean> cancel) {
         Documentation result = null;
-        
+
         if (elementHandle instanceof NamedElement) {
             return TooltipDoc.generateDoc((NamedElement) elementHandle);
         }
