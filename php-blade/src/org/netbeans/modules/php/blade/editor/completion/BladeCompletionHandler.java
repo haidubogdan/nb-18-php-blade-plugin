@@ -24,6 +24,7 @@ import org.netbeans.modules.csl.spi.DefaultCompletionResult;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.csl.spi.support.CancelSupport;
 import org.netbeans.modules.php.blade.csl.elements.ElementType;
+import static org.netbeans.modules.php.blade.csl.elements.ElementType.*;
 import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.editor.BladeDeclarationFinder;
 import org.netbeans.modules.php.blade.editor.completion.BladeCompletionItem.CompletionRequest;
@@ -42,6 +43,10 @@ import org.openide.filesystems.FileObject;
  * @author bogdan
  */
 public class BladeCompletionHandler implements CodeCompletionHandler2 {
+
+    static enum ContextType {
+        GENERIC_IDENTIFIER, PHP_FUNCTION, NONE
+    }
 
     @Override
     public CodeCompletionResult complete(CodeCompletionContext completionContext) {
@@ -97,6 +102,19 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             return;
         }
 
+        BladeParserResult.Reference reference = parserResult.findOccuredRefrence(offset);
+
+        switch (reference.type){
+            case PHP_CONSTANT:
+            case PHP_CLASS:
+                completePhpClasses(prefix, offset, completionProposals, parserResult);
+                break;
+        }
+    }
+
+    private void completePhpClasses(String prefix, int offset,
+            final List<CompletionProposal> completionProposals,
+            BladeParserResult parserResult) {
         Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryClass(
                 parserResult.getSnapshot().getSource().getFileObject(), prefix);
         if (indexClassResults.isEmpty()) {
