@@ -69,8 +69,12 @@ public class BladeLexer extends AbstractAntlrLexerBridge<BladeAntlrColoringLexer
         int type = antlrToken.getType();
         //System.out.println(text + " " + type);
         switch (type) {
+            case BladeAntlrColoringLexer.BLADE_COMMENT_START:
+                return token(BLADE_COMMENT_START);
             case BladeAntlrColoringLexer.BLADE_COMMENT:
                 return token(BLADE_COMMENT);
+            case BladeAntlrColoringLexer.BLADE_COMMENT_END:
+                return token(BLADE_COMMENT_END);
             case BladeAntlrColoringLexer.HTML:
                 return token(HTML);
             case BladeAntlrColoringLexer.PHP_INLINE:

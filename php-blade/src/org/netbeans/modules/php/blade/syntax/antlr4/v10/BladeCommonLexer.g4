@@ -1,7 +1,8 @@
 lexer grammar BladeCommonLexer;
 
 tokens {
-    HTML
+    HTML, 
+    BLADE_COMMENT
 }
 
 fragment NameString 
@@ -32,7 +33,7 @@ fragment PhpKeyword
 fragment Digit
     : ('0'..'9');
 
-BLADE_COMMENT : '{{--' .*? '--}}';
+BLADE_COMMENT_START : '{{--' ->pushMode(INSIDE_BLADE_COMMENT);
 
 PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? ('?>' | EOF);
 
@@ -59,3 +60,18 @@ D_ESCAPES
     | '@-webkit-keyframes' 
     | '@keyframes'
     )->type(HTML);
+
+mode INSIDE_BLADE_COMMENT;
+
+BLADE_COMMENT_END : '--}}'->popMode;
+
+//hack to merge all php inputs into one token
+BLADE_COMMENT_PEEK : . {
+        this._input.LA(1) == '-' &&
+        this._input.LA(2) == '-' &&
+        this._input.LA(3) == '}' &&
+        this._input.LA(4) == '}'
+      }? ->type(BLADE_COMMENT);
+BLADE_COMMENT_MORE : . ->more;
+
+BLADE_COMMENT_EOF : EOF->type(BLADE_COMMENT),popMode;

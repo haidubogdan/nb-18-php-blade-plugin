@@ -18,7 +18,7 @@ file : general_statement* EOF;
 
 general_statement: inline_statement
     | block_statement
-    | BLADE_COMMENT
+    | BLADE_COMMENT_START BLADE_COMMENT* BLADE_COMMENT_END
     | html
     ;
 
