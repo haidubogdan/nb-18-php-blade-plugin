@@ -60,7 +60,9 @@ import org.openide.util.Lookup;
  * @author bogdan
  */
 public enum BladeTokenId implements TokenId {
+    BLADE_COMMENT_START("comment"),
     BLADE_COMMENT("comment"),
+    BLADE_COMMENT_END("comment"),
     BLADE_DIRECTIVE("blade_directive"),
     BLADE_ECHO_DELIMITOR("blade_echo_delimiters"),
     HTML("html"),
