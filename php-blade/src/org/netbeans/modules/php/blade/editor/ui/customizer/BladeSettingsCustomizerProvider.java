@@ -1,18 +1,16 @@
 package org.netbeans.modules.php.blade.editor.ui.customizer;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.ui.support.ProjectCustomizer;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /**
- *
+ * Blade settings node
+ * 
  * @author bhaidu
  */
 public class BladeSettingsCustomizerProvider implements ProjectCustomizer.CompositeCategoryProvider {
@@ -27,8 +25,8 @@ public class BladeSettingsCustomizerProvider implements ProjectCustomizer.Compos
         subcategories.add(optionsCustomizer.createCategory(lkp));
         BladeDirectivesCustomizerProvider directiveCustomizer = new BladeDirectivesCustomizerProvider();
         subcategories.add(directiveCustomizer.createCategory(lkp));
-        return ProjectCustomizer.Category.create(CUSTOMIZER_IDENT, "Laravel Blade", null,
-                subcategories.toArray(new ProjectCustomizer.Category[subcategories.size()]));
+        return ProjectCustomizer.Category.create(CUSTOMIZER_IDENT, NbBundle.getMessage(BladeSettingsCustomizerProvider.class, "LBL_LaravelBlade"), null,
+                subcategories.toArray(new ProjectCustomizer.Category[0]));
     }
 
     @Override

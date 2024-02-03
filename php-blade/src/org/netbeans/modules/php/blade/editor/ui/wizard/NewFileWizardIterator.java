@@ -26,11 +26,8 @@ public class NewFileWizardIterator implements WizardDescriptor.InstantiatingIter
 
     WizardDescriptor wizard;
     private WizardDescriptor.Panel<WizardDescriptor> wizardPanel;
-    // used in a background thread in instantiate() method
-    private volatile BottomPanel bottomPanel;
 
     private NewFileWizardIterator() {
-
     }
 
     @TemplateRegistration(folder = "Blade", category = "PHP",
@@ -45,7 +42,7 @@ public class NewFileWizardIterator implements WizardDescriptor.InstantiatingIter
 
     @Override
     public Set<FileObject> instantiate() throws IOException {
-        getBottomPanel().save();
+  //      getBottomPanel().save();
 
         FileObject dir = Templates.getTargetFolder(wizard);
         FileObject template = Templates.getTemplate(wizard);
@@ -67,7 +64,6 @@ public class NewFileWizardIterator implements WizardDescriptor.InstantiatingIter
     public void uninitialize(WizardDescriptor wizard) {
         this.wizard = null;
         wizardPanel = null;
-        bottomPanel = null;
     }
 
     @Override
@@ -77,7 +73,7 @@ public class NewFileWizardIterator implements WizardDescriptor.InstantiatingIter
 
     @Override
     public String name() {
-        return ""; // NOI18N
+        return "new php file wizaed"; // NOI18N
     }
 
     @Override
@@ -92,41 +88,25 @@ public class NewFileWizardIterator implements WizardDescriptor.InstantiatingIter
 
     @Override
     public void nextPanel() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public void previousPanel() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public void addChangeListener(ChangeListener listener) {
-        getBottomPanel().addChangeListener(listener);
     }
 
     @Override
     public void removeChangeListener(ChangeListener listener) {
-        getBottomPanel().removeChangeListener(listener);
     }
 
-    private BottomPanel getBottomPanel() {
-        if (bottomPanel != null) {
-            return bottomPanel;
-        }
-
-        bottomPanel = BottomPanel.EMPTY;
-
-        return bottomPanel;
-    }
 
     private WizardDescriptor.Panel<WizardDescriptor> createWizardPanel() {
         Project project = getProject();
         assert project != null;
-        // #233484
-        //ensureProperTargetFolder(project);
         return Templates.buildSimpleTargetChooser(project, getSourceGroups(project))
-                .bottomPanel(getBottomPanel())
                 .create();
     }
 
@@ -137,52 +117,6 @@ public class NewFileWizardIterator implements WizardDescriptor.InstantiatingIter
 
     private Project getProject() {
         return Templates.getProject(wizard);
-    }
-
-    private interface BottomPanel extends WizardDescriptor.Panel<WizardDescriptor> {
-
-        BottomPanel EMPTY = new EmptyBottomPanel();
-
-        void save() throws IOException;
-    }
-
-    private static final class EmptyBottomPanel implements BottomPanel {
-
-        @Override
-        public Component getComponent() {
-            return new JPanel();
-        }
-
-        @Override
-        public HelpCtx getHelp() {
-            return null;
-        }
-
-        @Override
-        public void readSettings(WizardDescriptor settings) {
-        }
-
-        @Override
-        public void storeSettings(WizardDescriptor settings) {
-        }
-
-        @Override
-        public boolean isValid() {
-            return true;
-        }
-
-        @Override
-        public void addChangeListener(ChangeListener l) {
-        }
-
-        @Override
-        public void removeChangeListener(ChangeListener l) {
-        }
-
-        @Override
-        public void save() throws IOException {
-        }
-
     }
 
 }

@@ -59,97 +59,118 @@ public final class BladeProjectProperties {
 
     private static final BladeProjectProperties INSTANCE = new BladeProjectProperties();
     private static final String BLADE_VERSION = "blade.version"; // NOI18N
-    private static final String COMPILER_PATH_LIST = "compiler.path.list";
+    private static final String DIRECTIVE_CUSTOMIZER_PATH_LIST = "directive_customizer.path.list";
     private static final String VIEW_PATH_LIST = "views.path.list";
     private static final String AUTO_FORMATTING = "auto.formatting";
     public Project project;
+
+    DefaultListModel<String> directiveCustomizerPathList = new DefaultListModel();
 
     private BladeProjectProperties() {
     }
 
     public static BladeProjectProperties getInstance(Project project) {
-        if (INSTANCE.project == null || INSTANCE.project != project){
+        if (INSTANCE.project == null || INSTANCE.project != project) {
             INSTANCE.project = project;
+            INSTANCE.initModelsFromPreferences();
+
         }
         return INSTANCE;
     }
-    
+
     public static BladeProjectProperties getInstance() {
         return INSTANCE;
     }
 
     private Preferences getPreferences() {
-        if (project != null){
+        if (project != null) {
             return ProjectUtils.getPreferences(project, this.getClass(), false);
         }
         return NbPreferences.forModule(this.getClass());
     }
 
-    public void setCompilerPathList(DefaultListModel<String> list){
-        String includePath = UiOptionsUtils.encodeToStrings(list.elements());
-        getPreferences().put(COMPILER_PATH_LIST, includePath);
+    private void initModelsFromPreferences() {
+        directiveCustomizerPathList = createModelForDirectiveCusomizerPathList();
+    }
+
+    public void storeDirectiveCustomizerPaths() {
+        String includePath = UiOptionsUtils.encodeToStrings(directiveCustomizerPathList.elements());
+        getPreferences().put(DIRECTIVE_CUSTOMIZER_PATH_LIST, includePath);
     }
     
-    public void setEnableAutoFormatting(boolean status){
+    public void addDirectiveCustomizerPath(String path){
+        directiveCustomizerPathList.addElement(path);
+    }
+    
+    
+    public void removeCustomizerPath(int index){
+        directiveCustomizerPathList.remove(index);
+    }
+
+    public void setEnableAutoFormatting(boolean status) {
         getPreferences().putBoolean(AUTO_FORMATTING, status);
     }
-    
-    public void setViewsPathList(DefaultListModel<String> list){
+
+    public void setViewsPathList(DefaultListModel<String> list) {
         String includePath = UiOptionsUtils.encodeToStrings(list.elements());
         getPreferences().put(VIEW_PATH_LIST, includePath);
     }
-    
-    public DefaultListModel<String> getModelCompilerPathList(){
-        return getModelPathList(COMPILER_PATH_LIST);
+
+    public DefaultListModel<String> createModelForDirectiveCusomizerPathList() {
+        return creatModelFromPreferences(DIRECTIVE_CUSTOMIZER_PATH_LIST);
     }
-    
-    public DefaultListModel<String> getModelViewsPathList(){
-        return getModelPathList(VIEW_PATH_LIST);
+
+    public DefaultListModel<String> getModelForDirectiveCusomizerPathList() {
+        return directiveCustomizerPathList;
     }
-    
-    private DefaultListModel<String> getModelPathList(String pathName){
+
+    public DefaultListModel<String> getModelViewsPathList() {
+        return creatModelFromPreferences(VIEW_PATH_LIST);
+    }
+
+    private DefaultListModel<String> creatModelFromPreferences(String pathName) {
         DefaultListModel<String> model = new DefaultListModel<>();
         String encodedCompilerPathList = getPreferences().get(pathName, null);
         String[] paths;
 
-        if (encodedCompilerPathList != null){
+        if (encodedCompilerPathList != null) {
             paths = encodedCompilerPathList.split("\\|", -1);
         } else {
             return model;
         }
-        if (paths.length == 0){
+        if (paths.length == 0) {
             return model;
         }
-        
-        for (String path : paths){
+
+        for (String path : paths) {
             model.addElement(path);
         }
-        
+
         return model;
     }
-    
-    public String[] getCompilerPathList(){
-        String encodedCompilerPathList = getPreferences().get(COMPILER_PATH_LIST, null);
+
+    public String[] getCompilerPathList() {
+        String encodedCompilerPathList = getPreferences().get(DIRECTIVE_CUSTOMIZER_PATH_LIST, null);
         String[] paths = new String[]{};
-        if (encodedCompilerPathList != null){
+        if (encodedCompilerPathList != null) {
             return encodedCompilerPathList.split("\\|", -1);
         }
         return paths;
     }
-    
-    public String[] getViewsPathList(){
+
+    public String[] getViewsPathList() {
         String encodedCompilerPathList = getPreferences().get(VIEW_PATH_LIST, null);
         String[] paths = new String[]{};
-        if (encodedCompilerPathList != null){
+        if (encodedCompilerPathList != null) {
             return encodedCompilerPathList.split("\\|", -1);
         }
         return paths;
     }
-    
+
     public boolean isAutoFormattingEnabled() {
         return getPreferences().getBoolean(AUTO_FORMATTING, false);
     }
-    
+
     public void addPreferenceChangeListener(PreferenceChangeListener preferenceChangeListener) {
         getPreferences().addPreferenceChangeListener(preferenceChangeListener);
     }

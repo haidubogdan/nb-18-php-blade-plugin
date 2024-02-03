@@ -19,25 +19,26 @@ public class BladeDirectives extends javax.swing.JPanel {
 
     private final ChangeSupport changeSupport = new ChangeSupport(this);
     private final Project project;
+    BladeProjectProperties bladeProperties;
 
     /**
      * Creates new form CustomizerIncludePath
+     * @param project
      */
     public BladeDirectives(Project project) {
         this.project = project;
+        bladeProperties = BladeProjectProperties.getInstance(project);
         initComponents();
         init();
     }
 
     private void init() {
+        customDirectivePathList.setModel(bladeProperties.createModelForDirectiveCusomizerPathList());
     }
 
     public void storeData() {
-        if (customDirectivePathList.getModel() instanceof DefaultListModel) {
-            DefaultListModel pathModel = (DefaultListModel) customDirectivePathList.getModel();
-            BladeProjectProperties.getInstance(project).setCompilerPathList(pathModel);
-            CustomDirectives.resetInstance(project);
-        }
+        BladeProjectProperties.getInstance(project).storeDirectiveCustomizerPaths();
+        CustomDirectives.resetInstance(project);
     }
 
     public void addChangeListener(ChangeListener listener) {
@@ -70,7 +71,6 @@ public class BladeDirectives extends javax.swing.JPanel {
             }
         });
 
-        customDirectivePathList.setModel(org.netbeans.modules.php.blade.project.BladeProjectProperties.getInstance(project).getModelCompilerPathList());
         jScrollPane1.setViewportView(customDirectivePathList);
 
         org.openide.awt.Mnemonics.setLocalizedText(removePathButton, org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.removePathButton.text_1")); // NOI18N
@@ -123,17 +123,15 @@ public class BladeDirectives extends javax.swing.JPanel {
                 .forceUseOfDefaultWorkingDirectory(true)
                 .showOpenDialog();
         if (sources != null) {
-            DefaultListModel pathModel = (DefaultListModel) customDirectivePathList.getModel();
             //TODO validate the path if it has directives
-            pathModel.addElement(FileUtil.normalizeFile(sources).getAbsolutePath());
+            bladeProperties.addDirectiveCustomizerPath(FileUtil.normalizeFile(sources).getAbsolutePath());
         }
     }//GEN-LAST:event_compilerPathFileButtonActionPerformed
 
     private void removePathButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removePathButtonActionPerformed
         int index = customDirectivePathList.getSelectedIndex();
         if (index > -1) {
-            DefaultListModel pathModel = (DefaultListModel) customDirectivePathList.getModel();
-            pathModel.remove(index);
+            bladeProperties.removeCustomizerPath(index);
         }
 
     }//GEN-LAST:event_removePathButtonActionPerformed
