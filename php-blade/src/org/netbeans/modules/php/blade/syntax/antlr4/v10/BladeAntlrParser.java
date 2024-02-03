@@ -257,12 +257,6 @@ public class BladeAntlrParser extends Parser {
 		public Block_statementContext block_statement() {
 			return getRuleContext(Block_statementContext.class,0);
 		}
-		public TerminalNode BLADE_COMMENT_START() { return getToken(BladeAntlrParser.BLADE_COMMENT_START, 0); }
-		public TerminalNode BLADE_COMMENT_END() { return getToken(BladeAntlrParser.BLADE_COMMENT_END, 0); }
-		public List<TerminalNode> BLADE_COMMENT() { return getTokens(BladeAntlrParser.BLADE_COMMENT); }
-		public TerminalNode BLADE_COMMENT(int i) {
-			return getToken(BladeAntlrParser.BLADE_COMMENT, i);
-		}
 		public HtmlContext html() {
 			return getRuleContext(HtmlContext.class,0);
 		}
@@ -283,11 +277,10 @@ public class BladeAntlrParser extends Parser {
 	public final General_statementContext general_statement() throws RecognitionException {
 		General_statementContext _localctx = new General_statementContext(_ctx, getState());
 		enterRule(_localctx, 2, RULE_general_statement);
-		int _la;
 		try {
-			setState(139);
+			setState(131);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,2,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,1,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
@@ -306,29 +299,6 @@ public class BladeAntlrParser extends Parser {
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(130);
-				match(BLADE_COMMENT_START);
-				setState(134);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				while (_la==BLADE_COMMENT) {
-					{
-					{
-					setState(131);
-					match(BLADE_COMMENT);
-					}
-					}
-					setState(136);
-					_errHandler.sync(this);
-					_la = _input.LA(1);
-				}
-				setState(137);
-				match(BLADE_COMMENT_END);
-				}
-				break;
-			case 4:
-				enterOuterAlt(_localctx, 4);
-				{
-				setState(138);
 				html();
 				}
 				break;
@@ -359,6 +329,12 @@ public class BladeAntlrParser extends Parser {
 		public PhpInlineContext phpInline() {
 			return getRuleContext(PhpInlineContext.class,0);
 		}
+		public TerminalNode BLADE_COMMENT_START() { return getToken(BladeAntlrParser.BLADE_COMMENT_START, 0); }
+		public TerminalNode BLADE_COMMENT_END() { return getToken(BladeAntlrParser.BLADE_COMMENT_END, 0); }
+		public List<TerminalNode> BLADE_COMMENT() { return getTokens(BladeAntlrParser.BLADE_COMMENT); }
+		public TerminalNode BLADE_COMMENT(int i) {
+			return getToken(BladeAntlrParser.BLADE_COMMENT, i);
+		}
 		public Inline_statementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -376,6 +352,7 @@ public class BladeAntlrParser extends Parser {
 	public final Inline_statementContext inline_statement() throws RecognitionException {
 		Inline_statementContext _localctx = new Inline_statementContext(_ctx, getState());
 		enterRule(_localctx, 4, RULE_inline_statement);
+		int _la;
 		try {
 			setState(145);
 			_errHandler.sync(this);
@@ -405,29 +382,52 @@ public class BladeAntlrParser extends Parser {
 			case D_CUSTOM:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(141);
+				setState(133);
 				inline_directive();
 				}
 				break;
 			case ESCAPED_ECHO_START:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(142);
+				setState(134);
 				echo();
 				}
 				break;
 			case NE_ECHO_START:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(143);
+				setState(135);
 				echo_ne();
 				}
 				break;
 			case PHP_INLINE:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(144);
+				setState(136);
 				phpInline();
+				}
+				break;
+			case BLADE_COMMENT_START:
+				enterOuterAlt(_localctx, 5);
+				{
+				setState(137);
+				match(BLADE_COMMENT_START);
+				setState(141);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while (_la==BLADE_COMMENT) {
+					{
+					{
+					setState(138);
+					match(BLADE_COMMENT);
+					}
+					}
+					setState(143);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
+				setState(144);
+				match(BLADE_COMMENT_END);
 				}
 				break;
 			default:
@@ -4906,9 +4906,9 @@ public class BladeAntlrParser extends Parser {
 		"2\u00072\u00023\u00073\u00024\u00074\u00025\u00075\u00026\u00076\u0002"+
 		"7\u00077\u00028\u00078\u00029\u00079\u0002:\u0007:\u0002;\u0007;\u0001"+
 		"\u0000\u0005\u0000z\b\u0000\n\u0000\f\u0000}\t\u0000\u0001\u0000\u0001"+
-		"\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0005\u0001\u0085"+
-		"\b\u0001\n\u0001\f\u0001\u0088\t\u0001\u0001\u0001\u0001\u0001\u0003\u0001"+
-		"\u008c\b\u0001\u0001\u0002\u0001\u0002\u0001\u0002\u0001\u0002\u0003\u0002"+
+		"\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0003\u0001\u0084\b\u0001\u0001"+
+		"\u0002\u0001\u0002\u0001\u0002\u0001\u0002\u0001\u0002\u0001\u0002\u0005"+
+		"\u0002\u008c\b\u0002\n\u0002\f\u0002\u008f\t\u0002\u0001\u0002\u0003\u0002"+
 		"\u0092\b\u0002\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003"+
 		"\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003"+
 		"\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003"+
@@ -4987,7 +4987,7 @@ public class BladeAntlrParser extends Parser {
 		"\u000e\u0010\u0012\u0014\u0016\u0018\u001a\u001c\u001e \"$&(*,.02468:"+
 		"<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtv\u0000\u0006\u0001\u0000NO\u0002\u0000"+
 		"669;\u0002\u0000--//\u0002\u0000\u0001\u0002gj\u0002\u0000\u0002\u0003"+
-		"\r\r\u0001\u0000)*\u0307\u0000{\u0001\u0000\u0000\u0000\u0002\u008b\u0001"+
+		"\r\r\u0001\u0000)*\u0307\u0000{\u0001\u0000\u0000\u0000\u0002\u0083\u0001"+
 		"\u0000\u0000\u0000\u0004\u0091\u0001\u0000\u0000\u0000\u0006\u00ad\u0001"+
 		"\u0000\u0000\u0000\b\u00ea\u0001\u0000\u0000\u0000\n\u00ee\u0001\u0000"+
 		"\u0000\u0000\f\u00f0\u0001\u0000\u0000\u0000\u000e\u00f3\u0001\u0000\u0000"+
@@ -5017,18 +5017,18 @@ public class BladeAntlrParser extends Parser {
 		"xz\u0003\u0002\u0001\u0000yx\u0001\u0000\u0000\u0000z}\u0001\u0000\u0000"+
 		"\u0000{y\u0001\u0000\u0000\u0000{|\u0001\u0000\u0000\u0000|~\u0001\u0000"+
 		"\u0000\u0000}{\u0001\u0000\u0000\u0000~\u007f\u0005\u0000\u0000\u0001"+
-		"\u007f\u0001\u0001\u0000\u0000\u0000\u0080\u008c\u0003\u0004\u0002\u0000"+
-		"\u0081\u008c\u0003\b\u0004\u0000\u0082\u0086\u0005]\u0000\u0000\u0083"+
-		"\u0085\u0005\u0014\u0000\u0000\u0084\u0083\u0001\u0000\u0000\u0000\u0085"+
-		"\u0088\u0001\u0000\u0000\u0000\u0086\u0084\u0001\u0000\u0000\u0000\u0086"+
-		"\u0087\u0001\u0000\u0000\u0000\u0087\u0089\u0001\u0000\u0000\u0000\u0088"+
-		"\u0086\u0001\u0000\u0000\u0000\u0089\u008c\u0005t\u0000\u0000\u008a\u008c"+
-		"\u0003v;\u0000\u008b\u0080\u0001\u0000\u0000\u0000\u008b\u0081\u0001\u0000"+
-		"\u0000\u0000\u008b\u0082\u0001\u0000\u0000\u0000\u008b\u008a\u0001\u0000"+
-		"\u0000\u0000\u008c\u0003\u0001\u0000\u0000\u0000\u008d\u0092\u0003\u0006"+
-		"\u0003\u0000\u008e\u0092\u0003F#\u0000\u008f\u0092\u0003H$\u0000\u0090"+
-		"\u0092\u0003D\"\u0000\u0091\u008d\u0001\u0000\u0000\u0000\u0091\u008e"+
-		"\u0001\u0000\u0000\u0000\u0091\u008f\u0001\u0000\u0000\u0000\u0091\u0090"+
+		"\u007f\u0001\u0001\u0000\u0000\u0000\u0080\u0084\u0003\u0004\u0002\u0000"+
+		"\u0081\u0084\u0003\b\u0004\u0000\u0082\u0084\u0003v;\u0000\u0083\u0080"+
+		"\u0001\u0000\u0000\u0000\u0083\u0081\u0001\u0000\u0000\u0000\u0083\u0082"+
+		"\u0001\u0000\u0000\u0000\u0084\u0003\u0001\u0000\u0000\u0000\u0085\u0092"+
+		"\u0003\u0006\u0003\u0000\u0086\u0092\u0003F#\u0000\u0087\u0092\u0003H"+
+		"$\u0000\u0088\u0092\u0003D\"\u0000\u0089\u008d\u0005]\u0000\u0000\u008a"+
+		"\u008c\u0005\u0014\u0000\u0000\u008b\u008a\u0001\u0000\u0000\u0000\u008c"+
+		"\u008f\u0001\u0000\u0000\u0000\u008d\u008b\u0001\u0000\u0000\u0000\u008d"+
+		"\u008e\u0001\u0000\u0000\u0000\u008e\u0090\u0001\u0000\u0000\u0000\u008f"+
+		"\u008d\u0001\u0000\u0000\u0000\u0090\u0092\u0005t\u0000\u0000\u0091\u0085"+
+		"\u0001\u0000\u0000\u0000\u0091\u0086\u0001\u0000\u0000\u0000\u0091\u0087"+
+		"\u0001\u0000\u0000\u0000\u0091\u0088\u0001\u0000\u0000\u0000\u0091\u0089"+
 		"\u0001\u0000\u0000\u0000\u0092\u0005\u0001\u0000\u0000\u0000\u0093\u00ae"+
 		"\u0003\f\u0006\u0000\u0094\u00ae\u0003\u000e\u0007\u0000\u0095\u00ae\u0003"+
 		",\u0016\u0000\u0096\u00ae\u0003.\u0017\u0000\u0097\u00ae\u00032\u0019"+
@@ -5348,7 +5348,7 @@ public class BladeAntlrParser extends Parser {
 		"\u0001\u0000\u0000\u0000\u02bau\u0001\u0000\u0000\u0000\u02bb\u02bd\u0005"+
 		"\u0013\u0000\u0000\u02bc\u02bb\u0001\u0000\u0000\u0000\u02bd\u02be\u0001"+
 		"\u0000\u0000\u0000\u02be\u02bc\u0001\u0000\u0000\u0000\u02be\u02bf\u0001"+
-		"\u0000\u0000\u0000\u02bfw\u0001\u0000\u0000\u0000J{\u0086\u008b\u0091"+
+		"\u0000\u0000\u0000\u02bfw\u0001\u0000\u0000\u0000J{\u0083\u008d\u0091"+
 		"\u00ad\u00b7\u00c4\u00cc\u00d5\u00de\u00ea\u00ee\u00fa\u00fc\u0106\u010f"+
 		"\u0118\u011b\u0122\u0125\u012b\u012e\u0137\u013f\u0145\u014d\u014f\u0158"+
 		"\u0161\u016c\u0176\u0178\u0191\u0195\u01a0\u01a9\u01ab\u01b4\u01be\u01c7"+

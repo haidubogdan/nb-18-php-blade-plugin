@@ -15,6 +15,9 @@ java.lang.AssertionError: token:org.netbeans.lib.lexer.token.DefaultToken@6d99d6
 ...
 ```
 
+Comment doesn't work if two types of embeddings are found.
+for directives we need to surround the PHP_EXPRESSION with pure blade mime elements
+
 ## Variable completion
 
 Variable completion from controller will not be implemented as it's a bit difficult and it needs more time
