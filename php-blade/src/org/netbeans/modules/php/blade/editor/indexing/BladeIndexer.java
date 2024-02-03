@@ -44,10 +44,12 @@ public class BladeIndexer extends EmbeddingIndexer {
 
     @Override
     protected void index(Indexable indxbl, Parser.Result result, Context context) {
-        if (!(result instanceof BladeParserResult)){
+        BladeParserResult parserResult;
+        if (result instanceof BladeParserResult) {
+            parserResult = (BladeParserResult) result;
+        } else {
             return;
         }
-        BladeParserResult parserResult = (BladeParserResult) result;
 
         //we have errors
         if (!parserResult.getDiagnostics().isEmpty()) {
@@ -123,7 +125,7 @@ public class BladeIndexer extends EmbeddingIndexer {
             String rootPath = root.getPath();
             if (filePath.startsWith(rootPath)) {
                 String bladeFormatPath = filePath.replace(rootPath, "").replace(".blade.php", "").replace("/", ".");
-                if (bladeFormatPath.startsWith(".")){
+                if (bladeFormatPath.startsWith(".")) {
                     bladeFormatPath = bladeFormatPath.substring(1, bladeFormatPath.length());
                 }
                 document.addPair(BLADE_PATH, bladeFormatPath, true, true);

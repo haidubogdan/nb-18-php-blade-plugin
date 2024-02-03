@@ -30,11 +30,13 @@ public class BladeCommentHandler extends CommentHandler.DefaultCommentHandler {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public int[] getAdjustedBlocks(final Document doc, int from, int to) {
         final int[] bounds = new int[]{from, to};
 
         Runnable task = new Runnable() {
             @Override
+            @SuppressWarnings("rawtypes")
             public void run() {
                 TokenHierarchy th = TokenHierarchy.get(doc);
                 TokenSequence<?> ts = th.tokenSequence();

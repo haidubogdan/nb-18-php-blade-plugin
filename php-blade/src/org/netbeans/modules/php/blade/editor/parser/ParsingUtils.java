@@ -256,6 +256,7 @@ public class ParsingUtils {
         }
 
         //deprecated
+        @SuppressWarnings("deprecation")
         @Override
         public void setImportant(boolean bln) {
             //
@@ -282,6 +283,7 @@ public class ParsingUtils {
         }
 
         //deprecated
+        @SuppressWarnings("deprecation")
         @Override
         public boolean isReadOnly() {
             return true;

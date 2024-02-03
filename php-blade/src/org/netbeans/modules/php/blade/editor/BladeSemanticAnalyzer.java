@@ -18,7 +18,7 @@ import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
  *
  * @author bhaidu
  */
-public class BladeSemanticAnalyzer extends SemanticAnalyzer {
+public class BladeSemanticAnalyzer extends SemanticAnalyzer<BladeParserResult> {
 
     private boolean cancelled;
     public static final EnumSet<ColoringAttributes> UNDEFINED_FIELD_SET = EnumSet.of(ColoringAttributes.UNDEFINED, ColoringAttributes.METHOD);
@@ -53,14 +53,13 @@ public class BladeSemanticAnalyzer extends SemanticAnalyzer {
     }
 
     @Override
-    public void run(Result result, SchedulerEvent event) {
+    public void run(BladeParserResult parserResult, SchedulerEvent event) {
         resume();
 
         if (isCancelled()) {
             return;
         }
 
-        BladeParserResult parserResult = (BladeParserResult) result;
         Map<OffsetRange, Set<ColoringAttributes>> highlights
                 = new HashMap<OffsetRange, Set<ColoringAttributes>>(100);
 

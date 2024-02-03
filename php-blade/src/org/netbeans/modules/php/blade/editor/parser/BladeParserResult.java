@@ -44,8 +44,9 @@ import org.openide.util.Exceptions;
 /**
  *
  * @author bhaidu
+ * @param <T>
  */
-public class BladeParserResult<T extends Parser> extends ParserResult {
+public class BladeParserResult extends ParserResult {
 
     public final List<Error> errors = new ArrayList<>();
     public final Map<String, Reference> references = new TreeMap<>();

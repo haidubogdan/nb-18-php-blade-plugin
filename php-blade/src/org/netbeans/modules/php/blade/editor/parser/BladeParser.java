@@ -29,14 +29,14 @@ public class BladeParser extends org.netbeans.modules.parsing.spi.Parser {
 
     @Override
     public void parse(Snapshot snapshot, Task task, SourceModificationEvent event) throws ParseException {
-        BladeParserResult<?> parserResult = createParserResult(snapshot);
+        BladeParserResult parserResult = createParserResult(snapshot);
 
-        BladeParserResult<?> parsed = parserResult.get();
+        BladeParserResult parsed = parserResult.get();
         cacheResult(snapshot.getSource().getFileObject(), parsed);
         lastResult = parsed;
     }
     
-    private static void cacheResult(FileObject fo, BladeParserResult<?> result) {
+    private static void cacheResult(FileObject fo, BladeParserResult result) {
         synchronized (CACHE) {
             CACHE.put(fo, new WeakReference<>(result));
         }
@@ -56,12 +56,12 @@ public class BladeParser extends org.netbeans.modules.parsing.spi.Parser {
     public void removeChangeListener(ChangeListener changeListener) {
     }
 
-    protected BladeParserResult<?> createParserResult(Snapshot snapshot) {
+    protected BladeParserResult createParserResult(Snapshot snapshot) {
         return new BladeParserResult(snapshot);
     }
 
-    public static BladeParserResult<?> getParserResult(FileObject fo) {
-        BladeParserResult<?> result = null;
+    public static BladeParserResult getParserResult(FileObject fo) {
+        BladeParserResult result = null;
         java.lang.ref.Reference<BladeParserResult> ceReference;
         synchronized (CACHE) {
             ceReference = CACHE.get(fo);
@@ -72,7 +72,7 @@ public class BladeParser extends org.netbeans.modules.parsing.spi.Parser {
 
         if (result == null) {
             try {
-                BladeParserResult<?>[] parserResult = new BladeParserResult<?>[1];
+                BladeParserResult[] parserResult = new BladeParserResult[1];
                 ParserManager.parse(Collections.singleton(Source.create(fo)), new UserTask() {
                     @Override
                     public void run(ResultIterator resultIterator) throws Exception {

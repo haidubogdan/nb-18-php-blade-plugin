@@ -16,9 +16,10 @@ import org.openide.util.ChangeSupport;
  * @author bhaidu
  */
 public class BladeDirectives extends javax.swing.JPanel {
-    
+
     private final ChangeSupport changeSupport = new ChangeSupport(this);
     private final Project project;
+
     /**
      * Creates new form CustomizerIncludePath
      */
@@ -27,19 +28,22 @@ public class BladeDirectives extends javax.swing.JPanel {
         initComponents();
         init();
     }
-    
-    private void init(){
+
+    private void init() {
     }
-         
-    public void storeData(){
-        DefaultListModel pathModel = (DefaultListModel) customDirectivePathList.getModel();
-        BladeProjectProperties.getInstance(project).setCompilerPathList(pathModel);
-        CustomDirectives.resetInstance(project);
+
+    public void storeData() {
+        if (customDirectivePathList.getModel() instanceof DefaultListModel) {
+            DefaultListModel pathModel = (DefaultListModel) customDirectivePathList.getModel();
+            BladeProjectProperties.getInstance(project).setCompilerPathList(pathModel);
+            CustomDirectives.resetInstance(project);
+        }
     }
-    
+
     public void addChangeListener(ChangeListener listener) {
         changeSupport.addChangeListener(listener);
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -131,7 +135,7 @@ public class BladeDirectives extends javax.swing.JPanel {
             DefaultListModel pathModel = (DefaultListModel) customDirectivePathList.getModel();
             pathModel.remove(index);
         }
-        
+
     }//GEN-LAST:event_removePathButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -70,6 +70,7 @@ import org.netbeans.modules.php.blade.editor.lexer.BladeTokenId;
 import org.netbeans.modules.php.blade.editor.lexer.BladeTokenId.BladeLanguageHierarchy;
 import org.netbeans.modules.php.blade.editor.navigator.BladeStructureScanner;
 import org.netbeans.modules.php.blade.editor.parser.BladeParser;
+import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 
 /**
  *
@@ -96,7 +97,8 @@ import org.netbeans.modules.php.blade.editor.parser.BladeParser;
     @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.SaveAsTemplateAction"), path = ACTIONS, position = 1100, separatorAfter = 1200),
     @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.FileSystemAction"), path = ACTIONS, position = 1300, separatorAfter = 1400),
     @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.ToolsAction"), path = ACTIONS, position = 1500),
-    @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"), path = ACTIONS, position = 1600)
+    @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"), path = ACTIONS, position = 1600),
+    @ActionReference(id = @ActionID(category = "TemplateActions", id = "org.netbeans.modules.php.blade.editor.actions.FindUsage"), path = ACTIONS, position = 1800)     
 })
 public class BladeLanguage extends DefaultLanguageConfig {
 
@@ -128,15 +130,11 @@ public class BladeLanguage extends DefaultLanguageConfig {
     }
 
     @Override
-    public boolean hasStructureScanner() {
-        return true;
-    }
-
-    @Override
     public StructureScanner getStructureScanner() {
         return new BladeStructureScanner();
     }
 
+    @Override
     public CodeCompletionHandler getCompletionHandler() {
         return new BladeCompletionHandler();
     }
@@ -243,7 +241,8 @@ public class BladeLanguage extends DefaultLanguageConfig {
     }
 
     @Override
-    public SemanticAnalyzer getSemanticAnalyzer() {
+    @SuppressWarnings("rawtypes")
+    public SemanticAnalyzer<BladeParserResult> getSemanticAnalyzer() {
         return new BladeSemanticAnalyzer();
     }
 }
