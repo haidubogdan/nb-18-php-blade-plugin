@@ -32,6 +32,14 @@ public class QueryUtils {
         return bladeIndex.getStacksIndexedReferences(prefix);
     }
     
+    public static List<BladeIndex.IndexedOffsetReference> getIncludePathReferences(String prefix, FileObject fo) {
+        BladeIndex bladeIndex = getIndex(fo);
+        if (bladeIndex == null) {
+            return null;
+        }
+        return bladeIndex.getIncludePaths(prefix);
+    }
+    
     public static BladeIndex getIndex(FileObject fo) {
         Project project = FileOwnerQuery.getOwner(fo);
         try {

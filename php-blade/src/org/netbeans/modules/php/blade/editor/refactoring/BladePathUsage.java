@@ -1,4 +1,3 @@
-
 package org.netbeans.modules.php.blade.editor.refactoring;
 
 import java.io.IOException;
@@ -21,9 +20,12 @@ import org.netbeans.api.editor.document.LineDocumentUtils;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
+import org.netbeans.modules.php.blade.editor.indexing.BladeIndex.IndexedOffsetReference;
+import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParser;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
+import org.netbeans.modules.php.blade.editor.path.PathUtils;
 
 import org.netbeans.modules.refactoring.api.AbstractRefactoring;
 import org.netbeans.modules.refactoring.api.Problem;
@@ -45,17 +47,17 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author bogdan
  */
-public class Usage {
+public class BladePathUsage {
 
     private static final class WhereUsedRefactoringPlugin implements RefactoringPlugin {
 
         private final WhereUsedQuery query;
-        private final SymbolInformation indexedReference;
+        private final BladePathInfo bladeFileReference;
         private final AtomicBoolean cancel = new AtomicBoolean();
 
-        public WhereUsedRefactoringPlugin(WhereUsedQuery query, SymbolInformation symbolInformation) {
+        public WhereUsedRefactoringPlugin(WhereUsedQuery query, BladePathInfo bladeFileReference) {
             this.query = query;
-            this.indexedReference = symbolInformation;
+            this.bladeFileReference = bladeFileReference;
         }
 
         @Override
@@ -81,98 +83,52 @@ public class Usage {
         @Override
         public Problem prepare(RefactoringElementsBag refactoringElements) {
             try {
-                String name = this.indexedReference.getName().replace(".blade", "");
-                FileObject sourceFO = this.indexedReference.getSourceFile();
-                Map<FileObject, Set<FileObject>> includes = new HashMap<>();
+                FileObject sourceFO = this.bladeFileReference.getSourceFile();
 
-                if (BladeLanguage.MIME_TYPE.equals(sourceFO.getMIMEType())) {
-                    FileObject parent = sourceFO.getParent();
-                    for (FileObject cf : parent.getChildren()) {
-                        if (cancel.get()) {
-                            throw new CancellationException();
-                        }
-                        if (BladeLanguage.MIME_TYPE.equals(cf.getMIMEType())) {
-                            BladeParserResult result = BladeParser.getParserResult(cf);
-                            int x = 1;
-                            result.includeFilePaths.forEach(s -> {
-                                FileObject referencedFO = parent.getFileObject(s + ".blade.php");
-                                if (referencedFO != null) {
-                                    includes.computeIfAbsent(cf, cd2 -> new HashSet<>())
-                                            .add(referencedFO);
-                                }
-                            });
-                        }
-                    }
+                if (!BladeLanguage.MIME_TYPE.equals(sourceFO.getMIMEType())) {
+                    return null;
                 }
 
-                List<FileObject> toScan = new ArrayList<>();
-                Set<FileObject> scannedFileObjects = new HashSet<>();
-
-                toScan.add(sourceFO);
-
-                while (!toScan.isEmpty()) {
+                List<IndexedOffsetReference> references = QueryUtils.getIncludePathReferences(this.bladeFileReference.getBladePath(), sourceFO);
+                Map<FileObject, Set<FileObject>> includes = new HashMap<>();
+                for (IndexedOffsetReference reference : references) {
                     if (cancel.get()) {
                         throw new CancellationException();
                     }
+                    FileObject root = PathUtils.extractRootPath(sourceFO);
+//                    includes.computeIfAbsent(root, cd2 -> new HashSet<>())
+//                            .add(reference.getOriginFile());
+                    PositionBounds bounds;
+                    FileObject fo = reference.getOriginFile();
+                    int start = reference.getStart();
+                    int end = start + reference.getReference().length();
+                    try {
+                        CloneableEditorSupport es = fo.getLookup().lookup(CloneableEditorSupport.class);
+                        EditorCookie ec = fo.getLookup().lookup(EditorCookie.class);
+                        StyledDocument doc = ec.openDocument();
+                        LineDocument ldoc = (LineDocument) doc;
 
-                    FileObject fo = toScan.remove(0);
-                    if (scannedFileObjects.contains(fo)) {
-                        continue;
-                    }
-                    scannedFileObjects.add(fo);
+                        int rowStart = LineDocumentUtils.getLineStart(ldoc, start);
+                        int rowEnd = LineDocumentUtils.getLineEnd(ldoc, end);
 
-                    BladeParserResult result = BladeParser.getParserResult(fo);
+                        bounds = new PositionBounds(
+                                es.createPositionRef(start, Position.Bias.Forward),
+                                es.createPositionRef(end, Position.Bias.Forward)
+                        );
 
-                    Reference ref = result.references.get(name);
-
-                    TreeSet<OffsetRange> ranges = new TreeSet<>();
-
-                    if (ref != null) {
-                        if (ref.defOffset != null) {
-                            ranges.add(ref.defOffset);
-                        }
-                    }
-                    ranges.addAll(result.getOccurrences(name));
-
-                    for (OffsetRange or : ranges) {
-                        PositionBounds bounds;
-                        try {
-                            CloneableEditorSupport es = fo.getLookup().lookup(CloneableEditorSupport.class);
-                            EditorCookie ec = fo.getLookup().lookup(EditorCookie.class);
-                            StyledDocument doc = ec.openDocument();
-                            LineDocument ldoc = (LineDocument) doc;
-
-                            int rowStart = LineDocumentUtils.getLineStart(ldoc, or.getStart());
-                            int rowEnd = LineDocumentUtils.getLineEnd(ldoc, or.getEnd());
-
-                            bounds = new PositionBounds(
-                                    es.createPositionRef(or.getStart(), Position.Bias.Forward),
-                                    es.createPositionRef(or.getEnd(), Position.Bias.Forward)
-                            );
-
-                            String lineText = doc.getText(rowStart, rowEnd - rowStart);
-                            String annotatedLine
-                                    = lineText.substring(0, or.getStart() - rowStart)
-                                    + "<strong>"
-                                    + lineText.substring(or.getStart() - rowStart, or.getEnd() - rowStart)
-                                    + "</strong>"
-                                    + lineText.substring(or.getEnd() - rowStart);
-                            refactoringElements.add(query, new BladeRefactoringElementImpl(annotatedLine, fo, bounds));
-                        } catch (BadLocationException | IOException ex) {
-                            Exceptions.printStackTrace(ex);
-                            bounds = null;
-                        }
-                    }
-
-                    toScan.addAll(includes.getOrDefault(fo, Collections.emptySet()));
-
-                    for (Entry<FileObject, Set<FileObject>> e : includes.entrySet()) {
-                        if (e.getValue().contains(fo)) {
-                            toScan.add(e.getKey());
-                        }
+                        String lineText = doc.getText(rowStart, rowEnd - rowStart);
+                        String annotatedLine
+                                = lineText.substring(0, start - rowStart)
+                                + "<strong>"
+                                + lineText.substring(start - rowStart, end - rowStart)
+                                + "</strong>"
+                                + lineText.substring(end - rowStart);
+                        refactoringElements.add(query, new BladeRefactoringElementImpl(annotatedLine, fo, bounds));
+                    } catch (BadLocationException | IOException ex) {
+                        Exceptions.printStackTrace(ex);
                     }
                 }
-
+                
                 return null;
             } catch (CancellationException ex) {
                 return new Problem(false, "Cancelled");
@@ -188,7 +144,7 @@ public class Usage {
         public RefactoringPlugin createInstance(AbstractRefactoring refactoring) {
             if (refactoring instanceof WhereUsedQuery) {
                 WhereUsedQuery q = (WhereUsedQuery) refactoring;
-                SymbolInformation symbolInformation = q.getRefactoringSource().lookup(SymbolInformation.class);
+                BladePathInfo symbolInformation = q.getRefactoringSource().lookup(BladePathInfo.class);
                 if (symbolInformation != null) {
                     return new WhereUsedRefactoringPlugin(q, symbolInformation);
                 }

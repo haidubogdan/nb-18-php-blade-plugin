@@ -7,7 +7,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
@@ -23,6 +25,23 @@ import org.openide.filesystems.FileUtil;
 public class PathUtils {
 
     private static final String LARAVEL_VIEW_PATH = "resources/views"; //NOI18N
+//
+//    private static final Map<Project, PathUtils> INSTANCES = new HashMap<>();
+//    
+//    private final Project project;
+//    
+//    private PathUtils(Project project) {
+//        this.project = project;
+//    }
+//
+//    public static PathUtils getInstance(Project project) {
+//        if (INSTANCES.containsKey(project)) {
+//            return INSTANCES.get(project);
+//        }
+//        PathUtils instance = new PathUtils(project);
+//        INSTANCES.put(project, instance);
+//        return instance;
+//    }
 
     public static FileObject extractRootPath(FileObject currentFile) {
         String currentFilepath = currentFile.getPath();
@@ -154,17 +173,24 @@ public class PathUtils {
 
     public static List<FileObject> getCustomViewsRoots(Project project, FileObject contextFile) {
         List<FileObject> list = new ArrayList<>();
+
+        FileObject defaultLaravelPath = project.getProjectDirectory().getFileObject(LARAVEL_VIEW_PATH);
+
+        if (defaultLaravelPath != null) {
+            list.add(defaultLaravelPath);
+        }
+
         String[] views = BladeProjectProperties.getInstance(project).getViewsPathList();
-        views = Arrays.stream(views).filter(s -> !s.isEmpty()).toArray(String[]::new);
-        Arrays.sort(views, (String s1, String s2) -> {
-            //clear empty configs
-            if (s1 == null || s2 == null) {
-                return 0;
-            }
-            return s2.length() - s1.length();// comparision
-        });
 
         if (views.length > 0) {
+            views = Arrays.stream(views).filter(s -> !s.isEmpty()).toArray(String[]::new);
+            Arrays.sort(views, (String s1, String s2) -> {
+                //clear empty configs
+                if (s1 == null || s2 == null) {
+                    return 0;
+                }
+                return s2.length() - s1.length();// comparision
+            });
             for (String view : views) {
                 if (view.length() == 0) {
                     continue;
@@ -176,21 +202,56 @@ public class PathUtils {
 
                 list.add(FileUtil.toFileObject(viewPath));
             }
-        } else {
-            //fallback to default
-            FileObject defaultLaravelPath = project.getProjectDirectory().getFileObject(LARAVEL_VIEW_PATH);
-            if (defaultLaravelPath != null) {
-                list.add(defaultLaravelPath);
-            }
         }
 
-        FileObject estimatedRoot = extractRootPath(contextFile);
-
-        if (estimatedRoot != null) {
-            list.add(estimatedRoot);
-        }
-
+//        FileObject estimatedRoot = extractRootPath(contextFile);
+//
+//        if (estimatedRoot != null) {
+//            list.add(estimatedRoot);
+//        }
         return list;
     }
 
+    public static String toBladePath(FileObject file) {
+        String path = null;
+        Project project = FileOwnerQuery.getOwner(file);
+
+        if (project == null) {
+            return path;
+        }
+
+        String filePath = file.getPath();
+        FileObject defaultLaravelPath = project.getProjectDirectory().getFileObject(LARAVEL_VIEW_PATH);
+
+        if (defaultLaravelPath != null) {
+            //belongs to the default folder
+            String viewFolderPath = defaultLaravelPath.getPath();
+            if (filePath.startsWith(viewFolderPath)) {
+                String bladePath =  filePath.replace(viewFolderPath, "").replace(".blade.php", "").replace("/", ".");
+                //starting slash
+                if (bladePath.startsWith(".")){
+                    bladePath = bladePath.substring(1, bladePath.length());
+                }
+                return bladePath;
+            }
+        }
+
+        String[] viewFolders = BladeProjectProperties.getInstance(project).getViewsPathList();
+
+        for (String viewFolder : viewFolders) {
+            if (viewFolder.length() == 0) {
+                continue;
+            }
+            File viewPath = new File(viewFolder);
+            if (!viewPath.exists()) {
+                continue;
+            }
+
+            if (filePath.startsWith(viewFolder)) {
+                return filePath.replace(viewFolder, "").replace(".blade.php", "").replace("/", ".");
+            }
+        }
+
+        return path;
+    }
 }

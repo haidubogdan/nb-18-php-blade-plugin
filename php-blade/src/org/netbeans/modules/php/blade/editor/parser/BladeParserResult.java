@@ -61,8 +61,6 @@ public class BladeParserResult extends ParserResult {
     public final Map<OffsetRange, String> phpConstantOccurences = new TreeMap<>();
     public final Map<OffsetRange, Reference> customDirectivesReferences = new TreeMap<>();
     public final Map<OffsetRange, Set<String>> scopedVariables = new TreeMap<>();
-
-    public final Set<String> includeFilePaths = new LinkedHashSet<>();
     public final List<BladeStructureItem> structure = new ArrayList<>();
     public final List<OffsetRange> folds = new ArrayList<>();
 
@@ -76,7 +74,7 @@ public class BladeParserResult extends ParserResult {
     public enum ReferenceType {
         YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION,
         SECTION_MISSING, USE, CUSTOM_DIRECTIVE, PHP_INLINE, PHP_BLADE,
-        PHP_FUNCTION, PHP_CLASS, PHP_CONSTANT
+        PHP_FUNCTION, PHP_CLASS, PHP_CONSTANT, TEMPLATE_PATH
     }
 
     public enum ParserContext {
@@ -231,7 +229,6 @@ public class BladeParserResult extends ParserResult {
                         break;
                     case INCLUDE:
                         markIncludeBladeOccurrence(bladeParamText, range);
-                        includeFilePaths.add(bladeParamText);
                         break;
                 }
             }

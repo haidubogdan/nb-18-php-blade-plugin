@@ -90,12 +90,12 @@ push : D_PUSH singleArgWrapper general_statement+ D_ENDPUSH;
 pushOnce : D_PUSH_ONCE singleArgWrapper general_statement+ D_ENDPUSH_ONCE;
 
 if : D_IF main_php_expression general_statement+ endif?;
-elseif : D_ELSEIF php_expression general_statement+ endif?;
+elseif : D_ELSEIF main_php_expression general_statement+ endif?;
 else : D_ELSE general_statement+ endif?;
 endif: D_ENDIF;
 
 //the consistency for these blocks need to be checked inside the parser
-conditional_block : D_COND_BLOCK_START php_expression general_statement+ D_COND_BLOCK_END;
+conditional_block : D_COND_BLOCK_START main_php_expression general_statement+ D_COND_BLOCK_END;
 auth_block : D_AUTH_START singleArgWrapper* general_statement+ D_AUTH_END;
 
 //no need to add complexity to parser

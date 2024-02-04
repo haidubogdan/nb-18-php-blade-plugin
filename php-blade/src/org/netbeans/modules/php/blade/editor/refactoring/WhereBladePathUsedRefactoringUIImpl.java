@@ -15,16 +15,16 @@ import org.openide.util.lookup.Lookups;
  *
  * @author bogdan
  */
-public class WhereUsedRefactoringUIImpl implements RefactoringUI {
-    private final SymbolInformation symbolInformation;
+public class WhereBladePathUsedRefactoringUIImpl implements RefactoringUI {
+    private final BladePathInfo symbolInformation;
 
-    public WhereUsedRefactoringUIImpl(SymbolInformation symbolInformation) {
+    public WhereBladePathUsedRefactoringUIImpl(BladePathInfo symbolInformation) {
         this.symbolInformation = symbolInformation;
     }
 
     @Override
     public String getName() {
-        return symbolInformation.getName();
+        return symbolInformation.getBladePath();
     }
 
     @Override
@@ -33,7 +33,7 @@ public class WhereUsedRefactoringUIImpl implements RefactoringUI {
         "DESC_Usages=Usages of {0}"
     })
     public String getDescription() {
-        return Bundle.DESC_Usages(symbolInformation.getName());
+        return Bundle.DESC_Usages(symbolInformation.getBladePath());
     }
 
     @Override

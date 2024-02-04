@@ -14,6 +14,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
+import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.parsing.api.indexing.IndexingManager;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexResult;
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
@@ -195,6 +196,29 @@ public class BladeIndex {
         return references;
     }
 
+    public List<IndexedOffsetReference> getIncludePaths(String prefix) {
+        List<IndexedOffsetReference> references = new ArrayList<>();
+        Collection<? extends IndexResult> result;
+        try {
+            result = querySupport.query(BladeIndexer.INCLUDE_PATH, prefix, QuerySupport.Kind.PREFIX, BladeIndexer.INCLUDE_PATH);
+
+            if (result == null || result.isEmpty()) {
+                return references;
+            }
+
+            for (IndexResult indexResult : result) {
+                String[] values = indexResult.getValues(BladeIndexer.INCLUDE_PATH);
+                for (String value : values) {
+                    Reference templatePathRef = BladeIndexer.extractTemplatePathDataFromIndex(value);
+                    references.add(new IndexedOffsetReference(templatePathRef.name, indexResult.getFile(), templatePathRef.defOffset));
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return references;
+    }
+
     /**
      * could be use for tree path layout
      *
@@ -329,6 +353,32 @@ public class BladeIndex {
 
         public FileObject getOriginFile() {
             return this.originFile;
+        }
+    }
+
+    public static class IndexedOffsetReference {
+
+        private final String identifier;
+        private final FileObject originFile;
+        private final OffsetRange range;
+
+        public IndexedOffsetReference(String identifier,
+                FileObject originFile, OffsetRange range) {
+            this.identifier = identifier;
+            this.originFile = originFile;
+            this.range = range;
+        }
+
+        public String getReference() {
+            return this.identifier;
+        }
+
+        public FileObject getOriginFile() {
+            return this.originFile;
+        }
+
+        public int getStart() {
+            return this.range.getStart();
         }
     }
 }

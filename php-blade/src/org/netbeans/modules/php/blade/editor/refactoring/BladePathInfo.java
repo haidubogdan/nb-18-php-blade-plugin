@@ -8,29 +8,29 @@ import org.openide.filesystems.FileObject;
  *
  * @author bogdan
  */
-public class SymbolInformation {
+public class BladePathInfo {
 
     private final FileObject sourceFile;
-    private final String name;
+    private final String bladePath;
 
-    public SymbolInformation(FileObject sourceFile, String name) {
+    public BladePathInfo(FileObject sourceFile, String bladePath) {
         this.sourceFile = sourceFile;
-        this.name = name;
+        this.bladePath = bladePath;
     }
 
     public FileObject getSourceFile() {
         return sourceFile;
     }
 
-    public String getName() {
-        return name;
+    public String getBladePath() {
+        return bladePath;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
         hash = 53 * hash + Objects.hashCode(this.sourceFile);
-        hash = 53 * hash + Objects.hashCode(this.name);
+        hash = 53 * hash + Objects.hashCode(this.bladePath);
         return hash;
     }
 
@@ -45,8 +45,8 @@ public class SymbolInformation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final SymbolInformation other = (SymbolInformation) obj;
-        if (!Objects.equals(this.name, other.name)) {
+        final BladePathInfo other = (BladePathInfo) obj;
+        if (!Objects.equals(this.bladePath, other.bladePath)) {
             return false;
         }
         return Objects.equals(this.sourceFile, other.sourceFile);

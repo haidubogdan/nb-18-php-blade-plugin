@@ -35,7 +35,7 @@ channels { COMMENT, PHP_CODE }
 
 //conditionals
 D_IF : '@if'->pushMode(LOOK_FOR_PHP_COMPOSED_EXPRESSION);
-D_ELSEIF : '@elseif'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_ELSEIF : '@elseif'->pushMode(LOOK_FOR_PHP_COMPOSED_EXPRESSION);
 D_ELSE : '@else';
 D_ENDIF : '@endif';
 D_SWITCH : '@switch'->pushMode(LOOK_FOR_PHP_EXPRESSION);
@@ -43,10 +43,10 @@ D_CASE : '@case'->pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_DEFAULT : '@default';
 D_ENDSWITCH : '@endswitch';
 
-D_EMPTY : '@empty'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_EMPTY : '@empty'->pushMode(LOOK_FOR_PHP_COMPOSED_EXPRESSION);
 D_ENDEMPTY : '@endempty';
 
-D_COND_BLOCK_START : ('@unless' | '@isset')->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_COND_BLOCK_START : ('@unless' | '@isset')->pushMode(LOOK_FOR_PHP_COMPOSED_EXPRESSION);
 D_COND_BLOCK_END : ('@endunless' | '@endisset');
 
 //loops

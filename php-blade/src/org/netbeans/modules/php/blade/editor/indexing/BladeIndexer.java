@@ -70,8 +70,8 @@ public class BladeIndexer extends EmbeddingIndexer {
                 storeStackReferences(parserResult.getStackReferences(), document);
             }
 
-            if (!parserResult.includeFilePaths.isEmpty()) {
-                storeIncludePaths(parserResult.includeFilePaths, document);
+            if (!parserResult.includeBladeOccurences.isEmpty()) {
+                storeIncludePathReferences(parserResult.includeBladeOccurences, document);
             }
 
             storeFilePathAsBladePath(parserResult.getSnapshot().getSource().getFileObject(), document);
@@ -107,6 +107,7 @@ public class BladeIndexer extends EmbeddingIndexer {
             Reference ref = entry.getValue();
             //used for completion
             document.addPair(STACK_ID, entry.getKey(), true, true);
+            //do we need end ??
             sb.append(entry.getKey()).append("#").append(ref.defOffset.getStart()).append(";").append(ref.defOffset.getEnd()); //NOI18N
             //used for declaration finder
             document.addPair(STACK_REFERENCE, sb.toString(), true, true);
@@ -152,12 +153,37 @@ public class BladeIndexer extends EmbeddingIndexer {
 
         return new Reference(ReferenceType.YIELD, name, new OffsetRange(start, end));
     }
+    
+    public static Reference extractTemplatePathDataFromIndex(String indexInfo) {
+        String[] mainElements = indexInfo.split("#");
 
-    private void storeIncludePaths(Set<String> paths, IndexDocument document) {
+        if (mainElements.length == 0) {
+            return null;
+        }
 
-        for (String path : paths) {
+        String name = mainElements[0];
+        String offsets[] = mainElements[1].split(";");
+        int start = 0;
+        int end = 1;
+
+        if (offsets.length > 0) {
+            start = Integer.parseInt(offsets[0]);
+            end = start + name.length();
+        }
+
+        return new Reference(ReferenceType.TEMPLATE_PATH, name, new OffsetRange(start, end));
+    }
+
+    private void storeIncludePathReferences(Map<String, List<OffsetRange>> includes, IndexDocument document) {
+        for (Map.Entry<String, List<OffsetRange>> entry : includes.entrySet()) {
             StringBuilder sb = new StringBuilder();
-            sb.append(path); //NOI18N
+
+            sb.append(entry.getKey()).append("#");
+            for (OffsetRange range : entry.getValue()){
+                sb.append(range.getStart()); //NOI18N
+                sb.append(";");//NOI18N
+            }
+
             document.addPair(INCLUDE_PATH, sb.toString(), true, true);
         }
     }

@@ -61,8 +61,8 @@ public class RefactoringActionsProvider extends ActionsImplementationProvider{
                     }
                 }
 
-                SymbolInformation si = new SymbolInformation(file, name);
-                UI.openRefactoringUI(new WhereUsedRefactoringUIImpl(si),
+                BladePathInfo si = new BladePathInfo(file, name);
+                UI.openRefactoringUI(new WhereBladePathUsedRefactoringUIImpl(si),
                                      TopComponent.getRegistry().getActivated());
             }
         };

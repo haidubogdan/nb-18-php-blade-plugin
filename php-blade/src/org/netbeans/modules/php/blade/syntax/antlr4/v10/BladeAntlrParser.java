@@ -1549,8 +1549,8 @@ public class BladeAntlrParser extends Parser {
 	@SuppressWarnings("CheckReturnValue")
 	public static class ElseifContext extends ParserRuleContext {
 		public TerminalNode D_ELSEIF() { return getToken(BladeAntlrParser.D_ELSEIF, 0); }
-		public Php_expressionContext php_expression() {
-			return getRuleContext(Php_expressionContext.class,0);
+		public Main_php_expressionContext main_php_expression() {
+			return getRuleContext(Main_php_expressionContext.class,0);
 		}
 		public List<General_statementContext> general_statement() {
 			return getRuleContexts(General_statementContext.class);
@@ -1585,7 +1585,7 @@ public class BladeAntlrParser extends Parser {
 			setState(285);
 			match(D_ELSEIF);
 			setState(286);
-			php_expression();
+			main_php_expression();
 			setState(288); 
 			_errHandler.sync(this);
 			_alt = 1;
@@ -1748,8 +1748,8 @@ public class BladeAntlrParser extends Parser {
 	@SuppressWarnings("CheckReturnValue")
 	public static class Conditional_blockContext extends ParserRuleContext {
 		public TerminalNode D_COND_BLOCK_START() { return getToken(BladeAntlrParser.D_COND_BLOCK_START, 0); }
-		public Php_expressionContext php_expression() {
-			return getRuleContext(Php_expressionContext.class,0);
+		public Main_php_expressionContext main_php_expression() {
+			return getRuleContext(Main_php_expressionContext.class,0);
 		}
 		public TerminalNode D_COND_BLOCK_END() { return getToken(BladeAntlrParser.D_COND_BLOCK_END, 0); }
 		public List<General_statementContext> general_statement() {
@@ -1782,7 +1782,7 @@ public class BladeAntlrParser extends Parser {
 			setState(306);
 			match(D_COND_BLOCK_START);
 			setState(307);
-			php_expression();
+			main_php_expression();
 			setState(309); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -5119,7 +5119,7 @@ public class BladeAntlrParser extends Parser {
 		"\u0000\u0119\u011b\u0001\u0000\u0000\u0000\u011a\u011c\u0003\u001c\u000e"+
 		"\u0000\u011b\u011a\u0001\u0000\u0000\u0000\u011b\u011c\u0001\u0000\u0000"+
 		"\u0000\u011c\u0017\u0001\u0000\u0000\u0000\u011d\u011e\u0005\u0016\u0000"+
-		"\u0000\u011e\u0120\u0003T*\u0000\u011f\u0121\u0003\u0002\u0001\u0000\u0120"+
+		"\u0000\u011e\u0120\u0003X,\u0000\u011f\u0121\u0003\u0002\u0001\u0000\u0120"+
 		"\u011f\u0001\u0000\u0000\u0000\u0121\u0122\u0001\u0000\u0000\u0000\u0122"+
 		"\u0120\u0001\u0000\u0000\u0000\u0122\u0123\u0001\u0000\u0000\u0000\u0123"+
 		"\u0125\u0001\u0000\u0000\u0000\u0124\u0126\u0003\u001c\u000e\u0000\u0125"+
@@ -5131,7 +5131,7 @@ public class BladeAntlrParser extends Parser {
 		"\u012f\u0003\u001c\u000e\u0000\u012e\u012d\u0001\u0000\u0000\u0000\u012e"+
 		"\u012f\u0001\u0000\u0000\u0000\u012f\u001b\u0001\u0000\u0000\u0000\u0130"+
 		"\u0131\u0005\u0018\u0000\u0000\u0131\u001d\u0001\u0000\u0000\u0000\u0132"+
-		"\u0133\u0005\u001f\u0000\u0000\u0133\u0135\u0003T*\u0000\u0134\u0136\u0003"+
+		"\u0133\u0005\u001f\u0000\u0000\u0133\u0135\u0003X,\u0000\u0134\u0136\u0003"+
 		"\u0002\u0001\u0000\u0135\u0134\u0001\u0000\u0000\u0000\u0136\u0137\u0001"+
 		"\u0000\u0000\u0000\u0137\u0135\u0001\u0000\u0000\u0000\u0137\u0138\u0001"+
 		"\u0000\u0000\u0000\u0138\u0139\u0001\u0000\u0000\u0000\u0139\u013a\u0005"+
