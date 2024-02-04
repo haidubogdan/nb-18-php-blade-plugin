@@ -89,6 +89,7 @@ D_ENDPUSH : '@endpush';
 D_PUSH_ONCE : '@pushOnce'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 D_ENDPUSH_ONCE : '@endPushOnce';
 D_PROPS : '@props'->pushMode(LOOK_FOR_PHP_EXPRESSION);
+D_LANG : '@lang'->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 
 //forms
 D_CSRF  : '@csrf';

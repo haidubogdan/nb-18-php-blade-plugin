@@ -50,6 +50,7 @@ inline_directive:
     | D_CASE php_expression
     | D_DEFAULT
     | loop_action
+    | D_LANG singleArgWrapper
     | custom_directive
     ;
 
@@ -65,7 +66,7 @@ block_statement:
     | switch
     | D_ENV  singleArgWrapper general_statement+ D_ENDENV
     | D_PRODUCTION general_statement+ D_ENDPRODUCTION
-    | D_EMPTY php_expression general_statement+ D_ENDEMPTY
+    | D_EMPTY main_php_expression general_statement+ D_ENDEMPTY
     | D_ERROR php_expression general_statement+ D_ENDERROR
     //we can consider the statements not being empty
     | conditional_block

@@ -94,7 +94,7 @@ D_AUTH : '@auth'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 D_JSON  : '@json'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 D_INJECT : '@inject'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 D_DD : '@dd'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
-
+D_PHP_SHORT : '@php' {this._input.LA(1) == '('}? ->type(D_PHP),pushMode(LOOK_FOR_PHP_EXPRESSION);
 D_PHP : '@php'->pushMode(BLADE_INLINE_PHP);
 
 D_VERBATIM : '@verbatim' ->pushMode(VERBATIM_MODE), type(DIRECTIVE);
