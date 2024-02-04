@@ -2,6 +2,8 @@ package org.netbeans.modules.php.blade.editor.parser;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +54,7 @@ public class BladeParserResult extends ParserResult {
     public final Map<String, Reference> references = new TreeMap<>();
     private final Map<String, Reference> yieldReferences = new TreeMap<>();
     private final Map<String, Reference> stackReferences = new TreeMap<>();
+    public final Map<String, List<OffsetRange>> includeBladeOccurences = new HashMap<>();
     public final Map<OffsetRange, Reference> occurancesForDeclaration = new TreeMap<>();
     public final Map<OffsetRange, String> phpClassOccurences = new TreeMap<>();
     public final Map<OffsetRange, String> phpFunctionOccurences = new TreeMap<>();
@@ -226,6 +229,10 @@ public class BladeParserResult extends ParserResult {
                     case STACK:
                         addStackReference(ReferenceType.STACK, bladeParamText, range);
                         break;
+                    case INCLUDE:
+                        markIncludeBladeOccurrence(bladeParamText, range);
+                        includeFilePaths.add(bladeParamText);
+                        break;
                 }
             }
         };
@@ -311,33 +318,34 @@ public class BladeParserResult extends ParserResult {
     private ParseTreeListener createPhpClassOccurencesListener() {
         return new BladeAntlrParserBaseListener() {
             /**
-             * handling isolated PHP_IDENTIFIER to reference them as possible constants
+             * handling isolated PHP_IDENTIFIER to reference them as possible
+             * constants
              */
             @Override
             public void exitComposed_php_expression(BladeAntlrParser.Composed_php_expressionContext ctx) {
-                if (ctx.PHP_IDENTIFIER() == null || ctx.PHP_IDENTIFIER().getSymbol() == null){
+                if (ctx.PHP_IDENTIFIER() == null || ctx.PHP_IDENTIFIER().getSymbol() == null) {
                     return;
                 }
                 String identifierString = ctx.PHP_IDENTIFIER().getSymbol().getText();
-                if (identifierString != null && org.netbeans.modules.php.blade.syntax.StringUtils.isUpperCase(identifierString)){
+                if (identifierString != null && org.netbeans.modules.php.blade.syntax.StringUtils.isUpperCase(identifierString)) {
                     OffsetRange range = new OffsetRange(ctx.PHP_IDENTIFIER().getSymbol().getStartIndex(), ctx.PHP_IDENTIFIER().getSymbol().getStopIndex() + 1);
                     phpConstantOccurences.put(range, identifierString);
                 }
             }
-            
+
             @Override
             public void exitStatic_direct_class_access(BladeAntlrParser.Static_direct_class_accessContext ctx) {
-                if (ctx.class_name == null || ctx.class_name.getText() == null){
+                if (ctx.class_name == null || ctx.class_name.getText() == null) {
                     return;
                 }
                 String functionName = ctx.class_name.getText();
                 OffsetRange range = new OffsetRange(ctx.class_name.getStartIndex(), ctx.class_name.getStopIndex() + 1);
                 phpClassOccurences.put(range, functionName);
             }
-            
+
             @Override
             public void exitFunction_call(BladeAntlrParser.Function_callContext ctx) {
-                if (ctx.func_name == null || ctx.func_name.getText() == null){
+                if (ctx.func_name == null || ctx.func_name.getText() == null) {
                     return;
                 }
                 String functionName = ctx.func_name.getText();
@@ -453,9 +461,9 @@ public class BladeParserResult extends ParserResult {
 
     /**
      * might move to a model all these processing
-     * 
+     *
      * @param offset
-     * @return 
+     * @return
      */
     public Reference findOccuredRefrence(int offset) {
 
@@ -473,7 +481,7 @@ public class BladeParserResult extends ParserResult {
             }
         }
 
-        for (Map.Entry<OffsetRange, String> entry : phpFunctionOccurences.entrySet()){
+        for (Map.Entry<OffsetRange, String> entry : phpFunctionOccurences.entrySet()) {
             OffsetRange range = entry.getKey();
 
             if (offset < range.getStart()) {
@@ -485,8 +493,8 @@ public class BladeParserResult extends ParserResult {
                 return new Reference(ReferenceType.PHP_FUNCTION, entry.getValue(), range);
             }
         }
-        
-        for (Map.Entry<OffsetRange, String> entry : phpClassOccurences.entrySet()){
+
+        for (Map.Entry<OffsetRange, String> entry : phpClassOccurences.entrySet()) {
             OffsetRange range = entry.getKey();
 
             if (offset < range.getStart()) {
@@ -498,8 +506,8 @@ public class BladeParserResult extends ParserResult {
                 return new Reference(ReferenceType.PHP_CLASS, entry.getValue(), range);
             }
         }
-        
-        for (Map.Entry<OffsetRange, String> entry : phpConstantOccurences.entrySet()){
+
+        for (Map.Entry<OffsetRange, String> entry : phpConstantOccurences.entrySet()) {
             OffsetRange range = entry.getKey();
 
             if (offset < range.getStart()) {
@@ -511,8 +519,20 @@ public class BladeParserResult extends ParserResult {
                 return new Reference(ReferenceType.PHP_CONSTANT, entry.getValue(), range);
             }
         }
-        
+
         return null;
+    }
+
+    protected final void markIncludeBladeOccurrence(String refName, OffsetRange or) {
+        includeBladeOccurences.computeIfAbsent(refName, s -> new ArrayList<>()).add(or);
+    }
+
+    public Collection<? extends OffsetRange> getOccurrences(String refName) {
+        ArrayList<OffsetRange> ret = new ArrayList<>();
+        if (includeBladeOccurences.containsKey(refName)) {
+            ret.addAll(includeBladeOccurences.get(refName));
+        }
+        return ret;
     }
 
     public Set<String> findVariablesForScope(int offset) {
@@ -550,13 +570,7 @@ public class BladeParserResult extends ParserResult {
 
             @Override
             public void enterFile(BladeAntlrParser.FileContext ctx) {
-//                BladeIndex index = getIndex();
-//                if (index == null) {
-//                    return;
-//                }
-//                String fileName = getFileObject().getName().replace(".blade", "");
-//                //maybe move in index ??
-//                index.getFileObjectPathOccurences(fileName);
+
             }
 
             @Override

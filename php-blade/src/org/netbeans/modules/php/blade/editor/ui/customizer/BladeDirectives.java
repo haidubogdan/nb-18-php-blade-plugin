@@ -2,7 +2,7 @@ package org.netbeans.modules.php.blade.editor.ui.customizer;
 
 import java.awt.EventQueue;
 import java.io.File;
-import javax.swing.DefaultListModel;
+import javax.swing.ListModel;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
@@ -33,11 +33,12 @@ public class BladeDirectives extends javax.swing.JPanel {
     }
 
     private void init() {
-        customDirectivePathList.setModel(bladeProperties.createModelForDirectiveCusomizerPathList());
+        //the model reference is enough
+        customDirectivePathList.setModel(bladeProperties.getModelForDirectiveCusomizerPathList());
     }
 
     public void storeData() {
-        BladeProjectProperties.getInstance(project).storeDirectiveCustomizerPaths();
+        bladeProperties.storeDirectiveCustomizerPaths();
         CustomDirectives.resetInstance(project);
     }
 

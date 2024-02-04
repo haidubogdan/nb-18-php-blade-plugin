@@ -6,10 +6,12 @@ package org.netbeans.modules.php.blade.editor.path;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.parsing.api.indexing.IndexingManager;
 import org.netbeans.modules.php.blade.project.BladeProjectProperties;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -25,7 +27,7 @@ public class PathUtils {
     public static FileObject extractRootPath(FileObject currentFile) {
         String currentFilepath = currentFile.getPath();
         int viewRootPos = currentFilepath.lastIndexOf("/views/");
-        if (viewRootPos< 0){
+        if (viewRootPos < 0) {
             return null;
         }
         String relativePath = currentFilepath.substring(viewRootPos);
@@ -190,4 +192,5 @@ public class PathUtils {
 
         return list;
     }
+
 }

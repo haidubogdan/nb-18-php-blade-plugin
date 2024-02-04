@@ -42,22 +42,13 @@
 package org.netbeans.modules.php.blade.editor.ui.customizer;
 
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Enumeration;
-import javax.swing.DefaultListModel;
-import javax.swing.JComboBox;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.parsing.api.indexing.IndexingManager;
+import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
+import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.project.BladeProjectProperties;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.filesystems.*;
@@ -77,25 +68,23 @@ public final class BladeOptionsPanel extends javax.swing.JPanel {
 
     private final ChangeSupport changeSupport = new ChangeSupport(this);
     private final Project project;
+    BladeProjectProperties bladeProperties;
 
     BladeOptionsPanel(Project project) {
         assert project != null;
         this.project = project;
+        bladeProperties = BladeProjectProperties.getInstance(project);
         initComponents();
-        
         init();
     }
     
     private void init(){
-
+        viewsPathList.setModel(bladeProperties.getModelViewsPathList());
     }
      
     public void storeData(){
-        BladeProjectProperties projectProperties = BladeProjectProperties.getInstance(project);
-                
-        DefaultListModel viewsPathModel = (DefaultListModel) viewsPathList.getModel();
-        projectProperties.setViewsPathList(viewsPathModel);
-        projectProperties.setEnableAutoFormatting(bladeAutoFormattingCheckbox.isSelected());
+        bladeProperties.storeViewsPaths();
+        bladeProperties.setEnableAutoFormatting(bladeAutoFormattingCheckbox.isSelected());
     }
       
     public void addChangeListener(ChangeListener listener) {
@@ -132,7 +121,6 @@ public final class BladeOptionsPanel extends javax.swing.JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(BladeOptionsPanel.class, "BladeOptionsPanel.jLabel1.text")); // NOI18N
         jLabel1.setToolTipText(org.openide.util.NbBundle.getMessage(BladeOptionsPanel.class, "BladeOptionsPanel.jLabel1.toolTipText")); // NOI18N
 
-        viewsPathList.setModel(org.netbeans.modules.php.blade.project.BladeProjectProperties.getInstance(project).getModelViewsPathList());
         jScrollPane1.setViewportView(viewsPathList);
 
         org.openide.awt.Mnemonics.setLocalizedText(addViewFolderButton, org.openide.util.NbBundle.getMessage(BladeOptionsPanel.class, "BladeOptionsPanel.addViewFolderButton.text")); // NOI18N
@@ -232,59 +220,20 @@ public final class BladeOptionsPanel extends javax.swing.JPanel {
                 .forceUseOfDefaultWorkingDirectory(true)
                 .showOpenDialog();
         if (sources != null) {
-            DefaultListModel pathModel = (DefaultListModel) viewsPathList.getModel();
             //TODO validate the path if it has blade files ?
-            pathModel.addElement(FileUtil.normalizeFile(sources).getAbsolutePath());
-        }        // TODO add your handling code here:
+            bladeProperties.addViewsPath(FileUtil.normalizeFile(sources).getAbsolutePath());
+        }
     }//GEN-LAST:event_addViewFolderButtonActionPerformed
 
     private void removeViewFolderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeViewFolderButtonActionPerformed
         int index = viewsPathList.getSelectedIndex();
         if (index > -1) {
-            DefaultListModel pathModel = (DefaultListModel) viewsPathList.getModel();
-            pathModel.remove(index);
+            bladeProperties.removeViewsPath(index);
         }
     }//GEN-LAST:event_removeViewFolderButtonActionPerformed
 
     private void reindexViewsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reindexViewsButtonActionPerformed
-        String[] views = BladeProjectProperties.getInstance(project).getViewsPathList();
-        
-        if (views.length > 0){
-            for (String view : views){
-                if (view.length() == 0){
-                    continue;
-                }
-                File viewPath = new File(view);
-                if (viewPath.exists()){
-                    FileObject fileObj = FileUtil.toFileObject(viewPath);
-                    Enumeration<? extends FileObject> children = fileObj.getChildren(true);
-                    while(children.hasMoreElements()){
-                        FileObject file = children.nextElement();
-                        String fileName = file.getName();
-                        if (file.isFolder()){
-                            continue;
-                        }
-                        IndexingManager.getDefault().refreshAllIndices(file);
-                        //IndexingManager.getDefault().refreshIndex(file.toURL(), null);
-                    }
-                }
-            }
-        } else {
-            //falback
-            String projectDir = project.getProjectDirectory().getPath().toString();
-            File viewPath = new File(projectDir + "/views");
-            if (viewPath.exists()){
-                FileObject fileObj = FileUtil.toFileObject(viewPath);
-                Enumeration<? extends FileObject> children = fileObj.getChildren(true);
-                while(children.hasMoreElements()){
-                    FileObject file = children.nextElement();
-                    IndexingManager.getDefault().refreshAllIndices(file);
-                    //IndexingManager.getDefault().refreshIndex(file.toURL(), null);
-                }
-                //it should be a recursive loop
-                
-            }
-        }
+        BladeIndex.reindexProjectViews(project);
     }//GEN-LAST:event_reindexViewsButtonActionPerformed
 
     private void reindexViewFolderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reindexViewFolderButtonActionPerformed
@@ -292,17 +241,7 @@ public final class BladeOptionsPanel extends javax.swing.JPanel {
         if (path != null && path.length() > 0) {
             File viewPath = new File(path);
             if (viewPath.exists()) {
-                FileObject fileObj = FileUtil.toFileObject(viewPath);
-                Enumeration<? extends FileObject> children = fileObj.getChildren(true);
-                while (children.hasMoreElements()) {
-                    FileObject file = children.nextElement();
-                    String fileName = file.getName();
-                    if (file.isFolder()) {
-                        continue;
-                    }
-                    IndexingManager.getDefault().refreshAllIndices(file);
-                    //IndexingManager.getDefault().refreshIndex(file.toURL(), null);
-                }
+                BladeIndex.reindexFolder(viewPath, project);
             }
         }
     }//GEN-LAST:event_reindexViewFolderButtonActionPerformed

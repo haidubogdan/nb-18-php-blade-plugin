@@ -1,9 +1,11 @@
 package org.netbeans.modules.php.blade.editor.indexing;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,10 +14,13 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
+import org.netbeans.modules.parsing.api.indexing.IndexingManager;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexResult;
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
+import org.netbeans.modules.php.blade.project.BladeProjectProperties;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
@@ -232,6 +237,61 @@ public class BladeIndex {
         }
 
         return fileObjectPathOccurences;
+    }
+
+    public static void reindexProjectViews(Project project) {
+        String[] views = BladeProjectProperties.getInstance(project).getViewsPathList();
+
+        if (views.length > 0) {
+            for (String view : views) {
+                if (view.length() == 0) {
+                    continue;
+                }
+                File viewPath = new File(view);
+                if (viewPath.exists()) {
+                    FileObject fileObj = FileUtil.toFileObject(viewPath);
+                    Enumeration<? extends FileObject> children = fileObj.getChildren(true);
+                    while (children.hasMoreElements()) {
+                        FileObject file = children.nextElement();
+                        String fileName = file.getName();
+                        if (file.isFolder()) {
+                            continue;
+                        }
+                        IndexingManager.getDefault().refreshAllIndices(file);
+                        //IndexingManager.getDefault().refreshIndex(file.toURL(), null);
+                    }
+                }
+            }
+        } else {
+            //falback
+            String projectDir = project.getProjectDirectory().getPath().toString();
+            File viewPath = new File(projectDir + "/views");
+            if (viewPath.exists()) {
+                FileObject fileObj = FileUtil.toFileObject(viewPath);
+                Enumeration<? extends FileObject> children = fileObj.getChildren(true);
+                while (children.hasMoreElements()) {
+                    FileObject file = children.nextElement();
+                    IndexingManager.getDefault().refreshAllIndices(file);
+                    //IndexingManager.getDefault().refreshIndex(file.toURL(), null);
+                }
+                //it should be a recursive loop
+
+            }
+        }
+    }
+
+    public static void reindexFolder(File viewPath, Project project) {
+        FileObject fileObj = FileUtil.toFileObject(viewPath);
+        Enumeration<? extends FileObject> children = fileObj.getChildren(true);
+        while (children.hasMoreElements()) {
+            FileObject file = children.nextElement();
+            String fileName = file.getName();
+            if (file.isFolder()) {
+                continue;
+            }
+            IndexingManager.getDefault().refreshAllIndices(file);
+            //IndexingManager.getDefault().refreshIndex(file.toURL(), null);
+        }
     }
 
     public static class IndexedReferenceId {

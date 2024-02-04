@@ -41,23 +41,28 @@
  */
 package org.netbeans.modules.php.blade.project;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
 import javax.swing.DefaultListModel;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.ui.customizer.UiOptionsUtils;
 //import org.netbeans.modules.php.blade.editor.actions.ToggleBlockCommentAction;
 import org.openide.util.NbPreferences;
 
 /**
  * @todo ADD NEW OPTION VALUES
+ * @todo use nodes for files
  *
  * @author Haidu Bogdan
  */
 public final class BladeProjectProperties {
 
-    private static final BladeProjectProperties INSTANCE = new BladeProjectProperties();
+    private static final Map<Project, BladeProjectProperties> INSTANCES = new HashMap<>();
     private static final String BLADE_VERSION = "blade.version"; // NOI18N
     private static final String DIRECTIVE_CUSTOMIZER_PATH_LIST = "directive_customizer.path.list";
     private static final String VIEW_PATH_LIST = "views.path.list";
@@ -65,21 +70,20 @@ public final class BladeProjectProperties {
     public Project project;
 
     DefaultListModel<String> directiveCustomizerPathList = new DefaultListModel();
+    DefaultListModel<String> viewsPathList = new DefaultListModel();
 
-    private BladeProjectProperties() {
+    private BladeProjectProperties(Project project) {
+        this.project = project;
+        initModelsFromPreferences();
     }
 
     public static BladeProjectProperties getInstance(Project project) {
-        if (INSTANCE.project == null || INSTANCE.project != project) {
-            INSTANCE.project = project;
-            INSTANCE.initModelsFromPreferences();
-
+        if (INSTANCES.containsKey(project)) {
+            return INSTANCES.get(project);
         }
-        return INSTANCE;
-    }
-
-    public static BladeProjectProperties getInstance() {
-        return INSTANCE;
+        BladeProjectProperties instance = new BladeProjectProperties(project);
+        INSTANCES.put(project, instance);
+        return instance;
     }
 
     private Preferences getPreferences() {
@@ -91,6 +95,7 @@ public final class BladeProjectProperties {
 
     private void initModelsFromPreferences() {
         directiveCustomizerPathList = createModelForDirectiveCusomizerPathList();
+        viewsPathList = createModelForViewsPathList();
     }
 
     public void storeDirectiveCustomizerPaths() {
@@ -98,13 +103,25 @@ public final class BladeProjectProperties {
         getPreferences().put(DIRECTIVE_CUSTOMIZER_PATH_LIST, includePath);
     }
     
-    public void addDirectiveCustomizerPath(String path){
+    public void storeViewsPaths() {
+        String includePath = UiOptionsUtils.encodeToStrings(viewsPathList.elements());
+        getPreferences().put(VIEW_PATH_LIST, includePath);
+    }
+
+    public void addDirectiveCustomizerPath(String path) {
         directiveCustomizerPathList.addElement(path);
     }
     
-    
-    public void removeCustomizerPath(int index){
+    public void addViewsPath(String path) {
+        viewsPathList.addElement(path);
+    }
+
+    public void removeCustomizerPath(int index) {
         directiveCustomizerPathList.remove(index);
+    }
+    
+    public void removeViewsPath(int index) {
+        viewsPathList.remove(index);
     }
 
     public void setEnableAutoFormatting(boolean status) {
@@ -119,13 +136,17 @@ public final class BladeProjectProperties {
     public DefaultListModel<String> createModelForDirectiveCusomizerPathList() {
         return creatModelFromPreferences(DIRECTIVE_CUSTOMIZER_PATH_LIST);
     }
+    
+    public DefaultListModel<String> createModelForViewsPathList() {
+        return creatModelFromPreferences(VIEW_PATH_LIST);
+    }
 
     public DefaultListModel<String> getModelForDirectiveCusomizerPathList() {
         return directiveCustomizerPathList;
     }
 
     public DefaultListModel<String> getModelViewsPathList() {
-        return creatModelFromPreferences(VIEW_PATH_LIST);
+        return viewsPathList;
     }
 
     private DefaultListModel<String> creatModelFromPreferences(String pathName) {

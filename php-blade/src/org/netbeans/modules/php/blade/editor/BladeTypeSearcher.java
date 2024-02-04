@@ -33,7 +33,8 @@ public class BladeTypeSearcher implements IndexSearcher {
     public Set<? extends Descriptor> getTypes(Project project, String textForQuery, Kind searchType, Helper helper) {
         Set<BladeTypeDescriptor> typeResults = new HashSet<>();
         if (project == null) {
-            project = BladeProjectProperties.getInstance().project;
+            //project = BladeProjectProperties.getInstance().project;
+            return typeResults;
         }
         if (project != null) {
             try {
