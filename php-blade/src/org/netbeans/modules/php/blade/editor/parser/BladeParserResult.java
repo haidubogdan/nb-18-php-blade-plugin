@@ -55,6 +55,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     public final Map<OffsetRange, String> phpClassOccurences = new TreeMap<>();
     public final Map<OffsetRange, String> phpFunctionOccurences = new TreeMap<>();
     public final Map<OffsetRange, String> phpConstantOccurences = new TreeMap<>();
+    public final Map<OffsetRange, ReferenceType> fieldCallType = new TreeMap<>();
     public final Map<OffsetRange, Reference> customDirectivesReferences = new TreeMap<>();
     public final Map<OffsetRange, Set<String>> scopedVariables = new TreeMap<>();
 
@@ -72,7 +73,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     public enum ReferenceType {
         YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION,
         SECTION_MISSING, USE, CUSTOM_DIRECTIVE, PHP_INLINE, PHP_BLADE,
-        PHP_FUNCTION, PHP_CLASS, PHP_CONSTANT
+        PHP_FUNCTION, PHP_CLASS, PHP_CONSTANT, STATIC_FIELD_ACCESS,
     }
 
     public enum ParserContext {
@@ -310,33 +311,36 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
     private ParseTreeListener createPhpClassOccurencesListener() {
         return new BladeAntlrParserBaseListener() {
             /**
-             * handling isolated PHP_IDENTIFIER to reference them as possible constants
+             * handling isolated PHP_IDENTIFIER to reference them as possible
+             * constants
              */
             @Override
             public void exitComposed_php_expression(BladeAntlrParser.Composed_php_expressionContext ctx) {
-                if (ctx.PHP_IDENTIFIER() == null || ctx.PHP_IDENTIFIER().getSymbol() == null){
+                if (ctx.PHP_IDENTIFIER() == null || ctx.PHP_IDENTIFIER().getSymbol() == null) {
                     return;
                 }
                 String identifierString = ctx.PHP_IDENTIFIER().getSymbol().getText();
-                if (identifierString != null && org.netbeans.modules.php.blade.syntax.StringUtils.isUpperCase(identifierString)){
+                if (identifierString != null && org.netbeans.modules.php.blade.syntax.StringUtils.isUpperCase(identifierString)) {
                     OffsetRange range = new OffsetRange(ctx.PHP_IDENTIFIER().getSymbol().getStartIndex(), ctx.PHP_IDENTIFIER().getSymbol().getStopIndex() + 1);
                     phpConstantOccurences.put(range, identifierString);
                 }
             }
-            
+
             @Override
             public void exitStatic_direct_class_access(BladeAntlrParser.Static_direct_class_accessContext ctx) {
-                if (ctx.class_name == null || ctx.class_name.getText() == null){
+                if (ctx.class_name == null || ctx.class_name.getText() == null) {
                     return;
                 }
                 String functionName = ctx.class_name.getText();
                 OffsetRange range = new OffsetRange(ctx.class_name.getStartIndex(), ctx.class_name.getStopIndex() + 1);
                 phpClassOccurences.put(range, functionName);
+                OffsetRange callRange = new OffsetRange(ctx.PHP_STATIC_ACCESS().getSymbol().getStartIndex(), ctx.static_property.getStopIndex());
+                fieldCallType.put(callRange, ReferenceType.STATIC_FIELD_ACCESS);
             }
-            
+
             @Override
             public void exitFunction_call(BladeAntlrParser.Function_callContext ctx) {
-                if (ctx.func_name == null || ctx.func_name.getText() == null){
+                if (ctx.func_name == null || ctx.func_name.getText() == null) {
                     return;
                 }
                 String functionName = ctx.func_name.getText();
@@ -452,9 +456,9 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
 
     /**
      * might move to a model all these processing
-     * 
+     *
      * @param offset
-     * @return 
+     * @return
      */
     public Reference findOccuredRefrence(int offset) {
 
@@ -472,7 +476,7 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
             }
         }
 
-        for (Map.Entry<OffsetRange, String> entry : phpFunctionOccurences.entrySet()){
+        for (Map.Entry<OffsetRange, String> entry : phpFunctionOccurences.entrySet()) {
             OffsetRange range = entry.getKey();
 
             if (offset < range.getStart()) {
@@ -484,8 +488,8 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
                 return new Reference(ReferenceType.PHP_FUNCTION, entry.getValue(), range);
             }
         }
-        
-        for (Map.Entry<OffsetRange, String> entry : phpClassOccurences.entrySet()){
+
+        for (Map.Entry<OffsetRange, String> entry : phpClassOccurences.entrySet()) {
             OffsetRange range = entry.getKey();
 
             if (offset < range.getStart()) {
@@ -497,8 +501,8 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
                 return new Reference(ReferenceType.PHP_CLASS, entry.getValue(), range);
             }
         }
-        
-        for (Map.Entry<OffsetRange, String> entry : phpConstantOccurences.entrySet()){
+
+        for (Map.Entry<OffsetRange, String> entry : phpConstantOccurences.entrySet()) {
             OffsetRange range = entry.getKey();
 
             if (offset < range.getStart()) {
@@ -510,7 +514,24 @@ public class BladeParserResult<T extends Parser> extends ParserResult {
                 return new Reference(ReferenceType.PHP_CONSTANT, entry.getValue(), range);
             }
         }
-        
+
+        return null;
+    }
+
+    public Reference findFieldAccessRefrence(int offset) {
+        for (Map.Entry<OffsetRange, ReferenceType> entry : fieldCallType.entrySet()) {
+            OffsetRange range = entry.getKey();
+
+            if (offset < range.getStart()) {
+                //excedeed the offset range
+                break;
+            }
+
+            if (range.containsInclusive(offset)) {
+                return new Reference(entry.getValue(), "", range);
+            }
+        }
+
         return null;
     }
 
