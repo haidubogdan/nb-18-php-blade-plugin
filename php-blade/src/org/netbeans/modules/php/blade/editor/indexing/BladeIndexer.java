@@ -192,7 +192,7 @@ public class BladeIndexer extends EmbeddingIndexer {
     public static class Factory extends EmbeddingIndexerFactory {
 
         public static final String NAME = "blade"; //NOI18N
-        public static final int VERSION = 1;
+        public static final int VERSION = 2;
 
         @Override
         public EmbeddingIndexer createIndexer(Indexable indxbl, Snapshot snapshot) {

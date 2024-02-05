@@ -32,6 +32,7 @@ import org.netbeans.modules.php.blade.editor.indexing.PhpIndexFunctionResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
+import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
 import org.netbeans.modules.php.blade.editor.parser.ParsingUtils;
 import org.netbeans.modules.php.blade.project.PhpProjectIndex;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
@@ -102,19 +103,28 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         if (prefix == null || prefix.length() == 1) {
             return;
         }
-
-        BladeParserResult.Reference reference = parserResult.findOccuredRefrence(offset);
-
-        if (reference == null) {
-            completePhpClasses(prefix, offset, completionProposals, parserResult);
-            completePhpFunctions(prefix, offset, completionProposals, parserResult);
+        
+        Reference fieldAccessReference = parserResult.findFieldAccessRefrence(offset);
+        
+        if (fieldAccessReference != null){
+            completeClassConstants(prefix, offset, completionProposals, parserResult);
             return;
         }
 
-        switch (reference.type) {
+        Reference elementReference = parserResult.findOccuredRefrence(offset);
+        
+        if (elementReference == null) {
+            completePhpClasses(prefix, offset, completionProposals, parserResult);
+            completePhpFunctions(prefix, offset, completionProposals, parserResult);
+            completeConstants(prefix, offset, completionProposals, parserResult);
+            return;
+        }
+
+        switch (elementReference.type) {
             case PHP_CONSTANT:
             case PHP_CLASS:
                 completePhpClasses(prefix, offset, completionProposals, parserResult);
+                completeConstants(prefix, offset, completionProposals, parserResult);
                 break;
         }
     }
@@ -153,7 +163,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             //to be completed
             //might add syntax completion cursor
             String completion = indexResult.name + "()";
-            String preview = indexResult.name + "(" + String.join(", ", indexResult.params) + ")";
+            String preview = indexResult.name + indexResult.getParamsAsString();
             NamedElement functionElement = new NamedElement(completion, indexResult.declarationFile, ElementType.PHP_FUNCTION);
             completionProposals.add(new BladeCompletionItem.FunctionItem(functionElement, request, preview));
         }
@@ -162,7 +172,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
     private void completeConstants(String prefix, int offset,
             final List<CompletionProposal> completionProposals,
             BladeParserResult parserResult) {
-        Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryClass(
+        Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryConstants(
                 parserResult.getSnapshot().getSource().getFileObject(), prefix);
         if (indexClassResults.isEmpty()) {
             return;
@@ -172,11 +182,28 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         request.carretOffset = offset;
         request.prefix = prefix;
         for (PhpIndexResult indexResult : indexClassResults) {
-            NamedElement classElement = new NamedElement(indexResult.name, indexResult.declarationFile, ElementType.PHP_CLASS);
-            completionProposals.add(new BladeCompletionItem.ClassItem(classElement, request, indexResult.name));
+            NamedElement constantElement = new NamedElement(indexResult.name, indexResult.declarationFile, ElementType.PHP_CONSTANT);
+            completionProposals.add(new BladeCompletionItem.ConstantItem(constantElement, request, indexResult.name));
         }
     }
     
+    private void completeClassConstants(String prefix, int offset,
+            final List<CompletionProposal> completionProposals,
+            BladeParserResult parserResult) {
+        Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryClassConstants(
+                parserResult.getSnapshot().getSource().getFileObject(), prefix);
+        if (indexClassResults.isEmpty()) {
+            return;
+        }
+        CompletionRequest request = new CompletionRequest();
+        request.anchorOffset = offset - prefix.length();
+        request.carretOffset = offset;
+        request.prefix = prefix;
+        for (PhpIndexResult indexResult : indexClassResults) {
+            NamedElement constantElement = new NamedElement(indexResult.name, indexResult.declarationFile, ElementType.PHP_CONSTANT);
+            completionProposals.add(new BladeCompletionItem.ConstantItem(constantElement, request, indexResult.name));
+        }
+    }
 
     private void completePhpSnippet(final List<CompletionProposal> completionProposals,
             int offset, Token currentToken) {

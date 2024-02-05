@@ -119,7 +119,8 @@ RAW_ECHO_START : '{!!' ->pushMode(RAW_ECHO);
 HTML_CLOSE_TAG : '<' '/'?  NameString [ ]* '>'->type(HTML); 
 
 //hack for the last unclosed tags
-UNCLOSED_TAG : '<' NameString [\r\n]+; 
+//to check if we still have this issue
+UNCLOSED_TAG : ('<' NameString [\r\n]+)->type(HTML); 
 
 LAST_NL : [\r\n]+ EOF; 
 

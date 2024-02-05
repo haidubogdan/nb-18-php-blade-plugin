@@ -373,9 +373,12 @@
             <public-packages>
                 <package>org.netbeans.modules.php.blade.csl.elements</package>
                 <package>org.netbeans.modules.php.blade.editor</package>
+                <package>org.netbeans.modules.php.blade.editor.actions</package>
                 <package>org.netbeans.modules.php.blade.editor.compiler</package>
                 <package>org.netbeans.modules.php.blade.editor.completion</package>
                 <package>org.netbeans.modules.php.blade.editor.directives</package>
+                <package>org.netbeans.modules.php.blade.editor.embedding</package>
+                <package>org.netbeans.modules.php.blade.editor.highlighting</package>
                 <package>org.netbeans.modules.php.blade.editor.indexing</package>
                 <package>org.netbeans.modules.php.blade.editor.lexer</package>
                 <package>org.netbeans.modules.php.blade.editor.navigator</package>

@@ -41,4 +41,9 @@ public class BladeAntrlColoringLexerTest extends BladeAntlrColoringLexerTestBase
     public void test_custom_directive_with_no_arg() throws Exception {
         performTest("coloring_lexer/custom_directive_with_no_arg.blade.php");
     }
+    
+    @Test
+    public void test_html_parsing_error() throws Exception {
+        performTest("coloring_lexer/html_lexer_error.blade.php");
+    }
 }

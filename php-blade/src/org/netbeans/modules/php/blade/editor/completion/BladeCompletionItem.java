@@ -6,8 +6,6 @@ package org.netbeans.modules.php.blade.editor.completion;
 import java.util.Collections;
 import java.util.Set;
 import javax.swing.ImageIcon;
-import org.netbeans.api.editor.EditorRegistry;
-import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.CompletionProposal;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.ElementKind;
@@ -15,7 +13,6 @@ import org.netbeans.modules.csl.api.HtmlFormatter;
 import org.netbeans.modules.csl.api.Modifier;
 
 import org.openide.filesystems.FileObject;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -23,13 +20,12 @@ import org.openide.util.ImageUtilities;
  */
 public class BladeCompletionItem implements CompletionProposal {
 
-    private static final String ICON_BASE = "org/netbeans/modules/php/blade/resources/";
     //@StaticResource
     final CompletionRequest request;
     private final ElementHandle element;
     final String previewValue;
 
-    BladeCompletionItem(ElementHandle element, CompletionRequest request, String previewValue) {
+    public BladeCompletionItem(ElementHandle element, CompletionRequest request, String previewValue) {
         this.element = element;
         this.request = request;
         this.previewValue = previewValue;
@@ -119,15 +115,10 @@ public class BladeCompletionItem implements CompletionProposal {
         return true;
     }
 
-    public static class ClassItem extends BladeCompletionItem {
+    public static class PhpElementItem extends BladeCompletionItem {
 
-        public ClassItem(ElementHandle element, CompletionRequest request, String previewValue) {
+        public PhpElementItem(ElementHandle element, CompletionRequest request, String previewValue) {
             super(element, request, previewValue);
-        }
-
-        @Override
-        public ElementKind getKind() {
-            return ElementKind.CLASS;
         }
 
         @Override
@@ -145,7 +136,20 @@ public class BladeCompletionItem implements CompletionProposal {
         }
     }
 
-    public static class FunctionItem extends BladeCompletionItem {
+    public static class ClassItem extends PhpElementItem {
+
+        public ClassItem(ElementHandle element, CompletionRequest request, String previewValue) {
+            super(element, request, previewValue);
+        }
+
+        @Override
+        public ElementKind getKind() {
+            return ElementKind.CLASS;
+        }
+
+    }
+
+    public static class FunctionItem extends PhpElementItem {
 
         public FunctionItem(ElementHandle element, CompletionRequest request, String previewValue) {
             super(element, request, previewValue);
@@ -156,19 +160,19 @@ public class BladeCompletionItem implements CompletionProposal {
             return ElementKind.METHOD;
         }
 
-        @Override
-        public String getRhsHtml(HtmlFormatter formatter) {
-            FileObject file = null;
-            if (this.getElement() != null) {
-                file = this.getElement().getFileObject();
-            }
-            if (file != null) {
-                formatter.reset();
-                formatter.appendText(" ");
-                formatter.appendText(file.getNameExt());
-            }
-            return formatter.getText();
+    }
+
+    public static class ConstantItem extends PhpElementItem {
+
+        public ConstantItem(ElementHandle element, CompletionRequest request, String previewValue) {
+            super(element, request, previewValue);
         }
+
+        @Override
+        public ElementKind getKind() {
+            return ElementKind.CONSTANT;
+        }
+
     }
 
     public static class VariableItem extends BladeCompletionItem {

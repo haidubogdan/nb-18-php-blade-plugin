@@ -22,4 +22,11 @@ public class PhpIndexFunctionResult extends PhpIndexResult {
         this.params = params;
     }
 
+    public String getParamsAsString() {
+        if (params == null || params.isEmpty()){
+            return "()";
+        }
+        return "(" + String.join(", ", params) + ")";
+    }
+
 }

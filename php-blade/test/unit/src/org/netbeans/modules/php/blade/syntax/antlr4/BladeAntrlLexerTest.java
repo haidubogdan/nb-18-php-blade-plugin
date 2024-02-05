@@ -66,4 +66,9 @@ public class BladeAntrlLexerTest extends BladeAntlrLexerTestBase {
     public void test_if_expr() throws Exception {
         performTest("lexer/if_expr.blade.php");
     }
+    
+    @Test
+    public void test_html_parsing_error() throws Exception {
+        performTest("lexer/html_parsing_error.blade.php");
+    }
 }

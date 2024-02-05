@@ -71,6 +71,10 @@ public class BladeAntlrColoringLexerTestBase extends NbTestCase {
                 case BLADE_PHP_INLINE:
                     result.append("BLADE_PHP_INLINE ");
                     break;
+                default:
+                   result.append(token.getType());
+                   result.append(" ");
+                   break;
             }
 
             String text = replaceLinesAndTabs(token.getText());

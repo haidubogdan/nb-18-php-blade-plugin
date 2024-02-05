@@ -46,7 +46,6 @@ import org.openide.util.Exceptions;
 /**
  *
  * @author bhaidu
- * @param <T>
  */
 public class BladeParserResult extends ParserResult {
 
@@ -60,6 +59,7 @@ public class BladeParserResult extends ParserResult {
     public final Map<OffsetRange, String> phpFunctionOccurences = new TreeMap<>();
     public final Map<OffsetRange, String> phpConstantOccurences = new TreeMap<>();
     public final Map<OffsetRange, Reference> customDirectivesReferences = new TreeMap<>();
+    public final Map<OffsetRange, ReferenceType> fieldCallType = new TreeMap<>();
     public final Map<OffsetRange, Set<String>> scopedVariables = new TreeMap<>();
     public final List<BladeStructureItem> structure = new ArrayList<>();
     public final List<OffsetRange> folds = new ArrayList<>();
@@ -74,7 +74,7 @@ public class BladeParserResult extends ParserResult {
     public enum ReferenceType {
         YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION,
         SECTION_MISSING, USE, CUSTOM_DIRECTIVE, PHP_INLINE, PHP_BLADE,
-        PHP_FUNCTION, PHP_CLASS, PHP_CONSTANT, TEMPLATE_PATH
+        PHP_FUNCTION, PHP_CLASS, PHP_CONSTANT, TEMPLATE_PATH, STATIC_FIELD_ACCESS
     }
 
     public enum ParserContext {
@@ -338,6 +338,8 @@ public class BladeParserResult extends ParserResult {
                 String functionName = ctx.class_name.getText();
                 OffsetRange range = new OffsetRange(ctx.class_name.getStartIndex(), ctx.class_name.getStopIndex() + 1);
                 phpClassOccurences.put(range, functionName);
+                OffsetRange callRange = new OffsetRange(ctx.PHP_STATIC_ACCESS().getSymbol().getStartIndex(), ctx.static_property.getStopIndex() + 1);
+                fieldCallType.put(callRange, ReferenceType.STATIC_FIELD_ACCESS);
             }
 
             @Override
@@ -514,6 +516,23 @@ public class BladeParserResult extends ParserResult {
 
             if (range.containsInclusive(offset)) {
                 return new Reference(ReferenceType.PHP_CONSTANT, entry.getValue(), range);
+            }
+        }
+
+        return null;
+    }
+
+    public Reference findFieldAccessRefrence(int offset) {
+        for (Map.Entry<OffsetRange, ReferenceType> entry : fieldCallType.entrySet()) {
+            OffsetRange range = entry.getKey();
+
+            if (offset < range.getStart()) {
+                //excedeed the offset range
+                break;
+            }
+
+            if (range.containsInclusive(offset)) {
+                return new Reference(entry.getValue(), "", range);
             }
         }
 
