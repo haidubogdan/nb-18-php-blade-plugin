@@ -28,6 +28,7 @@ import static org.netbeans.modules.php.blade.csl.elements.ElementType.*;
 import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.editor.BladeDeclarationFinder;
 import org.netbeans.modules.php.blade.editor.completion.BladeCompletionItem.CompletionRequest;
+import org.netbeans.modules.php.blade.editor.indexing.PhpIndexFunctionResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
@@ -147,7 +148,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
     private void completeFunctions(String prefix, int offset,
             final List<CompletionProposal> completionProposals,
             BladeParserResult parserResult) {
-        Collection<PhpIndexResult> indexFunctionResults = PhpIndexUtils.queryFunctions(
+        Collection<PhpIndexFunctionResult> indexFunctionResults = PhpIndexUtils.queryFunctions(
                 parserResult.getSnapshot().getSource().getFileObject(), prefix);
         if (indexFunctionResults.isEmpty()) {
             return;
@@ -156,9 +157,11 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         request.anchorOffset = offset - prefix.length();
         request.carretOffset = offset;
         request.prefix = prefix;
-        for (PhpIndexResult indexResult : indexFunctionResults) {
-            NamedElement classElement = new NamedElement(indexResult.name, indexResult.declarationFile, ElementType.PHP_CLASS);
-            completionProposals.add(new BladeCompletionItem.FunctionItem(classElement, request, indexResult.name));
+        for (PhpIndexFunctionResult indexResult : indexFunctionResults) {
+            String completion = indexResult.name + indexResult.getParamsAsString();
+            NamedElement functionElement = new NamedElement(indexResult.name, indexResult.declarationFile, ElementType.PHP_CLASS);
+            String preview = indexResult.name + " " + indexResult.getParamsAsString();
+            completionProposals.add(new BladeCompletionItem.FunctionItem(functionElement, request, preview));
         }
     }
 
