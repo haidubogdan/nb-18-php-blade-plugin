@@ -28,6 +28,7 @@ import static org.netbeans.modules.php.blade.csl.elements.ElementType.*;
 import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.editor.BladeDeclarationFinder;
 import org.netbeans.modules.php.blade.editor.completion.BladeCompletionItem.CompletionRequest;
+import org.netbeans.modules.php.blade.editor.indexing.PhpIndexFunctionResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
@@ -104,7 +105,13 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
 
         BladeParserResult.Reference reference = parserResult.findOccuredRefrence(offset);
 
-        switch (reference.type){
+        if (reference == null) {
+            completePhpClasses(prefix, offset, completionProposals, parserResult);
+            completePhpFunctions(prefix, offset, completionProposals, parserResult);
+            return;
+        }
+
+        switch (reference.type) {
             case PHP_CONSTANT:
             case PHP_CLASS:
                 completePhpClasses(prefix, offset, completionProposals, parserResult);
@@ -129,6 +136,47 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             completionProposals.add(new BladeCompletionItem.ClassItem(classElement, request, indexResult.name));
         }
     }
+
+    private void completePhpFunctions(String prefix, int offset,
+            final List<CompletionProposal> completionProposals,
+            BladeParserResult parserResult) {
+        Collection<PhpIndexFunctionResult> indexedFunctions = PhpIndexUtils.queryFunctions(
+                parserResult.getSnapshot().getSource().getFileObject(), prefix);
+        if (indexedFunctions.isEmpty()) {
+            return;
+        }
+        CompletionRequest request = new CompletionRequest();
+        request.anchorOffset = offset - prefix.length();
+        request.carretOffset = offset;
+        request.prefix = prefix;
+        for (PhpIndexFunctionResult indexResult : indexedFunctions) {
+            //to be completed
+            //might add syntax completion cursor
+            String completion = indexResult.name + "()";
+            String preview = indexResult.name + "(" + String.join(", ", indexResult.params) + ")";
+            NamedElement functionElement = new NamedElement(completion, indexResult.declarationFile, ElementType.PHP_FUNCTION);
+            completionProposals.add(new BladeCompletionItem.FunctionItem(functionElement, request, preview));
+        }
+    }
+
+    private void completeConstants(String prefix, int offset,
+            final List<CompletionProposal> completionProposals,
+            BladeParserResult parserResult) {
+        Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryClass(
+                parserResult.getSnapshot().getSource().getFileObject(), prefix);
+        if (indexClassResults.isEmpty()) {
+            return;
+        }
+        CompletionRequest request = new CompletionRequest();
+        request.anchorOffset = offset - prefix.length();
+        request.carretOffset = offset;
+        request.prefix = prefix;
+        for (PhpIndexResult indexResult : indexClassResults) {
+            NamedElement classElement = new NamedElement(indexResult.name, indexResult.declarationFile, ElementType.PHP_CLASS);
+            completionProposals.add(new BladeCompletionItem.ClassItem(classElement, request, indexResult.name));
+        }
+    }
+    
 
     private void completePhpSnippet(final List<CompletionProposal> completionProposals,
             int offset, Token currentToken) {

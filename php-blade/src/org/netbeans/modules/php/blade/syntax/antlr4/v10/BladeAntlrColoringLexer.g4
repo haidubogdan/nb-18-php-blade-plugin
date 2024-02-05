@@ -123,6 +123,8 @@ UNCLOSED_TAG : '<' NameString [\r\n]+;
 
 LAST_NL : [\r\n]+ EOF; 
 
+HTML_X : ('<x-' BladeLabel)->type(HTML),pushMode(INSIDE_HTML_COMPONENT_TAG);
+
 HTML : ~[<?@{!]+;
 
 OTHER : . ->type(HTML);
@@ -224,3 +226,21 @@ VERBATIM_HTML : . {
 VERBATIM_HTML_MORE : . ->more;
 
 EXIT_VERBATIM_MOD_EOF : EOF->type(ERROR),popMode;
+
+mode INSIDE_HTML_COMPONENT_TAG;
+
+COMPONENT_ATTRIBUTE : (':' NameString '="') ->type(HTML),pushMode(COMPONENT_PHP_EXPRESSION); 
+
+EXIT_HTML_COMPONENT : '>'->type(HTML), popMode;
+
+HTML_COMPONENT_ANY : . ->more;
+
+EXIT_HTML_COMPONENT_EOF : EOF->type(ERROR),popMode;
+
+mode COMPONENT_PHP_EXPRESSION;
+
+EXIT_COMPONENT_PHP_EXPRESSION : '"'->type(HTML), popMode;
+COMPONENT_PHP_EXPRESSION_LAST : . {this._input.LA(1) == '"'}? ->type(PHP_EXPRESSION);
+COMPONENT_PHP_EXPRESSION : . ->more;
+
+EXIT_COMPONENT_PHP_EXPRESSION_EOF : EOF->type(ERROR),popMode;

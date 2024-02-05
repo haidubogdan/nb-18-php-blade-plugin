@@ -145,6 +145,32 @@ public class BladeCompletionItem implements CompletionProposal {
         }
     }
 
+    public static class FunctionItem extends BladeCompletionItem {
+
+        public FunctionItem(ElementHandle element, CompletionRequest request, String previewValue) {
+            super(element, request, previewValue);
+        }
+
+        @Override
+        public ElementKind getKind() {
+            return ElementKind.METHOD;
+        }
+
+        @Override
+        public String getRhsHtml(HtmlFormatter formatter) {
+            FileObject file = null;
+            if (this.getElement() != null) {
+                file = this.getElement().getFileObject();
+            }
+            if (file != null) {
+                formatter.reset();
+                formatter.appendText(" ");
+                formatter.appendText(file.getNameExt());
+            }
+            return formatter.getText();
+        }
+    }
+
     public static class VariableItem extends BladeCompletionItem {
 
         public VariableItem(ElementHandle element, CompletionRequest request, String previewValue) {

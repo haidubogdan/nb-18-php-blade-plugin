@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexResult;
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
@@ -99,9 +100,9 @@ public class PhpIndexUtils {
         return results;
     }
 
-    public static Collection<PhpIndexResult> queryFunctions(FileObject fo, String prefix) {
+    public static Collection<PhpIndexFunctionResult> queryFunctions(FileObject fo, String prefix) {
         QuerySupport phpindex = QuerySupportFactory.get(fo);
-        Collection<PhpIndexResult> results = new ArrayList<>();
+        Collection<PhpIndexFunctionResult> results = new ArrayList<>();
         String queryPrefix = prefix.toLowerCase();
         try {
             Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_BASE, queryPrefix, QuerySupport.Kind.PREFIX, new String[]{PHPIndexer.FIELD_BASE});
@@ -114,9 +115,15 @@ public class PhpIndexUtils {
                     Signature sig = Signature.get(value);
                     String name = sig.string(1);
 
-                    if (name.length() > 0 && name.equals(prefix)) {
+                    if (name.length() > 0 && name.startsWith(prefix)) {
                         Integer offset = sig.integer(2);
-                        results.add(new PhpIndexResult(name, indexFile, PhpIndexResult.Type.FUNCTION, new OffsetRange(offset, offset + name.length())));
+                        String params = sig.string(3);
+                        results.add(new PhpIndexFunctionResult(
+                                name, indexFile,
+                                PhpIndexResult.Type.FUNCTION,
+                                new OffsetRange(offset, offset + name.length()),
+                                parseParameters(params)        
+                                ));
                     }
                 }
             }
@@ -206,4 +213,48 @@ public class PhpIndexUtils {
         }
         return results;
     }
+    
+        static List<String> parseParameters(final String signature) {
+        List<String> retval = new ArrayList<>();
+        if (signature != null && signature.length() > 0) {
+            final String regexp = String.format("\\%s", ","); //NOI18N
+
+            for (String sign : signature.split(regexp)) {
+                try {
+                    final String param = parseOneParameter(sign);
+                    if (param != null) {
+                        retval.add(param);
+                    }
+                } catch (NumberFormatException originalException) {
+                    final String message = String.format("%s [for signature: %s]", originalException.getMessage(), signature); //NOI18N
+                    final NumberFormatException formatException = new NumberFormatException(message);
+                    formatException.initCause(originalException);
+                    throw formatException;
+                }
+            }
+        }
+        return retval;
+    }
+
+    static String parseOneParameter(String sig) {
+        String retval = null;
+        final String regexp = String.format("\\%s", ":"); //NOI18N
+        String[] parts = sig.split(regexp);
+        if (parts.length > 0) {
+            String paramName = parts[0];
+             boolean isRawType = Integer.parseInt(parts[2]) > 0;
+            boolean isMandatory = Integer.parseInt(parts[4]) > 0;
+            boolean isReference = Integer.parseInt(parts[5]) > 0;
+            boolean isVariadic = Integer.parseInt(parts[6]) > 0;
+            boolean isUnionType = Integer.parseInt(parts[7]) > 0;
+            int modifier = Integer.parseInt(parts[8]);
+            boolean isIntersectionType = Integer.parseInt(parts[9]) > 0;
+            String defValue = parts.length > 3 ? parts[3] : null;
+            String declaredType = parts.length > 10 ? parts[10] : null;
+            String phpdocType = parts.length > 11 ? parts[11] : null;
+            retval = paramName;
+        }
+        return retval;
+    }
+
 }
