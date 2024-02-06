@@ -111,10 +111,12 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 return offsetRange;
             }
             //we will skip constant encapsed string and give priority to directives
+            /*
             OffsetRange phpSpanRange = getPhpReferenceSpan(tsPhp, tokenPhp);
             if (!phpSpanRange.isEmpty()) {
                 return phpSpanRange;
             }
+            */
 
         }
         return offsetRange;

@@ -656,6 +656,9 @@ public class BladeParserResult extends ParserResult {
         }
         Project project = FileOwnerQuery.getOwner(this.getFileObject());
 
+        //we need to source project
+        String className = project.getClass().getSimpleName();
+        
         try {
             bladeIndex = BladeIndex.get(project);
         } catch (IOException ex) {

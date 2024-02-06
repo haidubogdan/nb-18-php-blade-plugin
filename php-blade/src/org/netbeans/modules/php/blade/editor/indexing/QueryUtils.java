@@ -42,6 +42,9 @@ public class QueryUtils {
     
     public static BladeIndex getIndex(FileObject fo) {
         Project project = FileOwnerQuery.getOwner(fo);
+        
+        String className = project.getClass().getSimpleName();
+        
         try {
             return BladeIndex.get(project);
         } catch (IOException ex) {
