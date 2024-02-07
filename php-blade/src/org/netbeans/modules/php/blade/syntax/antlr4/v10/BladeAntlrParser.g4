@@ -163,7 +163,7 @@ loop_expression : simple_foreach_expr
 main_php_expression : BLADE_EXPR_LPAREN composed_php_expression+ BLADE_EXPR_RPAREN;
 
 composed_php_expression : class_expr_usage | function_call | PHP_VARIABLE | PHP_IDENTIFIER | EXPR_STRING |
- PHP_KEYWORD | PHP_EXPRESSION+ | PHP_STATIC_ACCESS | BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
+ PHP_KEYWORD | PHP_EXPRESSION+ | PHP_STATIC_ACCESS | BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN | PHP_D_EXPR_STRING;
 
 simple_foreach_expr: loop_array=PHP_VARIABLE FOREACH_AS key=PHP_VARIABLE (FOREACH_PARAM_ASSIGN item=PHP_VARIABLE)?;
 

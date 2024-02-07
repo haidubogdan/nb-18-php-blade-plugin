@@ -1,5 +1,3 @@
 @php
-
-TestClass::TEST_CONSTANT;
-
+    $var = $data['myKey'];
 @endphp
