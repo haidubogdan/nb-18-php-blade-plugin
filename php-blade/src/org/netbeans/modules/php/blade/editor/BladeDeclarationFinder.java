@@ -28,12 +28,10 @@ import org.netbeans.modules.php.blade.editor.indexing.PhpIndexFunctionResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexUtils;
 import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
-import org.netbeans.modules.php.blade.editor.lexer.BladeLexerUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
 import static org.netbeans.modules.php.blade.editor.parser.BladeParserResult.ReferenceType.PHP_FUNCTION;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
-import org.netbeans.modules.php.blade.editor.phpCsl.PhpTypeDeclarationProvider;
 import org.netbeans.modules.php.blade.project.PhpProjectIndex;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
@@ -265,36 +263,9 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                     location.addAlternative(new AlternativeLocationImpl(constantLocation));
                 }
                 return location;
-            case PHP_INLINE:
-                DeclarationLocation locations;
-                FileObject fo = parserResult.getSnapshot().getSource().getFileObject();
-                locations = PhpTypeDeclarationProvider.getInstance()
-                        .getItems(fo, parserResult.getPhpParserResult(), caretOffset);
-
-                return locations;
         }
 
         return DeclarationLocation.NONE;
-    }
-
-    private OffsetRange getPhpReferenceSpan(TokenSequence<? extends PHPTokenId> tsPhp, org.netbeans.api.lexer.Token<?> tokenPhp) {
-        if (tsPhp != null && tokenPhp != null && !tokenPhp.id().equals(PHPTokenId.PHP_CONSTANT_ENCAPSED_STRING)) {
-            if (tsPhp.moveNext()) {
-                org.netbeans.api.lexer.Token nPhpToken = tsPhp.token();
-                if (nPhpToken != null) {
-                    TokenId nPhpId = nPhpToken.id();
-                    if (nPhpId.equals(PHPTokenId.PHP_PAAMAYIM_NEKUDOTAYIM)) {
-                        currentDeclarationType = DeclarationType.PHP_CLASS;
-                    }
-                }
-            }
-            TokenId phpId = tokenPhp.id();
-            if (phpId.equals(PHPTokenId.PHP_STRING) || phpId.equals(PHPTokenId.PHP_VARIABLE)) {
-                return new OffsetRange(tsPhp.offset(), tsPhp.offset() + tokenPhp.length());
-            }
-        }
-
-        return OffsetRange.NONE;
     }
 
     private static class AlternativeLocationImpl implements AlternativeLocation {
@@ -312,6 +283,15 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
         @Override
         public String getDisplayHtml(HtmlFormatter formatter) {
+             ElementHandle el = getLocation().getElement();
+            if (el != null){
+                formatter.appendText(el.getName());
+                if (el.getFileObject() != null){
+                    formatter.appendText(" in ");
+                    formatter.appendText(FileUtil.getFileDisplayName(el.getFileObject()));
+                }
+                return formatter.getText();
+            }
             return getLocation().toString();
         }
 
@@ -325,72 +305,5 @@ public class BladeDeclarationFinder implements DeclarationFinder {
             return 0;
         }
 
-    }
-
-    public static class BladeAlternativeLocation implements AlternativeLocation {
-
-        private final ElementHandle modelElement;
-        private final DeclarationLocation declaration;
-
-        public BladeAlternativeLocation(ElementHandle modelElement, DeclarationLocation declaration) {
-            this.modelElement = modelElement;
-            this.declaration = declaration;
-        }
-
-        @Override
-        public ElementHandle getElement() {
-            return modelElement;
-        }
-
-        @Override
-        public String getDisplayHtml(HtmlFormatter formatter) {
-            formatter.reset();
-            //ElementKind ek = modelElement.getKind();
-            formatter.appendText(modelElement.getName());
-
-            if (declaration.getFileObject() != null) {
-                formatter.appendText(" in ");
-                formatter.appendText(FileUtil.getFileDisplayName(declaration.getFileObject()));
-            }
-
-            return formatter.getText();
-        }
-
-        @Override
-        public DeclarationLocation getLocation() {
-            return declaration;
-        }
-
-        @Override
-        public int compareTo(AlternativeLocation o) {
-            BladeAlternativeLocation i = (BladeAlternativeLocation) o;
-            return this.modelElement.getName().compareTo(i.modelElement.getName());
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 5;
-            hash = 89 * hash + (this.modelElement != null ? this.modelElement.hashCode() : 0);
-            hash = 89 * hash + (this.declaration != null ? this.declaration.hashCode() : 0);
-            return hash;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final BladeAlternativeLocation other = (BladeAlternativeLocation) obj;
-            if (this.modelElement != other.modelElement && (this.modelElement == null || !this.modelElement.equals(other.modelElement))) {
-                return false;
-            }
-            if (this.declaration != other.declaration && (this.declaration == null || !this.declaration.equals(other.declaration))) {
-                return false;
-            }
-            return true;
-        }
     }
 }
