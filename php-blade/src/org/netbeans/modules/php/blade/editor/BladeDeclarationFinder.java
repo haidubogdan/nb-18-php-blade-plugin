@@ -118,7 +118,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
             if (!phpSpanRange.isEmpty()) {
                 return phpSpanRange;
             }
-            */
+             */
 
         }
         return offsetRange;
@@ -149,14 +149,15 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                     return DeclarationLocation.NONE;
                 }
 
-                DeclarationLocation dln = DeclarationLocation.NONE;
-
                 for (FileObject includedFile : includedFiles) {
                     PathElement elHandle = new PathElement(reference.name, includedFile);
-                    dln = new DeclarationFinder.DeclarationLocation(includedFile, 0, elHandle);
-                    dln.addAlternative(new AlternativeLocationImpl(dln));
+                    DeclarationLocation dln = new DeclarationFinder.DeclarationLocation(includedFile, 0, elHandle);
+                    if (location.equals(DeclarationLocation.NONE)) {
+                        location = dln;
+                    }
+                    location.addAlternative(new AlternativeLocationImpl(dln));
                 }
-                return dln;
+                return location;
             case SECTION:
             case HAS_SECTION:
             case SECTION_MISSING:
@@ -166,18 +167,19 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                     return DeclarationLocation.NONE;
                 }
 
-                DeclarationLocation dlyield = DeclarationLocation.NONE;
-
                 for (BladeIndex.IndexedReference yieldReference : yields) {
                     String yieldReferenceId = yieldReference.getReference().name;
                     NamedElement yieldIdHandle = new NamedElement(yieldReferenceId,
                             yieldReference.getOriginFile(), ElementType.YIELD_ID);
                     int startOccurence = yieldReference.getReference().defOffset.getStart();
-                    dlyield = new DeclarationFinder.DeclarationLocation(yieldReference.getOriginFile(), startOccurence, yieldIdHandle);
-                    dlyield.addAlternative(new AlternativeLocationImpl(dlyield));
+                    DeclarationLocation dlyieldItem = new DeclarationFinder.DeclarationLocation(yieldReference.getOriginFile(), startOccurence, yieldIdHandle);
+                    if (location.equals(DeclarationLocation.NONE)) {
+                        location = dlyieldItem;
+                    }
+                    location.addAlternative(new AlternativeLocationImpl(dlyieldItem));
                 }
 
-                return dlyield;
+                return location;
             case PUSH:
                 String stackId = reference.name;
                 List<BladeIndex.IndexedReference> stacks = QueryUtils.getStacksReferences(stackId, currentFile);
@@ -186,17 +188,18 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                     return DeclarationLocation.NONE;
                 }
 
-                DeclarationLocation dlstack = DeclarationLocation.NONE;
-
                 for (BladeIndex.IndexedReference stackReference : stacks) {
                     String stackReferenceId = stackReference.getReference().name;
                     NamedElement yieldIdHandle = new NamedElement(stackReferenceId, stackReference.getOriginFile(), ElementType.STACK_ID);
                     int startOccurence = stackReference.getReference().defOffset.getStart();
-                    dlstack = new DeclarationFinder.DeclarationLocation(stackReference.getOriginFile(), startOccurence, yieldIdHandle);
-                    dlstack.addAlternative(new AlternativeLocationImpl(dlstack));
+                    DeclarationLocation dlstack = new DeclarationFinder.DeclarationLocation(stackReference.getOriginFile(), startOccurence, yieldIdHandle);
+                    if (location.equals(DeclarationLocation.NONE)) {
+                        location = dlstack;
+                    }
+                    location.addAlternative(new AlternativeLocationImpl(dlstack));
                 }
 
-                return dlstack;
+                return location;
             case CUSTOM_DIRECTIVE:
                 String directiveNameFound = reference.name;
                 Project project = FileOwnerQuery.getOwner(currentFile);
@@ -223,10 +226,14 @@ public class BladeDeclarationFinder implements DeclarationFinder {
             case PHP_CLASS:
                 phpProjectIndex = PhpProjectIndex.getInstance();
                 Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryExactClass(phpProjectIndex.rootFile, reference.name);
+
                 for (PhpIndexResult indexResult : indexClassResults) {
                     NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_CLASS);
-                    location = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
-                    location.addAlternative(new AlternativeLocationImpl(location));
+                     DeclarationLocation classLocation = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
+                    if (location.equals(DeclarationLocation.NONE)) {
+                        location = classLocation;
+                    }
+                    location.addAlternative(new AlternativeLocationImpl(classLocation));
                 }
                 return location;
             case PHP_FUNCTION:
@@ -239,8 +246,11 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                             ElementType.PHP_FUNCTION,
                             indexResult.getParams()
                     );
-                    location = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
-                    location.addAlternative(new AlternativeLocationImpl(location));
+                    DeclarationLocation functionLocation = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
+                    if (location.equals(DeclarationLocation.NONE)) {
+                        location = functionLocation;
+                    }
+                    location.addAlternative(new AlternativeLocationImpl(functionLocation));
                 }
                 return location;
             case PHP_CONSTANT:
@@ -248,10 +258,13 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 Collection<PhpIndexResult> indexConstantsResults = PhpIndexUtils.queryExactConstants(phpProjectIndex.rootFile, reference.name);
                 for (PhpIndexResult indexResult : indexConstantsResults) {
                     NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_CONSTANT);
-                    location = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
-                    location.addAlternative(new AlternativeLocationImpl(location));
+                    DeclarationLocation constantLocation = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
+                    if (location.equals(DeclarationLocation.NONE)) {
+                        location = constantLocation;
+                    }
+                    location.addAlternative(new AlternativeLocationImpl(constantLocation));
                 }
-                return location;    
+                return location;
             case PHP_INLINE:
                 DeclarationLocation locations;
                 FileObject fo = parserResult.getSnapshot().getSource().getFileObject();
