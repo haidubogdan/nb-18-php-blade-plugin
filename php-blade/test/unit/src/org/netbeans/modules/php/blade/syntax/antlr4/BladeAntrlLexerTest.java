@@ -71,4 +71,9 @@ public class BladeAntrlLexerTest extends BladeAntlrLexerTestBase {
     public void test_html_parsing_error() throws Exception {
         performTest("lexer/html_parsing_error.blade.php");
     }
+    
+    @Test
+    public void test_php_blade_parsing_error() throws Exception {
+        performTest("lexer/php_blade.blade.php");
+    }
 }

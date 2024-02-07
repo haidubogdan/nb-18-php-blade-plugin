@@ -6,13 +6,13 @@ tokens {
 }
 
 fragment NameString 
-    : [a-zA-Z_\u0080-\ufffe][a-zA-Z0-9_\u0080-\ufffe]*;    
+    : [a-z_\u0080-\ufffe][a-z0-9_\u0080-\ufffe]*;    
    
 fragment BladeLabel 
-    : [a-zA-Z\u0080-\ufffe][a-zA-Z0-9_.\u0080-\ufffe]*;   
+    : [a-z\u0080-\ufffe][a-z0-9_.\u0080-\ufffe]*;   
 
 fragment FullIdentifier 
-    : [a-zA-Z_\u0080-\ufffe][a-zA-Z0-9_\u0080-\ufffe-]*;    
+    : [a-z_\u0080-\ufffe][a-z0-9_\u0080-\ufffe-]*;    
  
 fragment ESC_DOUBLE_QUOTED_STRING 
     : [\\"];

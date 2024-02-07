@@ -5,7 +5,10 @@ import BladeCommonLexer;
   package org.netbeans.modules.php.blade.syntax.antlr4.v10;
 }
 
-options { superClass = LexerAdaptor; }
+options { 
+    superClass = LexerAdaptor;
+    caseInsensitive = true;
+}
  
 tokens {
    PHP_EXPRESSION,
@@ -286,18 +289,27 @@ mode BLADE_INLINE_PHP;
 D_ENDPHP : '@endphp'->popMode;
 
 //hack to merge all php inputs into one token
-BLADE_PHP_INLINE : . {
-        this._input.LA(1) == '@' &&
-        this._input.LA(2) == 'e' &&
-        this._input.LA(3) == 'n' &&
-        this._input.LA(4) == 'd' &&
-        this._input.LA(5) == 'p' &&
-        this._input.LA(6) == 'h' &&
-        this._input.LA(7) == 'p'
-      }? ;
-BLADE_PHP_INLINE_MORE : . ->more;
+PHP_D_EXPR_SQ_LPAREN : '[' ->type(PHP_EXPRESSION);
+PHP_D_EXPR_SQ_RPAREN : ']' ->type(PHP_EXPRESSION);
 
-EXIT_INLINE_PHP_EOF : EOF->type(ERROR),popMode; 
+PHP_D_EXPR_CURLY_LPAREN : '{' ->type(PHP_EXPRESSION);
+PHP_D_EXPR_CURLY_RPAREN : '}' ->type(PHP_EXPRESSION);
+
+PHP_D_EXPR_STRING : DOUBLE_QUOTED_STRING_FRAGMENT | SINGLE_QUOTED_STRING_FRAGMENT;
+
+//EXPR_ASSIGN : '=>'->type(BL_PARAM_ASSIGN);
+
+PHP_D_COMPOSED_EXPR_PHP_VAR : PhpVariable->type(PHP_VARIABLE);
+PHP_D_COMPOSED_PHP_KEYWORD : PhpKeyword->type(PHP_KEYWORD);
+PHP_D_COMPOSED_EXPR_PHP_IDENTIFIER : NameString->type(PHP_IDENTIFIER);
+PHP_D_COMPOSED_EXPR_STATIC_ACCESS : '::'->type(PHP_STATIC_ACCESS);
+
+PHP_D_COMPOSED_EXPR_LPAREN : '('->type(BLADE_EXPR_LPAREN);
+PHP_D_COMPOSED_EXPR_RPAREN : ')' ->type(BLADE_EXPR_RPAREN);
+
+PHP_D_PHP_COMPOSED_EXPRESSION : . ->type(PHP_EXPRESSION);
+
+PHP_D_EXIT_COMPOSED_EXPRESSION_EOF : EOF->type(ERROR),popMode;
 
 mode VERBATIM_MODE;
 

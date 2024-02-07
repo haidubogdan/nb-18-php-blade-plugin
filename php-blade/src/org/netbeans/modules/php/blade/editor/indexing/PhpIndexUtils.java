@@ -134,9 +134,9 @@ public class PhpIndexUtils {
         return results;
     }
 
-    public static Collection<PhpIndexResult> queryExactFunctions(FileObject fo, String prefix) {
+    public static Collection<PhpIndexFunctionResult> queryExactFunctions(FileObject fo, String prefix) {
         QuerySupport phpindex = QuerySupportFactory.get(fo);
-        Collection<PhpIndexResult> results = new ArrayList<>();
+        Collection<PhpIndexFunctionResult> results = new ArrayList<>();
         String queryPrefix = prefix.toLowerCase();
         try {
             Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_BASE, queryPrefix, QuerySupport.Kind.PREFIX, new String[]{PHPIndexer.FIELD_BASE});
@@ -151,7 +151,12 @@ public class PhpIndexUtils {
 
                     if (name.length() > 0 && name.equals(prefix)) {
                         Integer offset = sig.integer(2);
-                        results.add(new PhpIndexResult(name, indexFile, PhpIndexResult.Type.FUNCTION, new OffsetRange(offset, offset + name.length())));
+                        String params = sig.string(3);
+                        results.add(new PhpIndexFunctionResult(name,
+                                indexFile, PhpIndexResult.Type.FUNCTION,
+                                new OffsetRange(offset, offset + name.length()),
+                                parseParameters(params)
+                        ));
                     }
                 }
             }

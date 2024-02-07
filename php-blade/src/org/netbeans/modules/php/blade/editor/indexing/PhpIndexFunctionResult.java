@@ -13,7 +13,7 @@ import org.openide.filesystems.FileObject;
  */
 public class PhpIndexFunctionResult extends PhpIndexResult {
 
-    public List<String> params;
+    protected final List<String> params;
 
     public PhpIndexFunctionResult(String name, FileObject fo,
             PhpIndexFunctionResult.Type type,
@@ -29,4 +29,7 @@ public class PhpIndexFunctionResult extends PhpIndexResult {
         return "(" + String.join(", ", params) + ")";
     }
 
+    public List<String> getParams(){
+        return params;
+    }
 }

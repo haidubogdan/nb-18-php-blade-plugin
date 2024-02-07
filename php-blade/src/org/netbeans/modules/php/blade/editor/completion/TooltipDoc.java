@@ -5,6 +5,7 @@ package org.netbeans.modules.php.blade.editor.completion;
 
 import org.netbeans.modules.csl.api.Documentation;
 import org.netbeans.modules.php.blade.csl.elements.NamedElement;
+import org.netbeans.modules.php.blade.csl.elements.PhpFunctionElement;
 
 /**
  * @TODO update doc representation
@@ -25,5 +26,12 @@ public class TooltipDoc {
         }
 
         return result;
+    }
+    
+    public static Documentation generateFunctionDoc(PhpFunctionElement elementHandle) {
+        String info = "<div align=\"left\"><b>" + elementHandle.getName() + elementHandle.getParamsAsString() + "</b></div>";
+        info += "<div>" + elementHandle.getFileObject().getNameExt() + "</div>";
+        info += String.format("<div align=\"right\"><font size=-1>%s</font></div>", "php function");
+        return Documentation.create(info, null);
     }
 }

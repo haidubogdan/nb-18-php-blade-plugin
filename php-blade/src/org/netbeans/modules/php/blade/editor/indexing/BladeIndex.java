@@ -49,9 +49,7 @@ public class BladeIndex {
                     try {
                         // just be sure that the projects are open
                         OpenProjects.getDefault().openProjects().get();
-                    } catch (InterruptedException ex) {
-                        Exceptions.printStackTrace(ex);
-                    } catch (ExecutionException ex) {
+                    } catch (InterruptedException | ExecutionException ex) {
                         Exceptions.printStackTrace(ex);
                     } finally {
                         areProjectsOpen = true;
@@ -63,7 +61,7 @@ public class BladeIndex {
                         Collections.<String>emptyList());
                 QuerySupport querySupport = QuerySupport.forRoots(BladeIndexer.Factory.NAME, BladeIndexer.Factory.VERSION, sourceRoots.toArray(new FileObject[]{}));
                 index = new BladeIndex(querySupport);
-                if (sourceRoots.size() > 0) {
+                if (!sourceRoots.isEmpty()) {
                     INDEXES.put(project, index);
                 }
             }

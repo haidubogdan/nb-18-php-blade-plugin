@@ -26,6 +26,7 @@ import org.netbeans.modules.csl.spi.support.CancelSupport;
 import org.netbeans.modules.php.blade.csl.elements.ElementType;
 import static org.netbeans.modules.php.blade.csl.elements.ElementType.*;
 import org.netbeans.modules.php.blade.csl.elements.NamedElement;
+import org.netbeans.modules.php.blade.csl.elements.PhpFunctionElement;
 import org.netbeans.modules.php.blade.editor.BladeDeclarationFinder;
 import org.netbeans.modules.php.blade.editor.completion.BladeCompletionItem.CompletionRequest;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexFunctionResult;
@@ -81,9 +82,6 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
                 break;
             case PHP_EXPRESSION:
                 completePhpSnippet(completionProposals, completionContext.getCaretOffset(), currentToken);
-                break;
-            case BLADE_PHP_INLINE:
-                completePhp(completionProposals, completionContext, parserResult);
                 break;
             case PHP_VARIABLE:
                 completeScopedVariables(completionProposals, completionContext, parserResult, currentToken);
@@ -401,8 +399,9 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
     @Override
     public Documentation documentElement(ParserResult parserResult, ElementHandle elementHandle, Callable<Boolean> cancel) {
         Documentation result = null;
-
-        if (elementHandle instanceof NamedElement) {
+        if (elementHandle instanceof PhpFunctionElement){
+            return TooltipDoc.generateFunctionDoc((PhpFunctionElement) elementHandle);
+        } else if (elementHandle instanceof NamedElement) {
             return TooltipDoc.generateDoc((NamedElement) elementHandle);
         }
         return result;

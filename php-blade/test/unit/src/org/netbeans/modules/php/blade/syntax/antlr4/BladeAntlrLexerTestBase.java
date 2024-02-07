@@ -86,6 +86,10 @@ public class BladeAntlrLexerTestBase extends NbTestCase {
                 case HTML:
                     result.append("HTML ");
                     break;
+                default:
+                    result.append(token.getType());
+                    result.append(" ");
+                    break;
             }
 
             String text = replaceLinesAndTabs(token.getText());

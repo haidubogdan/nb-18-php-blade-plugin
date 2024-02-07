@@ -140,7 +140,7 @@ sectionMissing : D_SECTION_MISSING singleArgWrapper general_statement* D_ENDIF;
 custom_directive : D_CUSTOM (multiArgWrapper 
 | (BLADE_PARAM_LPAREN BLADE_PARAM_RPAREN));
     
-php_blade : D_PHP BLADE_PHP_INLINE D_ENDPHP | D_PHP main_php_expression;
+php_blade : D_PHP composed_php_expression+ D_ENDPHP | D_PHP main_php_expression;
 
 phpInline : PHP_INLINE;
 //echo

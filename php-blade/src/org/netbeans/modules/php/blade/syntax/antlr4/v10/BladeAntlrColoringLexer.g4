@@ -5,7 +5,10 @@ import BladeCommonLexer;
   package org.netbeans.modules.php.blade.syntax.antlr4.v10;
 }
 
-options { superClass = ColoringLexerAdaptor; }
+options { 
+    superClass = ColoringLexerAdaptor;
+    caseInsensitive = true;
+ }
 
 channels {PHP_CODE}
 

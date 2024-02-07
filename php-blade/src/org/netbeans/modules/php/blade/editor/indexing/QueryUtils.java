@@ -43,7 +43,22 @@ public class QueryUtils {
     public static BladeIndex getIndex(FileObject fo) {
         Project project = FileOwnerQuery.getOwner(fo);
         
+        //the PHP ProjectConvertor is looking only for
+        //"src"
+        //"lib"
         String className = project.getClass().getSimpleName();
+        
+        //we need to load the root project
+        if (className.equals("ConvertorProject")){
+            FileObject root = project.getProjectDirectory();
+            
+            if (root != null){
+                FileObject rootDir = root.getParent();
+                if (rootDir != null) {
+                    project = FileOwnerQuery.getOwner(rootDir);
+                }
+            }
+        }
         
         try {
             return BladeIndex.get(project);

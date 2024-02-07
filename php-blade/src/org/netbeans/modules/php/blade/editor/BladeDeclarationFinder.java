@@ -21,8 +21,10 @@ import org.netbeans.modules.csl.api.HtmlFormatter;
 import org.netbeans.modules.php.blade.csl.elements.ElementType;
 import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.csl.elements.PathElement;
+import org.netbeans.modules.php.blade.csl.elements.PhpFunctionElement;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
+import org.netbeans.modules.php.blade.editor.indexing.PhpIndexFunctionResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexUtils;
 import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
@@ -229,9 +231,14 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 return location;
             case PHP_FUNCTION:
                 phpProjectIndex = PhpProjectIndex.getInstance();
-                Collection<PhpIndexResult> indexResults = PhpIndexUtils.queryExactFunctions(phpProjectIndex.rootFile, reference.name);
-                for (PhpIndexResult indexResult : indexResults) {
-                    NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_FUNCTION);
+                Collection<PhpIndexFunctionResult> indexResults = PhpIndexUtils.queryExactFunctions(phpProjectIndex.rootFile, reference.name);
+                for (PhpIndexFunctionResult indexResult : indexResults) {
+                    PhpFunctionElement resultHandle = new PhpFunctionElement(
+                            reference.name,
+                            indexResult.declarationFile,
+                            ElementType.PHP_FUNCTION,
+                            indexResult.getParams()
+                    );
                     location = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
                     location.addAlternative(new AlternativeLocationImpl(location));
                 }
@@ -246,7 +253,6 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 }
                 return location;    
             case PHP_INLINE:
-            case PHP_BLADE:
                 DeclarationLocation locations;
                 FileObject fo = parserResult.getSnapshot().getSource().getFileObject();
                 locations = PhpTypeDeclarationProvider.getInstance()
