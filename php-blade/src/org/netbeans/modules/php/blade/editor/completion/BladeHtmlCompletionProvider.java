@@ -1,16 +1,7 @@
 package org.netbeans.modules.php.blade.editor.completion;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.Action;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
@@ -23,17 +14,12 @@ import org.netbeans.api.editor.mimelookup.MimeRegistrations;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
-import org.netbeans.lib.editor.util.swing.DocumentUtilities;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives.FilterCallback;
-import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
-import org.netbeans.modules.php.blade.editor.indexing.BladeIndex.IndexedReferenceId;
-import org.netbeans.modules.php.blade.editor.path.PathUtils;
+import org.netbeans.modules.php.blade.syntax.annotation.Directive;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
-import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
-import org.netbeans.spi.editor.completion.CompletionDocumentation;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
@@ -41,7 +27,6 @@ import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
-import org.netbeans.spi.editor.completion.support.CompletionUtilities.CompletionItemBuilder;
 import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -207,42 +192,30 @@ public class BladeHtmlCompletionProvider implements CompletionProvider {
     @SuppressWarnings("rawtypes")
     private void completeDirectives(String prefix, Document doc, int carretOffset, CompletionResultSet resultSet) {
         int startOffset = carretOffset - prefix.length();
-        HashMap<String, HashMap> yamlCompletionList = BladeCompletionService.getDirectiveCompletionList();
+        DirectiveCompletionList completionList = new DirectiveCompletionList();
 
-        for (String group : yamlCompletionList.keySet()) {
-            Set<Entry<String, HashMap>> directiveList = yamlCompletionList.get(group).entrySet();
-            for (Entry directiveEntry : directiveList) {
-                String directive = (String) directiveEntry.getKey();
-                Object info = directiveEntry.getValue();
-                String hasArgument = null, description = null, endtag = null;
-                if (info instanceof HashMap) {
-                    HashMap<String, String> infoList = (HashMap) info;
-                    hasArgument = infoList.get("takes_parameter");
-                    description = infoList.get("description");
-                    endtag = infoList.get("end_tag");
-                }
-
-                if (directive.startsWith(prefix)) {
-                    if (hasArgument != null && hasArgument.equals("1")) {
+        for (Directive directive : completionList.getDirectives()) {
+            String directiveName = directive.name();
+            if (directiveName.startsWith(prefix)) {
+                if (directive.params()) {
+                    resultSet.addItem(DirectiveCompletionBuilder.itemWithArg(
+                            startOffset, carretOffset, prefix, directiveName, directive.description(), doc));
+                    if (!directive.endtag().isEmpty()) {
                         resultSet.addItem(DirectiveCompletionBuilder.itemWithArg(
-                                startOffset, carretOffset, prefix, directive, description, doc));
-                        if (endtag != null) {
-                            resultSet.addItem(DirectiveCompletionBuilder.itemWithArg(
-                                    startOffset, carretOffset, prefix, directive, endtag, description, doc));
-                        }
-                    } else {
-                        //directives with end tag will be completed as block always
-                        if (endtag != null) {
-                            resultSet.addItem(DirectiveCompletionBuilder.simpleItem(
-                                    startOffset, carretOffset, prefix, directive, endtag, description, doc));
-                        } else {
-                            resultSet.addItem(DirectiveCompletionBuilder.simpleItem(
-                                    startOffset, directive, description));
-                        }
+                                startOffset, carretOffset, prefix, directiveName, directive.endtag(), directive.description(), doc));
+                    }
+                } else {
+                    resultSet.addItem(DirectiveCompletionBuilder.simpleItem(
+                            startOffset, directiveName, directive.description()));
+                    if (!directive.endtag().isEmpty()) {
+                        resultSet.addItem(DirectiveCompletionBuilder.simpleItem(
+                                startOffset, carretOffset, prefix, directiveName, directive.endtag(), directive.description(), doc));
                     }
                 }
+
             }
         }
+
         FileObject fo = EditorDocumentUtils.getFileObject(doc);
         Project project = FileOwnerQuery.getOwner(fo);
 
@@ -256,23 +229,6 @@ public class BladeHtmlCompletionProvider implements CompletionProvider {
                 }
             }
         });
-    }
-
-    private void completeYieldIdFromIndex(String prefixIdentifier, FileObject fo,
-            int caretOffset, CompletionResultSet resultSet) {
-        BladeIndex bladeIndex;
-        Project project = FileOwnerQuery.getOwner(fo);
-        int insertOffset = caretOffset - prefixIdentifier.length();
-        try {
-            bladeIndex = BladeIndex.get(project);
-            List<IndexedReferenceId> indexedReferences = bladeIndex.getYieldIds(prefixIdentifier);
-            for (IndexedReferenceId indexReference : indexedReferences) {
-                addYieldIdCompletionItem(indexReference.getIdenfiier(), indexReference.getOriginFile(),
-                        insertOffset, resultSet);
-            }
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
     }
 
     private void completeCloseTag(Token curlyStartToken, Document doc, String closeTag,
@@ -301,57 +257,10 @@ public class BladeHtmlCompletionProvider implements CompletionProvider {
         resultSet.addItem(item);
     }
 
-    private void completeBladePath(String bladePath, FileObject originFile,
-            int caretOffset, CompletionResultSet resultSet) {
-
-        String filePath = originFile.getPath();
-        int viewsPos = filePath.indexOf("/views/");
-
-        CompletionItem item = CompletionUtilities.newCompletionItemBuilder(bladePath)
-                .iconResource(getReferenceIcon(originFile))
-                .startOffset(caretOffset)
-                .leftHtmlText(bladePath)
-                .rightHtmlText(filePath.substring(viewsPos, filePath.length()))
-                .sortPriority(1)
-                .build();
-        resultSet.addItem(item);
-    }
-
-    private void addYieldIdCompletionItem(String identifier, FileObject fo,
-            int caretOffset, CompletionResultSet resultSet) {
-
-        String filePath = fo.getPath();
-        int viewsPos = filePath.indexOf("/views/");
-
-        CompletionItem item = CompletionUtilities.newCompletionItemBuilder(identifier)
-                .iconResource(getReferenceIcon(CompletionType.YIELD_ID))
-                .startOffset(caretOffset)
-                .leftHtmlText(identifier)
-                .rightHtmlText(filePath.substring(viewsPos, filePath.length()))
-                .sortPriority(1)
-                .build();
-        resultSet.addItem(item);
-    }
-
     private static final String ICON_BASE = "org/netbeans/modules/php/blade/resources/"; //NOI18N
 
     private static String getReferenceIcon() {
         return ICON_BASE + "icons/at.png"; //NOI18N
-    }
-
-    private static String getReferenceIcon(CompletionType type) {
-        switch (type) {
-            case YIELD_ID:
-                return ICON_BASE + "icons/layout.png"; //NOI18N
-        }
-        return ICON_BASE + "icons/at.png";
-    }
-
-    private static String getReferenceIcon(FileObject file) {
-        if (file.isFolder()) {
-            return "org/openide/loaders/defaultFolder.gif"; //NOI18N
-        }
-        return ICON_BASE + "icons/file.png"; //NOI18N
     }
 
 }

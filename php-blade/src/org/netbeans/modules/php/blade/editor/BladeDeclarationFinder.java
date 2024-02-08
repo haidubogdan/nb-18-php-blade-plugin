@@ -5,10 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.text.Element;
 import org.antlr.v4.runtime.CharStreams;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
@@ -110,14 +107,6 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 }
                 return offsetRange;
             }
-            //we will skip constant encapsed string and give priority to directives
-            /*
-            OffsetRange phpSpanRange = getPhpReferenceSpan(tsPhp, tokenPhp);
-            if (!phpSpanRange.isEmpty()) {
-                return phpSpanRange;
-            }
-             */
-
         }
         return offsetRange;
     }

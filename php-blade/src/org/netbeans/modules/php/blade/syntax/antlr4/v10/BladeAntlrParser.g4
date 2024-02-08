@@ -142,7 +142,7 @@ custom_directive : D_CUSTOM (multiArgWrapper
     
 php_blade : D_PHP composed_php_expression+ D_ENDPHP | D_PHP main_php_expression;
 
-phpInline : PHP_INLINE;
+phpInline : PHP_INLINE_START composed_php_expression+ PHP_EXIT;
 //echo
 
 echo : ESCAPED_ECHO_START echo_expr* ESCAPED_ECHO_END;

@@ -105,7 +105,6 @@ public class BladeBracesMatcher implements BracesMatcher {
     private static boolean shouldLookForBraceMatch(@NonNull Token currentToken) {
         switch (currentToken.getType()) {
             case HTML:
-            case PHP_INLINE:
             case PHP_EXPRESSION:
             case AT:
             case BLADE_COMMENT:

@@ -26,6 +26,8 @@ NEKUDO_WHITELIST_MATCH : '::' | '?:' | ' : ';
 fragment DOUBLE_QUOTED_STRING_FRAGMENT_WITH_PHP 
     : '"' (ESC_DOUBLE_QUOTED_STRING | '{' PhpVariable '}' | . | ~[:])*?  '"';
 
+PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? ('?>' | EOF);
+
 //conditionals
 D_IF : '@if'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);
 D_ELSEIF : '@elseif'->pushMode(LOOK_FOR_PHP_EXPRESSION),type(DIRECTIVE);

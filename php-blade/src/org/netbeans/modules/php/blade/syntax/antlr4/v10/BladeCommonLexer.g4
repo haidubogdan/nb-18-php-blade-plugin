@@ -31,14 +31,12 @@ fragment PhpVariable
     : '$' NameString;
 
 fragment PhpKeyword
-    : 'array' | 'class' | 'empty';
+    : 'array' | 'class' | 'empty' | 'use';
 
 fragment Digit
     : ('0'..'9');
 
 BLADE_COMMENT_START : '{{--' ->pushMode(INSIDE_BLADE_COMMENT);
-
-PHP_INLINE : '<?=' .*? '?>' | '<?php' .*? ('?>' | EOF);
 
 EMAIL_SUBSTRING : ('@' FullIdentifier '.')->type(HTML);
 
