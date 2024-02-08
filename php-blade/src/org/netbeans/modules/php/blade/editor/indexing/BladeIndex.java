@@ -37,6 +37,10 @@ public class BladeIndex {
     private BladeIndex(QuerySupport querySupport) throws IOException {
         this.querySupport = querySupport;
     }
+    
+    public QuerySupport getQuerySupport(){
+        return querySupport;
+    }
 
     public static BladeIndex get(Project project) throws IOException {
         if (project == null) {
@@ -208,6 +212,9 @@ public class BladeIndex {
                 String[] values = indexResult.getValues(BladeIndexer.INCLUDE_PATH);
                 for (String value : values) {
                     Reference templatePathRef = BladeIndexer.extractTemplatePathDataFromIndex(value);
+                    if (!templatePathRef.name.equals(prefix)){
+                        continue;
+                    }
                     references.add(new IndexedOffsetReference(templatePathRef.name, indexResult.getFile(), templatePathRef.defOffset));
                 }
             }

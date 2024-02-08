@@ -219,7 +219,19 @@ public class PathUtils {
         if (project == null) {
             return path;
         }
-
+        String className = project.getClass().getSimpleName();
+        //we need to load the root project
+        if (className.equals("ConvertorProject")){
+            FileObject root = project.getProjectDirectory();
+            
+            if (root != null){
+                FileObject rootDir = root.getParent();
+                if (rootDir != null) {
+                    project = FileOwnerQuery.getOwner(rootDir);
+                }
+            }
+        }
+        
         String filePath = file.getPath();
         FileObject defaultLaravelPath = project.getProjectDirectory().getFileObject(LARAVEL_VIEW_PATH);
 
@@ -247,8 +259,16 @@ public class PathUtils {
                 continue;
             }
 
-            if (filePath.startsWith(viewFolder)) {
-                return filePath.replace(viewFolder, "").replace(".blade.php", "").replace("/", ".");
+            //we need to keep the same format
+            FileObject viewFile = FileUtil.toFileObject(viewPath);
+            String viewFileAbsPath = viewFile.getPath();
+            if (filePath.startsWith(viewFileAbsPath)) {
+                String relativePath = filePath.replace(viewFileAbsPath, "");
+                if (!relativePath.startsWith("/")){
+                    //it doesn't belong to the folder
+                    continue;
+                }
+                return relativePath.substring(1).replace(".blade.php", "").replace("/", ".");
             }
         }
 

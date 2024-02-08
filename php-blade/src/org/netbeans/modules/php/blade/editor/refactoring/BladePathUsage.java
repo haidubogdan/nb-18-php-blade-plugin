@@ -117,12 +117,13 @@ public class BladePathUsage {
                         );
 
                         String lineText = doc.getText(rowStart, rowEnd - rowStart);
+                        //offset quote symbols
                         String annotatedLine
-                                = lineText.substring(0, start - rowStart)
+                                = lineText.substring(0, start - rowStart + 1)
                                 + "<strong>"
-                                + lineText.substring(start - rowStart, end - rowStart)
+                                + lineText.substring(start - rowStart + 1, end - rowStart + 2)
                                 + "</strong>"
-                                + lineText.substring(end - rowStart);
+                                + lineText.substring(end - rowStart + 2);
                         refactoringElements.add(query, new BladeRefactoringElementImpl(annotatedLine, fo, bounds));
                     } catch (BadLocationException | IOException ex) {
                         Exceptions.printStackTrace(ex);
