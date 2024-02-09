@@ -500,8 +500,8 @@ public class BladeAntlrParser extends Parser {
 			return getRuleContext(Loop_actionContext.class,0);
 		}
 		public TerminalNode D_LANG() { return getToken(BladeAntlrParser.D_LANG, 0); }
-		public SingleArgWrapperContext singleArgWrapper() {
-			return getRuleContext(SingleArgWrapperContext.class,0);
+		public SingleArgAndDefaultWrapperContext singleArgAndDefaultWrapper() {
+			return getRuleContext(SingleArgAndDefaultWrapperContext.class,0);
 		}
 		public Custom_directiveContext custom_directive() {
 			return getRuleContext(Custom_directiveContext.class,0);
@@ -692,7 +692,7 @@ public class BladeAntlrParser extends Parser {
 				setState(172);
 				match(D_LANG);
 				setState(173);
-				singleArgWrapper();
+				singleArgAndDefaultWrapper();
 				}
 				break;
 			case D_CUSTOM:
@@ -5132,7 +5132,7 @@ public class BladeAntlrParser extends Parser {
 		"\u00a6\u00a7\u0005R\u0000\u0000\u00a7\u00b0\u0003T*\u0000\u00a8\u00a9"+
 		"\u0005\u001b\u0000\u0000\u00a9\u00b0\u0003T*\u0000\u00aa\u00b0\u0005\u001c"+
 		"\u0000\u0000\u00ab\u00b0\u0003t:\u0000\u00ac\u00ad\u0005E\u0000\u0000"+
-		"\u00ad\u00b0\u0003^/\u0000\u00ae\u00b0\u0003@ \u0000\u00af\u0093\u0001"+
+		"\u00ad\u00b0\u0003`0\u0000\u00ae\u00b0\u0003@ \u0000\u00af\u0093\u0001"+
 		"\u0000\u0000\u0000\u00af\u0094\u0001\u0000\u0000\u0000\u00af\u0095\u0001"+
 		"\u0000\u0000\u0000\u00af\u0096\u0001\u0000\u0000\u0000\u00af\u0097\u0001"+
 		"\u0000\u0000\u0000\u00af\u0098\u0001\u0000\u0000\u0000\u00af\u0099\u0001"+

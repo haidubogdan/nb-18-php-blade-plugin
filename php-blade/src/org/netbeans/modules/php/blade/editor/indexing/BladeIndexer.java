@@ -3,11 +3,9 @@ package org.netbeans.modules.php.blade.editor.indexing;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.parsing.api.Snapshot;
@@ -23,6 +21,7 @@ import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.ReferenceType;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
+import org.netbeans.modules.php.blade.project.ProjectUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
@@ -115,7 +114,7 @@ public class BladeIndexer extends EmbeddingIndexer {
     }
 
     private void storeFilePathAsBladePath(FileObject fo, IndexDocument document) {
-        Project project = FileOwnerQuery.getOwner(fo);
+        Project project = ProjectUtils.getMainOwner(fo);
         if (project == null) {
             return;
         }

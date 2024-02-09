@@ -50,7 +50,7 @@ inline_directive:
     | D_CASE php_expression
     | D_DEFAULT
     | loop_action
-    | D_LANG singleArgWrapper
+    | D_LANG singleArgAndDefaultWrapper
     | custom_directive
     ;
 

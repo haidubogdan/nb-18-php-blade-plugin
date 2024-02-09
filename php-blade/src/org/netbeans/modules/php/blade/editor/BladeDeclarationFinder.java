@@ -7,7 +7,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.antlr.v4.runtime.CharStreams;
 import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.DeclarationFinder;
 import org.netbeans.modules.csl.api.OffsetRange;
@@ -30,6 +29,7 @@ import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
 import static org.netbeans.modules.php.blade.editor.parser.BladeParserResult.ReferenceType.PHP_FUNCTION;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.project.PhpProjectIndex;
+import org.netbeans.modules.php.blade.project.ProjectUtils;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 import org.openide.filesystems.FileObject;
@@ -189,7 +189,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 return location;
             case CUSTOM_DIRECTIVE:
                 String directiveNameFound = reference.name;
-                Project project = FileOwnerQuery.getOwner(currentFile);
+                Project project = ProjectUtils.getMainOwner(currentFile);
 
                 DeclarationLocation dlcustomDirective = DeclarationLocation.NONE;
 

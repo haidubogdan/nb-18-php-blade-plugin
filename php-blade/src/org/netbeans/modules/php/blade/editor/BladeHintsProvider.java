@@ -5,22 +5,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.netbeans.api.editor.document.EditorDocumentUtils;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.csl.api.Hint;
-import org.netbeans.modules.csl.api.HintFix;
 import org.netbeans.modules.csl.api.HintSeverity;
-import org.netbeans.modules.csl.api.HintsProvider;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.Rule;
 import org.netbeans.modules.csl.api.Rule.ErrorRule;
 import org.netbeans.modules.csl.api.RuleContext;
-import org.netbeans.modules.csl.api.Severity;
 import org.netbeans.modules.csl.api.HintsProvider;
-import static org.netbeans.modules.php.blade.editor.BladeSemanticAnalyzer.UNDEFINED_FIELD_SET;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
+import org.netbeans.modules.php.blade.project.ProjectUtils;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -37,7 +33,7 @@ public class BladeHintsProvider implements HintsProvider {
     public void computeHints(HintsManager manager, RuleContext context, List<Hint> hints) {
         BladeParserResult parserResult = (BladeParserResult) context.parserResult;
         FileObject fo = EditorDocumentUtils.getFileObject(context.doc);
-        Project project = FileOwnerQuery.getOwner(fo);
+        Project project = ProjectUtils.getMainOwner(fo);
         CustomDirectives ct = CustomDirectives.getInstance(project);
         for (Object setentry : parserResult.customDirectivesReferences.entrySet()) {
             Map.Entry<OffsetRange, BladeParserResult.Reference> entry = (Map.Entry<OffsetRange, BladeParserResult.Reference>) setentry;

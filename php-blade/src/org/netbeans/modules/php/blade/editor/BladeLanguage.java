@@ -98,7 +98,8 @@ import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
     @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.FileSystemAction"), path = ACTIONS, position = 1300, separatorAfter = 1400),
     @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.ToolsAction"), path = ACTIONS, position = 1500),
     @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"), path = ACTIONS, position = 1600),
-    @ActionReference(id = @ActionID(category = "TemplateActions", id = "org.netbeans.modules.php.blade.editor.actions.FindUsage"), path = ACTIONS, position = 1800),
+    @ActionReference(id = @ActionID(category = "TemplateActions", id = "org.netbeans.modules.php.blade.editor.actions.FindUsage"),
+            path = ACTIONS, separatorBefore = 1600, position = 1800),
 //    @ActionReference(
 //        path = "Editors/" + BladeLanguage.MIME_TYPE+ "/Popup",
 //        id = @ActionID(category = "Refactoring", id = "org.netbeans.modules.refactoring.api.ui.WhereUsedAction"),

@@ -15,13 +15,13 @@ import org.antlr.v4.runtime.Token;
 import org.netbeans.api.editor.document.EditorDocumentUtils;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.editor.mimelookup.MimeRegistrations;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex.IndexedReferenceId;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
+import org.netbeans.modules.php.blade.project.ProjectUtils;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
@@ -264,7 +264,7 @@ public class BladeCompletionProvider implements CompletionProvider {
     private void completeYieldIdFromIndex(String prefixIdentifier, FileObject fo,
             int caretOffset, CompletionResultSet resultSet) {
         BladeIndex bladeIndex;
-        Project project = FileOwnerQuery.getOwner(fo);
+        Project project = ProjectUtils.getMainOwner(fo);
         int insertOffset = caretOffset - prefixIdentifier.length();
         try {
             bladeIndex = BladeIndex.get(project);

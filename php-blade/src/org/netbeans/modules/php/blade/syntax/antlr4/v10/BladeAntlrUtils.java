@@ -196,6 +196,35 @@ public class BladeAntlrUtils {
         return null;
 
     }
+    
+    public static Token findForwardWithStop(Document doc, Token start,
+            int tokensMatch, List<Integer> stopTokens) {
+        AntlrTokenSequence tokens = getTokens(doc);
+
+        if (tokens == null || tokens.isEmpty()) {
+            return null;
+        }
+
+        tokens.seekTo(start.getStopIndex() + 1);
+
+        while (tokens.hasNext()) {
+            Token pt = tokens.next().get();
+            if (pt == null) {
+                continue;
+            }
+
+            if (pt.getType() == tokensMatch) {
+                return pt;
+            }
+
+            if (stopTokens.contains(pt.getType())) {
+                return null;
+            }
+        }
+
+        return null;
+
+    }
 
     public static Token findBackward(Document doc, Token start,
             int tokensMatch, List<Integer> skipableTokens) {
@@ -222,6 +251,35 @@ public class BladeAntlrUtils {
             }
 
             return null;
+        }
+
+        return null;
+
+    }
+    
+    public static Token findBackwardWithStop(Document doc, Token start,
+            int tokensMatch, List<Integer> stopTokens) {
+        AntlrTokenSequence tokens = getTokens(doc);
+
+        if (tokens == null || tokens.isEmpty()) {
+            return null;
+        }
+
+        tokens.seekTo(start.getStartIndex() - 1);
+
+        while (tokens.hasPrevious()) {
+            Token pt = tokens.previous().get();
+            if (pt == null) {
+                continue;
+            }
+
+            if (pt.getType() == tokensMatch) {
+                return pt;
+            }
+
+            if (stopTokens.contains(pt.getType())) {
+                return null;
+            }
         }
 
         return null;

@@ -323,6 +323,18 @@ public class BladeIndex {
         }
     }
 
+    public static void reindexFolder(FileObject folder) {
+        Enumeration<? extends FileObject> children = folder.getChildren(true);
+        while (children.hasMoreElements()) {
+            FileObject file = children.nextElement();
+
+            if (file.isFolder()) {
+                continue;
+            }
+            IndexingManager.getDefault().refreshAllIndices(file);
+        }
+    }
+    
     public static class IndexedReferenceId {
 
         private final String identifier;

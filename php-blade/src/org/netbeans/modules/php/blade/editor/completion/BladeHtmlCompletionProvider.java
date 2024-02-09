@@ -11,12 +11,12 @@ import org.antlr.v4.runtime.Token;
 import org.netbeans.api.editor.document.EditorDocumentUtils;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.editor.mimelookup.MimeRegistrations;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.directives.CustomDirectives.FilterCallback;
+import org.netbeans.modules.php.blade.project.ProjectUtils;
 import org.netbeans.modules.php.blade.syntax.annotation.Directive;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
@@ -217,7 +217,7 @@ public class BladeHtmlCompletionProvider implements CompletionProvider {
         }
 
         FileObject fo = EditorDocumentUtils.getFileObject(doc);
-        Project project = FileOwnerQuery.getOwner(fo);
+        Project project = ProjectUtils.getMainOwner(fo);
 
         CustomDirectives.getInstance(project).filterAction(new FilterCallback() {
             @Override

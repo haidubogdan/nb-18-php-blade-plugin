@@ -5,8 +5,8 @@ package org.netbeans.modules.php.blade.editor.indexing;
 
 import java.io.IOException;
 import java.util.List;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.php.blade.project.ProjectUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
@@ -41,24 +41,7 @@ public class QueryUtils {
     }
     
     public static BladeIndex getIndex(FileObject fo) {
-        Project project = FileOwnerQuery.getOwner(fo);
-        
-        //the PHP ProjectConvertor is looking only for
-        //"src"
-        //"lib"
-        String className = project.getClass().getSimpleName();
-        
-        //we need to load the root project
-        if (className.equals("ConvertorProject")){
-            FileObject root = project.getProjectDirectory();
-            
-            if (root != null){
-                FileObject rootDir = root.getParent();
-                if (rootDir != null) {
-                    project = FileOwnerQuery.getOwner(rootDir);
-                }
-            }
-        }
+        Project project = ProjectUtils.getMainOwner(fo);
         
         try {
             return BladeIndex.get(project);
