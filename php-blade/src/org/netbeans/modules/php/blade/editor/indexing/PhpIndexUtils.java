@@ -169,7 +169,7 @@ public class PhpIndexUtils {
         QuerySupport phpindex = QuerySupportFactory.get(fo);
         Collection<PhpIndexFunctionResult> results = new ArrayList<>();
         //for the moment a quick hack
-        String regexQuery = method.toLowerCase() + ";(.)*" + className + "(.)*";
+        String regexQuery = method.toLowerCase() + ";(.)*(" + className.replace("_", "/") + ")(.)*";
         try {
             Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_METHOD, regexQuery,
                     QuerySupport.Kind.REGEXP, new String[]{PHPIndexer.FIELD_METHOD});
