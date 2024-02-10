@@ -56,6 +56,7 @@ public class BladeParserResult extends ParserResult {
     public final Map<OffsetRange, Reference> occurancesForDeclaration = new TreeMap<>();
     public final Map<OffsetRange, String> phpClassOccurences = new TreeMap<>();
     public final Map<OffsetRange, String> phpFunctionOccurences = new TreeMap<>();
+    public final Map<OffsetRange, Reference> phpMethodOccurences = new TreeMap<>();
     public final Map<OffsetRange, String> phpConstantOccurences = new TreeMap<>();
     public final Map<OffsetRange, Reference> customDirectivesReferences = new TreeMap<>();
     public final Map<OffsetRange, ReferenceType> fieldCallType = new TreeMap<>();
@@ -73,7 +74,8 @@ public class BladeParserResult extends ParserResult {
     public enum ReferenceType {
         YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION,
         SECTION_MISSING, USE, CUSTOM_DIRECTIVE,
-        PHP_FUNCTION, PHP_CLASS, PHP_CONSTANT, TEMPLATE_PATH, STATIC_FIELD_ACCESS
+        PHP_FUNCTION, PHP_CLASS, PHP_METHOD, PHP_CONSTANT, STATIC_FIELD_ACCESS,
+        TEMPLATE_PATH,
     }
 
     public enum ParserContext {
@@ -320,11 +322,25 @@ public class BladeParserResult extends ParserResult {
                 if (ctx.class_name == null || ctx.class_name.getText() == null) {
                     return;
                 }
-                String functionName = ctx.class_name.getText();
+                String className = ctx.class_name.getText();
                 OffsetRange range = new OffsetRange(ctx.class_name.getStartIndex(), ctx.class_name.getStopIndex() + 1);
-                phpClassOccurences.put(range, functionName);
-                OffsetRange callRange = new OffsetRange(ctx.PHP_STATIC_ACCESS().getSymbol().getStartIndex(), ctx.static_property.getStopIndex() + 1);
-                fieldCallType.put(callRange, ReferenceType.STATIC_FIELD_ACCESS);
+                phpClassOccurences.put(range, className);
+                OffsetRange callRange = null;
+                int start = ctx.PHP_STATIC_ACCESS().getSymbol().getStartIndex();
+                if (ctx.static_property != null){
+                    //constants
+                    callRange = new OffsetRange(start, ctx.static_property.getStopIndex() + 1);
+                } else if (ctx.method_call() != null) {
+                    //methods
+                    callRange = new OffsetRange(start, ctx.method_call().getStop().getStopIndex() + 1);
+                    String functionName = ctx.method_call().func_name.getText();
+                    OffsetRange functionRange = new OffsetRange(ctx.method_call().func_name.getStartIndex(), ctx.method_call().func_name.getStopIndex() + 1);
+                    phpMethodOccurences.put(functionRange, new Reference(ReferenceType.PHP_METHOD, functionName, range, className));
+                }
+
+                if (callRange != null){
+                    fieldCallType.put(callRange, ReferenceType.STATIC_FIELD_ACCESS);
+                }
             }
 
             @Override
@@ -478,6 +494,7 @@ public class BladeParserResult extends ParserResult {
             }
         }
 
+
         for (Map.Entry<OffsetRange, String> entry : phpClassOccurences.entrySet()) {
             OffsetRange range = entry.getKey();
 
@@ -490,7 +507,20 @@ public class BladeParserResult extends ParserResult {
                 return new Reference(ReferenceType.PHP_CLASS, entry.getValue(), range);
             }
         }
+                
+        for (Map.Entry<OffsetRange, Reference> entry : phpMethodOccurences.entrySet()) {
+            OffsetRange range = entry.getKey();
 
+            if (offset < range.getStart()) {
+                //excedeed the offset range
+                break;
+            }
+
+            if (range.containsInclusive(offset)) {
+                return entry.getValue();
+            }
+        }
+        
         for (Map.Entry<OffsetRange, String> entry : phpConstantOccurences.entrySet()) {
             OffsetRange range = entry.getKey();
 
@@ -700,12 +730,21 @@ public class BladeParserResult extends ParserResult {
 
         public final ReferenceType type;
         public final String name;
+        public final String ownerClass;
         public final OffsetRange defOffset;
+        
+        public Reference(ReferenceType type, String name, OffsetRange defOffset, String ownerClass) {
+            this.type = type;
+            this.name = name;
+            this.defOffset = defOffset;
+            this.ownerClass = ownerClass;
+        }
 
         public Reference(ReferenceType type, String name, OffsetRange defOffset) {
             this.type = type;
             this.name = name;
             this.defOffset = defOffset;
+            this.ownerClass = null;
         }
     }
 

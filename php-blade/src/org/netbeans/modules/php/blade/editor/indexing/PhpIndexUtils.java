@@ -165,6 +165,39 @@ public class PhpIndexUtils {
         }
         return results;
     }
+    public static Collection<PhpIndexFunctionResult> queryExactClassMethods(FileObject fo, String method, String className) {
+        QuerySupport phpindex = QuerySupportFactory.get(fo);
+        Collection<PhpIndexFunctionResult> results = new ArrayList<>();
+        //for the moment a quick hack
+        String regexQuery = method.toLowerCase() + ";(.)*" + className + "(.)*";
+        try {
+            Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_METHOD, regexQuery,
+                    QuerySupport.Kind.REGEXP, new String[]{PHPIndexer.FIELD_METHOD});
+            for (IndexResult indexResult : indexResults) {
+                FileObject indexFile = indexResult.getFile();
+                //internal php index
+
+                String[] values = indexResult.getValues(PHPIndexer.FIELD_METHOD);
+                for (String value : values) {
+                    Signature sig = Signature.get(value);
+                    String name = sig.string(1);
+
+                    if (name.length() > 0 && name.equals(method)) {
+                        Integer offset = sig.integer(2);
+                        String params = sig.string(3);
+                        results.add(new PhpIndexFunctionResult(name,
+                                indexFile, PhpIndexResult.Type.FUNCTION,
+                                new OffsetRange(offset, offset + name.length()),
+                                parseParameters(params)
+                        ));
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return results;
+    }
 
     public static Collection<PhpIndexResult> queryConstants(FileObject fo, String prefix) {
         QuerySupport phpindex = QuerySupportFactory.get(fo);

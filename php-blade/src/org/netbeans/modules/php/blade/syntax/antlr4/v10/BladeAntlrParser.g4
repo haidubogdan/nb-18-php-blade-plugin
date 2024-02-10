@@ -152,7 +152,11 @@ echo_expr : composed_php_expression;
 
 class_expr_usage: class_alias_static_access | static_direct_class_access;
 class_alias_static_access : class_name=PHP_VARIABLE PHP_STATIC_ACCESS static_property=PHP_IDENTIFIER;
-static_direct_class_access : class_name=PHP_IDENTIFIER PHP_STATIC_ACCESS static_property=PHP_IDENTIFIER;
+static_direct_class_access : class_name=PHP_IDENTIFIER PHP_STATIC_ACCESS method_call
+    | class_name=PHP_IDENTIFIER PHP_STATIC_ACCESS static_property=PHP_IDENTIFIER
+    ;
+
+method_call : func_name=PHP_IDENTIFIER BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
 function_call : func_name=PHP_IDENTIFIER BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
 
 php_expression: PHP_EXPRESSION;

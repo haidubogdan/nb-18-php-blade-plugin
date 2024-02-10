@@ -223,6 +223,27 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                     location.addAlternative(new AlternativeLocationImpl(classLocation));
                 }
                 return location;
+            case PHP_METHOD:
+                if (reference.ownerClass == null){
+                    return location;
+                }
+                phpProjectIndex = PhpProjectIndex.getInstance();
+                Collection<PhpIndexFunctionResult> indexMethodResults = PhpIndexUtils.queryExactClassMethods(phpProjectIndex.rootFile,
+                        reference.name, reference.ownerClass);
+                for (PhpIndexFunctionResult indexResult : indexMethodResults) {
+                    PhpFunctionElement resultHandle = new PhpFunctionElement(
+                            reference.name,
+                            indexResult.declarationFile,
+                            ElementType.PHP_FUNCTION,
+                            indexResult.getParams()
+                    );
+                    DeclarationLocation functionLocation = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
+                    if (location.equals(DeclarationLocation.NONE)) {
+                        location = functionLocation;
+                    }
+                    location.addAlternative(new AlternativeLocationImpl(functionLocation));
+                }
+                return location;
             case PHP_FUNCTION:
                 phpProjectIndex = PhpProjectIndex.getInstance();
                 Collection<PhpIndexFunctionResult> indexResults = PhpIndexUtils.queryExactFunctions(phpProjectIndex.rootFile, reference.name);
