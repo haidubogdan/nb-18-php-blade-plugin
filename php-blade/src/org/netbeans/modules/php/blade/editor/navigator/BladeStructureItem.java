@@ -12,8 +12,8 @@ import org.netbeans.modules.csl.api.Modifier;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.StructureItem;
 import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.php.blade.editor.ResourceUtilities;
 import org.openide.filesystems.FileObject;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -21,7 +21,6 @@ import org.openide.util.ImageUtilities;
  */
 public abstract class BladeStructureItem implements ElementHandle, StructureItem {
 
-    private static final String ICON_BASE = "org/netbeans/modules/php/blade/resources/"; //NOI18N
     final String name;
     final FileObject source;
     final int startOffset;
@@ -125,7 +124,7 @@ public abstract class BladeStructureItem implements ElementHandle, StructureItem
 
         @Override
         public ImageIcon getCustomIcon() {
-            return ImageUtilities.loadImageIcon(ICON_BASE + "icons/layout.png", false);
+            return ResourceUtilities.loadResourceIcon("icons/layout.png");
         }
     }
 
@@ -152,7 +151,7 @@ public abstract class BladeStructureItem implements ElementHandle, StructureItem
 
         @Override
         public ImageIcon getCustomIcon() {
-            return ImageUtilities.loadImageIcon(ICON_BASE + "icons/layout.png", false);
+            return ResourceUtilities.loadResourceIcon("icons/layout.png");
         }
     }
 }

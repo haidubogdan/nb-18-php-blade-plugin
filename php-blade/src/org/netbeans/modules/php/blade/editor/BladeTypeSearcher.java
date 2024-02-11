@@ -119,7 +119,7 @@ public class BladeTypeSearcher implements IndexSearcher {
 
         @Override
         public Icon getProjectIcon() {
-            return ImageUtilities.loadImageIcon(ICON_BASE + "icons/file.png", false);
+            return ResourceUtilities.loadResourceIcon("icons/file.png");
         }
 
         @Override

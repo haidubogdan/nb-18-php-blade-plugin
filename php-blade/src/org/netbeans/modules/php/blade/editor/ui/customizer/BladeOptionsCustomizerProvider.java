@@ -14,12 +14,13 @@ import org.openide.util.NbBundle;
  */
 public class BladeOptionsCustomizerProvider implements ProjectCustomizer.CompositeCategoryProvider {
 
-    public static final String BLADE_PATHS = "Blade Paths"; // NOI18N
+    public static final String VIEWS_FOLDERS = "views_folders"; // NOI18N
 
-    @NbBundle.Messages("BladeOptionsCustomizerProvider.name=Blade")
     @Override
     public ProjectCustomizer.Category createCategory(Lookup lkp) {
-        return ProjectCustomizer.Category.create(BLADE_PATHS, "Blade Paths", null);
+        return ProjectCustomizer.Category.create(VIEWS_FOLDERS,
+                NbBundle.getMessage(BladeOptionsCustomizerProvider.class,
+                        "LBL_ViewsFolders"), null);
     }
 
     @Override

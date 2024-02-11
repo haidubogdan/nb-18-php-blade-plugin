@@ -12,12 +12,14 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /**
- *
+ * TODO validate view folder content
+ * 
  * @author bogdan
  */
 @ActionID(id = "org.netbeans.modules.php.blade.editor.actions.reindex", category = "Folder")
@@ -39,6 +41,8 @@ public class ReindexAction extends AbstractAction implements ContextAwareAction 
     @Override
     public Action createContextAwareInstance(Lookup lkp) {
         FileObject folderNode = lkp.lookup(FileObject.class);
+        //experiment for annotation
+        DataObject d = lkp.lookup(DataObject.class);
         ReindexAction action = new ReindexAction();
         action.putValue(NAME, "Reindex folder");
         action.putValue(DynamicMenuContent.HIDE_WHEN_DISABLED, true);

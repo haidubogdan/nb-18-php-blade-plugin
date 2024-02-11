@@ -33,6 +33,7 @@ import org.netbeans.modules.php.blade.editor.indexing.PhpIndexFunctionResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
+import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.FieldAccessReference;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
 import org.netbeans.modules.php.blade.editor.parser.ParsingUtils;
 import org.netbeans.modules.php.blade.project.PhpProjectIndex;
@@ -102,10 +103,11 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             return;
         }
         
-        Reference fieldAccessReference = parserResult.findFieldAccessRefrence(offset);
+        FieldAccessReference fieldAccessReference = parserResult.findFieldAccessRefrence(offset);
         
         if (fieldAccessReference != null){
             completeClassConstants(prefix, offset, completionProposals, parserResult);
+            completeClassMethods(prefix, fieldAccessReference, offset, completionProposals, parserResult);
             return;
         }
 
@@ -150,6 +152,29 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             BladeParserResult parserResult) {
         Collection<PhpIndexFunctionResult> indexedFunctions = PhpIndexUtils.queryFunctions(
                 parserResult.getSnapshot().getSource().getFileObject(), prefix);
+        if (indexedFunctions.isEmpty()) {
+            return;
+        }
+        CompletionRequest request = new CompletionRequest();
+        request.anchorOffset = offset - prefix.length();
+        request.carretOffset = offset;
+        request.prefix = prefix;
+        for (PhpIndexFunctionResult indexResult : indexedFunctions) {
+            //to be completed
+            //might add syntax completion cursor
+            String completion = indexResult.name + "()";
+            String preview = indexResult.name + indexResult.getParamsAsString();
+            NamedElement functionElement = new NamedElement(completion, indexResult.declarationFile, ElementType.PHP_FUNCTION);
+            completionProposals.add(new BladeCompletionItem.FunctionItem(functionElement, request, preview));
+        }
+    }
+    
+    private void completeClassMethods(String prefix, FieldAccessReference fieldAccessReference,
+            int offset,
+            final List<CompletionProposal> completionProposals,
+            BladeParserResult parserResult) {
+        Collection<PhpIndexFunctionResult> indexedFunctions = PhpIndexUtils.queryClassMethods(
+                parserResult.getSnapshot().getSource().getFileObject(), prefix, fieldAccessReference.ownerClass);
         if (indexedFunctions.isEmpty()) {
             return;
         }

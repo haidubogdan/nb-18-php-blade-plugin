@@ -9,6 +9,7 @@ import javax.swing.Action;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
+import org.netbeans.modules.php.blade.editor.ResourceUtilities;
 import org.netbeans.spi.editor.completion.CompletionDocumentation;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
@@ -24,8 +25,6 @@ import org.openide.util.Exceptions;
  * @author bogdan
  */
 public class DirectiveCompletionBuilder {
-
-    private static final String ICON_BASE = "org/netbeans/modules/php/blade/resources/"; //NOI18N
 
     public static CompletionItem simpleItem(int startOffset, String directive,
             String description) {
@@ -184,6 +183,6 @@ public class DirectiveCompletionBuilder {
     }
 
     private static String getReferenceIcon() {
-        return ICON_BASE + "icons/at.png"; //NOI18N
+        return ResourceUtilities.ICON_BASE + "icons/at.png"; //NOI18N
     }
 }

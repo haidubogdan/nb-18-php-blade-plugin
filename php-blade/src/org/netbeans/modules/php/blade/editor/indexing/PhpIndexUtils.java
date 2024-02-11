@@ -1,5 +1,6 @@
 package org.netbeans.modules.php.blade.editor.indexing;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,28 +22,6 @@ import org.openide.util.Exceptions;
  */
 public class PhpIndexUtils {
 
-    public static void query(FileObject fo) {
-        QuerySupport phpindex = QuerySupportFactory.get(fo);
-        {
-            try {
-                Collection<? extends IndexResult> indexResults = phpindex.query("method", "render", QuerySupport.Kind.PREFIX, new String[]{"method"});
-                for (IndexResult indexResult : indexResults) {
-                    FileObject indexFile = indexResult.getFile();
-                    //internal php index
-                    if (indexFile.getClass().getSimpleName().equals("AbstractFileObject")) {
-                        continue;
-                    }
-                    //                          String[] values = indexResult.getValues("method");
-                    int w = 1;
-                }
-                int y = 1;
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-        int x = 1;
-    }
-
     /**
      * @todo implement a parser for php elements
      *
@@ -55,12 +34,13 @@ public class PhpIndexUtils {
         Collection<PhpIndexResult> results = new ArrayList<>();
         String queryPrefix = prefix.toLowerCase();
         try {
-            Collection<? extends IndexResult> indexResults = phpindex.query("clz", queryPrefix, QuerySupport.Kind.PREFIX, new String[]{"clz"});
+            Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_CLASS,
+                    queryPrefix, QuerySupport.Kind.PREFIX, new String[]{PHPIndexer.FIELD_CLASS});
             for (IndexResult indexResult : indexResults) {
                 FileObject indexFile = indexResult.getFile();
                 //internal php index
 
-                String[] values = indexResult.getValues("clz");
+                String[] values = indexResult.getValues(PHPIndexer.FIELD_CLASS);
                 for (String value : values) {
                     Signature sig = Signature.get(value);
                     String fullName = sig.string(1);
@@ -123,8 +103,8 @@ public class PhpIndexUtils {
                                 name, indexFile,
                                 PhpIndexResult.Type.FUNCTION,
                                 new OffsetRange(offset, offset + name.length()),
-                                parseParameters(params)        
-                                ));
+                                parseParameters(params)
+                        ));
                     }
                 }
             }
@@ -165,10 +145,12 @@ public class PhpIndexUtils {
         }
         return results;
     }
+
     public static Collection<PhpIndexFunctionResult> queryExactClassMethods(FileObject fo, String method, String className) {
         QuerySupport phpindex = QuerySupportFactory.get(fo);
         Collection<PhpIndexFunctionResult> results = new ArrayList<>();
         //for the moment a quick hack
+        //maybe send the classNamePath directly?
         String regexQuery = method.toLowerCase() + ";(.)*(" + className.replace("_", "/") + ")(.)*";
         try {
             Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_METHOD, regexQuery,
@@ -183,6 +165,49 @@ public class PhpIndexUtils {
                     String name = sig.string(1);
 
                     if (name.length() > 0 && name.equals(method)) {
+                        Integer offset = sig.integer(2);
+                        String params = sig.string(3);
+                        results.add(new PhpIndexFunctionResult(name,
+                                indexFile, PhpIndexResult.Type.FUNCTION,
+                                new OffsetRange(offset, offset + name.length()),
+                                parseParameters(params)
+                        ));
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return results;
+    }
+
+    /**
+     * todo might add project filter
+     * 
+     * @param fo
+     * @param method
+     * @param className
+     * @return 
+     */
+    public static Collection<PhpIndexFunctionResult> queryClassMethods(FileObject fo, String method, String className) {
+        QuerySupport phpindex = QuerySupportFactory.get(fo);
+        Collection<PhpIndexFunctionResult> results = new ArrayList<>();
+        //for the moment a quick hack
+        //maybe send the classNamePath directly?
+        String regexQuery = method.toLowerCase() + "(.)*;(.)*(" + className.replace("_", "/") + ")(.)*";
+        try {
+            Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_METHOD, regexQuery,
+                    QuerySupport.Kind.REGEXP, new String[]{PHPIndexer.FIELD_METHOD});
+            for (IndexResult indexResult : indexResults) {
+                FileObject indexFile = indexResult.getFile();
+                //internal php index
+
+                String[] values = indexResult.getValues(PHPIndexer.FIELD_METHOD);
+                for (String value : values) {
+                    Signature sig = Signature.get(value);
+                    String name = sig.string(1);
+
+                    if (name.length() > 0 && name.startsWith(method)) {
                         Integer offset = sig.integer(2);
                         String params = sig.string(3);
                         results.add(new PhpIndexFunctionResult(name,
@@ -225,18 +250,18 @@ public class PhpIndexUtils {
         }
         return results;
     }
-    
+
     public static Collection<PhpIndexResult> queryClassConstants(FileObject fo, String prefix) {
         QuerySupport phpindex = QuerySupportFactory.get(fo);
         Collection<PhpIndexResult> results = new ArrayList<>();
         String queryPrefix = prefix.toLowerCase();
         try {
-            Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_CLASS_CONST , queryPrefix, QuerySupport.Kind.PREFIX, new String[]{PHPIndexer.FIELD_CLASS_CONST });
+            Collection<? extends IndexResult> indexResults = phpindex.query(PHPIndexer.FIELD_CLASS_CONST, queryPrefix, QuerySupport.Kind.PREFIX, new String[]{PHPIndexer.FIELD_CLASS_CONST});
             for (IndexResult indexResult : indexResults) {
                 FileObject indexFile = indexResult.getFile();
                 //internal php index
 
-                String[] values = indexResult.getValues(PHPIndexer.FIELD_CLASS_CONST );
+                String[] values = indexResult.getValues(PHPIndexer.FIELD_CLASS_CONST);
                 for (String value : values) {
                     Signature sig = Signature.get(value);
                     String name = sig.string(1);
@@ -279,8 +304,8 @@ public class PhpIndexUtils {
         }
         return results;
     }
-    
-        static List<String> parseParameters(final String signature) {
+
+    static List<String> parseParameters(final String signature) {
         List<String> retval = new ArrayList<>();
         if (signature != null && signature.length() > 0) {
             final String regexp = String.format("\\%s", ","); //NOI18N
@@ -308,7 +333,7 @@ public class PhpIndexUtils {
         String[] parts = sig.split(regexp);
         if (parts.length > 0) {
             String paramName = parts[0];
-             boolean isRawType = Integer.parseInt(parts[2]) > 0;
+            boolean isRawType = Integer.parseInt(parts[2]) > 0;
             boolean isMandatory = Integer.parseInt(parts[4]) > 0;
             boolean isReference = Integer.parseInt(parts[5]) > 0;
             boolean isVariadic = Integer.parseInt(parts[6]) > 0;

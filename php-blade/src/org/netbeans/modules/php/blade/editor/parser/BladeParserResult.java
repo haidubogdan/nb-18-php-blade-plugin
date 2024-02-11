@@ -59,7 +59,7 @@ public class BladeParserResult extends ParserResult {
     public final Map<OffsetRange, Reference> phpMethodOccurences = new TreeMap<>();
     public final Map<OffsetRange, String> phpConstantOccurences = new TreeMap<>();
     public final Map<OffsetRange, Reference> customDirectivesReferences = new TreeMap<>();
-    public final Map<OffsetRange, ReferenceType> fieldCallType = new TreeMap<>();
+    public final Map<OffsetRange, FieldAccessReference> fieldCallType = new TreeMap<>();
     public final Map<OffsetRange, Set<String>> scopedVariables = new TreeMap<>();
     public final List<BladeStructureItem> structure = new ArrayList<>();
     public final List<OffsetRange> folds = new ArrayList<>();
@@ -317,6 +317,7 @@ public class BladeParserResult extends ParserResult {
                 }
             }
 
+            //this will be always static
             @Override
             public void exitStatic_direct_class_access(BladeAntlrParser.Static_direct_class_accessContext ctx) {
                 if (ctx.class_name == null || ctx.class_name.getText() == null) {
@@ -327,19 +328,30 @@ public class BladeParserResult extends ParserResult {
                 phpClassOccurences.put(range, className);
                 OffsetRange callRange = null;
                 int start = ctx.PHP_STATIC_ACCESS().getSymbol().getStartIndex();
+                String fieldName = null;
+                FieldType fieldType = null;
                 if (ctx.static_property != null){
                     //constants
                     callRange = new OffsetRange(start, ctx.static_property.getStopIndex() + 1);
+                    fieldName = ctx.static_property.getText();
+                    fieldType = FieldType.CONSTANT;
                 } else if (ctx.method_call() != null) {
                     //methods
                     callRange = new OffsetRange(start, ctx.method_call().getStop().getStopIndex() + 1);
-                    String functionName = ctx.method_call().func_name.getText();
+                    fieldName = ctx.method_call().func_name.getText();
+                    fieldType = FieldType.METHOD;
                     OffsetRange functionRange = new OffsetRange(ctx.method_call().func_name.getStartIndex(), ctx.method_call().func_name.getStopIndex() + 1);
-                    phpMethodOccurences.put(functionRange, new Reference(ReferenceType.PHP_METHOD, functionName, range, className));
+                    phpMethodOccurences.put(functionRange, new Reference(ReferenceType.PHP_METHOD, fieldName, range, className));
                 }
 
                 if (callRange != null){
-                    fieldCallType.put(callRange, ReferenceType.STATIC_FIELD_ACCESS);
+                    FieldAccessReference fieldAccess = new FieldAccessReference(
+                            ReferenceType.STATIC_FIELD_ACCESS,
+                            className,
+                            fieldName,
+                            fieldType
+                    );
+                    fieldCallType.put(callRange, fieldAccess);
                 }
             }
 
@@ -537,8 +549,8 @@ public class BladeParserResult extends ParserResult {
         return null;
     }
 
-    public Reference findFieldAccessRefrence(int offset) {
-        for (Map.Entry<OffsetRange, ReferenceType> entry : fieldCallType.entrySet()) {
+    public FieldAccessReference findFieldAccessRefrence(int offset) {
+        for (Map.Entry<OffsetRange, FieldAccessReference> entry : fieldCallType.entrySet()) {
             OffsetRange range = entry.getKey();
 
             if (offset < range.getStart()) {
@@ -547,7 +559,7 @@ public class BladeParserResult extends ParserResult {
             }
 
             if (range.containsInclusive(offset)) {
-                return new Reference(entry.getValue(), "", range);
+                return entry.getValue();
             }
         }
 
@@ -745,6 +757,26 @@ public class BladeParserResult extends ParserResult {
             this.name = name;
             this.defOffset = defOffset;
             this.ownerClass = null;
+        }
+    }
+    
+    public enum FieldType {
+        PROPERTY,
+        CONSTANT,
+        METHOD;
+    }
+    
+    public static class FieldAccessReference {
+        public final ReferenceType type;
+        public final String ownerClass;
+        public final String fieldName;
+        public final FieldType fieldType;
+        
+        public FieldAccessReference(ReferenceType type, String ownerClass, String fieldName, FieldType fieldType) {
+            this.type = type;
+            this.ownerClass = ownerClass;
+            this.fieldName = fieldName;
+            this.fieldType = fieldType;
         }
     }
 

@@ -25,14 +25,15 @@ public class BladeSettingsCustomizerProvider implements ProjectCustomizer.Compos
         subcategories.add(optionsCustomizer.createCategory(lkp));
         BladeDirectivesCustomizerProvider directiveCustomizer = new BladeDirectivesCustomizerProvider();
         subcategories.add(directiveCustomizer.createCategory(lkp));
-        return ProjectCustomizer.Category.create(CUSTOMIZER_IDENT, NbBundle.getMessage(BladeSettingsCustomizerProvider.class, "LBL_LaravelBlade"), null,
+        return ProjectCustomizer.Category.create(CUSTOMIZER_IDENT,
+                NbBundle.getMessage(BladeSettingsCustomizerProvider.class, "LBL_LaravelBlade"), null,
                 subcategories.toArray(new ProjectCustomizer.Category[0]));
     }
 
     @Override
     public JComponent createComponent(ProjectCustomizer.Category category, Lookup context) {
         switch (category.getName()) {
-            case BladeOptionsCustomizerProvider.BLADE_PATHS:
+            case BladeOptionsCustomizerProvider.VIEWS_FOLDERS:
                 BladeOptionsCustomizerProvider provider = new BladeOptionsCustomizerProvider();
                 return provider.createComponent(category, context);
             case BladeDirectivesCustomizerProvider.BLADE_DIRECTIVES:

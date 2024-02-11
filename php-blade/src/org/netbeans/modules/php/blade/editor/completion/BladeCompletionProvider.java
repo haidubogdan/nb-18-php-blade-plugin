@@ -18,6 +18,7 @@ import org.netbeans.api.editor.mimelookup.MimeRegistrations;
 import org.netbeans.api.project.Project;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
+import org.netbeans.modules.php.blade.editor.ResourceUtilities;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex.IndexedReferenceId;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
@@ -336,25 +337,23 @@ public class BladeCompletionProvider implements CompletionProvider {
         resultSet.addItem(item);
     }
 
-    private static final String ICON_BASE = "org/netbeans/modules/php/blade/resources/"; //NOI18N
-
     private static String getReferenceIcon() {
-        return ICON_BASE + "icons/at.png"; //NOI18N
+        return ResourceUtilities.ICON_BASE + "icons/at.png"; //NOI18N
     }
 
     private static String getReferenceIcon(CompletionType type) {
         switch (type) {
             case YIELD_ID:
-                return ICON_BASE + "icons/layout.png"; //NOI18N
+                return ResourceUtilities.ICON_BASE + "icons/layout.png"; //NOI18N
         }
-        return ICON_BASE + "icons/at.png";
+        return ResourceUtilities.ICON_BASE + "icons/at.png";
     }
 
     private static String getReferenceIcon(FileObject file) {
         if (file.isFolder()) {
             return "org/openide/loaders/defaultFolder.gif"; //NOI18N
         }
-        return ICON_BASE + "icons/file.png"; //NOI18N
+        return ResourceUtilities.ICON_BASE + "icons/file.png"; //NOI18N
     }
 
 }
