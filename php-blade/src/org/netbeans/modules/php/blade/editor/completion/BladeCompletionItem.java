@@ -136,6 +136,19 @@ public class BladeCompletionItem implements CompletionProposal {
         }
     }
 
+    public static class NamespaceItem extends PhpElementItem {
+
+        public NamespaceItem(ElementHandle element, CompletionRequest request, String previewValue) {
+            super(element, request, previewValue);
+        }
+
+        @Override
+        public ElementKind getKind() {
+            return ElementKind.PACKAGE;
+        }
+
+    }
+    
     public static class ClassItem extends PhpElementItem {
 
         public ClassItem(ElementHandle element, CompletionRequest request, String previewValue) {

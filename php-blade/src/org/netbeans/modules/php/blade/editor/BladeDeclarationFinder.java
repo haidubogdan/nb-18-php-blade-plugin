@@ -26,16 +26,16 @@ import org.netbeans.modules.php.blade.editor.indexing.PhpIndexUtils;
 import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
+import static org.netbeans.modules.php.blade.editor.parser.BladeParserResult.ReferenceType.PHP_CONSTANT;
 import static org.netbeans.modules.php.blade.editor.parser.BladeParserResult.ReferenceType.PHP_FUNCTION;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
-import org.netbeans.modules.php.blade.project.PhpProjectIndex;
-import org.netbeans.modules.php.blade.project.ProjectUtils;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 import org.openide.filesystems.FileObject;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
+import org.netbeans.spi.project.ui.support.ProjectConvertors;
 import org.openide.filesystems.FileUtil;
 
 /**
@@ -46,24 +46,14 @@ import org.openide.filesystems.FileUtil;
  */
 public class BladeDeclarationFinder implements DeclarationFinder {
 
-    //not used for the moment
-    static enum DeclarationType {
-        BLADE_PATH, SECTION, USE, HAS_SECTION, PHP, CUSTOM_DIRECTIVE, NONE, PHP_CLASS
-    }
-
-    DeclarationType currentDeclarationType;
-
     @Override
     public OffsetRange getReferenceSpan(Document document, int caretOffset) {
         BaseDocument baseDoc = (BaseDocument) document;
 
         baseDoc.readLock();
         AntlrTokenSequence tokens = null;
-        TokenSequence<? extends PHPTokenId> tsPhp = null;
-        org.netbeans.api.lexer.Token<?> tokenPhp = null;
         OffsetRange offsetRange = OffsetRange.NONE;
         int lineOffset = caretOffset;
-        currentDeclarationType = null;
         try {
             try {
                 String text = baseDoc.getText(0, baseDoc.getLength());
@@ -88,6 +78,8 @@ public class BladeDeclarationFinder implements DeclarationFinder {
             switch (nt.getType()) {
                 case D_CUSTOM:
                 case PHP_IDENTIFIER:
+                case PHP_NAMESPACE_PATH:
+                case PHP_NAMESPACE:
                     return new OffsetRange(nt.getStartIndex(), nt.getStopIndex() + 1);
             }
 
@@ -116,15 +108,20 @@ public class BladeDeclarationFinder implements DeclarationFinder {
         BladeParserResult parserResult = (BladeParserResult) info;
 
         Reference reference = parserResult.findOccuredRefrence(caretOffset);
+        DeclarationLocation location = DeclarationLocation.NONE;
 
         if (reference == null) {
-            //what to do with constants??
-            return DeclarationLocation.NONE;
+            return location;
         }
 
-        PhpProjectIndex phpProjectIndex;
         FileObject currentFile = parserResult.getFileObject();
-        DeclarationLocation location = DeclarationLocation.NONE;
+        Project projectOwner = ProjectConvertors.getNonConvertorOwner(currentFile);
+
+        if (projectOwner == null) {
+            return location;
+        }
+
+        FileObject sourceFolder = projectOwner.getProjectDirectory();
 
         switch (reference.type) {
             case EXTENDS:
@@ -189,11 +186,9 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 return location;
             case CUSTOM_DIRECTIVE:
                 String directiveNameFound = reference.name;
-                Project project = ProjectUtils.getMainOwner(currentFile);
-
                 DeclarationLocation dlcustomDirective = DeclarationLocation.NONE;
 
-                CustomDirectives.getInstance(project).filterAction(new CustomDirectives.FilterCallbackDeclaration(dlcustomDirective) {
+                CustomDirectives.getInstance(projectOwner).filterAction(new CustomDirectives.FilterCallbackDeclaration(dlcustomDirective) {
                     @Override
                     public void filterDirectiveName(String directiveName, FileObject file) {
                         if (directiveName.equals(directiveNameFound)) {
@@ -211,12 +206,11 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 }
                 return dlcustomDirective;
             case PHP_CLASS:
-                phpProjectIndex = PhpProjectIndex.getInstance();
-                Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryExactClass(phpProjectIndex.rootFile, reference.name);
+                Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryExactClass(sourceFolder, reference.name);
 
                 for (PhpIndexResult indexResult : indexClassResults) {
                     NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_CLASS);
-                     DeclarationLocation classLocation = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
+                    DeclarationLocation classLocation = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
                     if (location.equals(DeclarationLocation.NONE)) {
                         location = classLocation;
                     }
@@ -224,11 +218,10 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 }
                 return location;
             case PHP_METHOD:
-                if (reference.ownerClass == null){
+                if (reference.ownerClass == null) {
                     return location;
                 }
-                phpProjectIndex = PhpProjectIndex.getInstance();
-                Collection<PhpIndexFunctionResult> indexMethodResults = PhpIndexUtils.queryExactClassMethods(phpProjectIndex.rootFile,
+                Collection<PhpIndexFunctionResult> indexMethodResults = PhpIndexUtils.queryExactClassMethods(sourceFolder,
                         reference.name, reference.ownerClass);
                 for (PhpIndexFunctionResult indexResult : indexMethodResults) {
                     PhpFunctionElement resultHandle = new PhpFunctionElement(
@@ -245,8 +238,9 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 }
                 return location;
             case PHP_FUNCTION:
-                phpProjectIndex = PhpProjectIndex.getInstance();
-                Collection<PhpIndexFunctionResult> indexResults = PhpIndexUtils.queryExactFunctions(phpProjectIndex.rootFile, reference.name);
+                Collection<PhpIndexFunctionResult> indexResults = PhpIndexUtils.queryExactFunctions(
+                        sourceFolder, reference.name);
+
                 for (PhpIndexFunctionResult indexResult : indexResults) {
                     PhpFunctionElement resultHandle = new PhpFunctionElement(
                             reference.name,
@@ -262,10 +256,27 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 }
                 return location;
             case PHP_CONSTANT:
-                phpProjectIndex = PhpProjectIndex.getInstance();
-                Collection<PhpIndexResult> indexConstantsResults = PhpIndexUtils.queryExactConstants(phpProjectIndex.rootFile, reference.name);
+                Collection<PhpIndexResult> indexConstantsResults = PhpIndexUtils.queryExactConstants(
+                        sourceFolder, reference.name);
+
                 for (PhpIndexResult indexResult : indexConstantsResults) {
                     NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_CONSTANT);
+                    DeclarationLocation constantLocation = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
+                    if (location.equals(DeclarationLocation.NONE)) {
+                        location = constantLocation;
+                    }
+                    location.addAlternative(new AlternativeLocationImpl(constantLocation));
+                }
+                return location;
+            case PHP_NAMESPACE_PATH:    
+            case PHP_NAMESPACE:
+                //just for test
+                //an exact query must be implemented
+                Collection<PhpIndexResult> indexNamespaceResults = PhpIndexUtils.queryNamespace(
+                        sourceFolder, reference.name);
+
+                for (PhpIndexResult indexResult : indexNamespaceResults) {
+                    NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_NAMESPACE);
                     DeclarationLocation constantLocation = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
                     if (location.equals(DeclarationLocation.NONE)) {
                         location = constantLocation;
@@ -293,10 +304,10 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
         @Override
         public String getDisplayHtml(HtmlFormatter formatter) {
-             ElementHandle el = getLocation().getElement();
-            if (el != null){
+            ElementHandle el = getLocation().getElement();
+            if (el != null) {
                 formatter.appendText(el.getName());
-                if (el.getFileObject() != null){
+                if (el.getFileObject() != null) {
                     formatter.appendText(" in ");
                     formatter.appendText(FileUtil.getFileDisplayName(el.getFileObject()));
                 }

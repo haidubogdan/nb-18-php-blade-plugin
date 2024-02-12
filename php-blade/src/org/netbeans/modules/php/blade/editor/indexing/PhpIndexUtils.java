@@ -251,6 +251,72 @@ public class PhpIndexUtils {
         return results;
     }
 
+    public static Collection<PhpIndexResult> queryNamespace(FileObject fo, String prefix) {
+        QuerySupport phpindex = QuerySupportFactory.get(fo);
+        Collection<PhpIndexResult> results = new ArrayList<>();
+        //subfolders with lowercase ; rootFolder
+        //third signature namespace
+        //the first el is the folder
+        String originalPrefix = prefix;
+        String[] queryItems = prefix.split("\\\\");
+        if (queryItems.length == 0){
+            return results;
+        }
+        boolean endsWithSlash = false;
+        if (prefix.endsWith("\\\\")){
+            prefix = prefix.substring(0, prefix.length() - 2);
+            endsWithSlash = true;
+        }
+        int lastSlashIndex = prefix.lastIndexOf('\\');
+
+        if (lastSlashIndex == prefix.length() - 1){
+            prefix = prefix.substring(0, prefix.length() - 2);
+        }
+
+        String queryPrefix = lastSlashIndex > 0 ? prefix.substring(0, lastSlashIndex).toLowerCase() : prefix.toLowerCase();
+
+        try {
+            Collection<? extends IndexResult> indexResults = phpindex.query(
+                    PHPIndexer.FIELD_TOP_LEVEL, queryPrefix, QuerySupport.Kind.PREFIX, new String[]{
+                        PHPIndexer.FIELD_NAMESPACE, PHPIndexer.FIELD_TOP_LEVEL});
+            for (IndexResult indexResult : indexResults) {
+                FileObject indexFile = indexResult.getFile();
+                String topFieldValue = indexResult.getValue(PHPIndexer.FIELD_TOP_LEVEL);
+                //internal php index
+                if (!endsWithSlash && topFieldValue.startsWith(prefix.toLowerCase())){
+                    String firstValue = indexResult.getValue(PHPIndexer.FIELD_NAMESPACE);
+                    Signature sig = Signature.get(firstValue);
+                    String name = sig.string(1);
+                    String namespace = sig.string(2);
+                    String fullNamespace = namespace + "\\" + name + "\\";
+                    if (fullNamespace.startsWith(originalPrefix)){
+                        results.add(new PhpIndexResult(fullNamespace,  indexFile, PhpIndexResult.Type.NAMESPACE, new OffsetRange(0, 1)));
+                        break;
+                    }
+                }
+
+                String[] values = indexResult.getValues(PHPIndexer.FIELD_NAMESPACE);
+                for (String value : values) {
+                    Signature sig = Signature.get(value);
+                    String name = sig.string(1);
+                    String namespace = sig.string(2);
+                    String fullNamespace = namespace + "\\" + name;
+                    String classNamespacePath = fullNamespace + "\\" +  indexFile.getName();
+
+                    //the indexing of namespace is quite complex
+                    if (classNamespacePath.startsWith(originalPrefix)) {
+                        results.add(new PhpIndexResult(fullNamespace + "\\" +  indexFile.getName(),  indexFile, PhpIndexResult.Type.NAMESPACE, new OffsetRange(0, 1)));
+                    } else if (fullNamespace.startsWith(originalPrefix)){
+                        results.add(new PhpIndexResult(fullNamespace,  indexFile, PhpIndexResult.Type.NAMESPACE, new OffsetRange(0, 1)));
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return results;
+    }
+    
     public static Collection<PhpIndexResult> queryClassConstants(FileObject fo, String prefix) {
         QuerySupport phpindex = QuerySupportFactory.get(fo);
         Collection<PhpIndexResult> results = new ArrayList<>();

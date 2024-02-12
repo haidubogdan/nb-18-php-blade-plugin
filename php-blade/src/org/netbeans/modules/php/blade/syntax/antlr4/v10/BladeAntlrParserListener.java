@@ -428,6 +428,36 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitStatic_direct_class_access(BladeAntlrParser.Static_direct_class_accessContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#class_instance}.
+	 * @param ctx the parse tree
+	 */
+	void enterClass_instance(BladeAntlrParser.Class_instanceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#class_instance}.
+	 * @param ctx the parse tree
+	 */
+	void exitClass_instance(BladeAntlrParser.Class_instanceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#namespace_class_name_reference}.
+	 * @param ctx the parse tree
+	 */
+	void enterNamespace_class_name_reference(BladeAntlrParser.Namespace_class_name_referenceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#namespace_class_name_reference}.
+	 * @param ctx the parse tree
+	 */
+	void exitNamespace_class_name_reference(BladeAntlrParser.Namespace_class_name_referenceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#class_name_reference}.
+	 * @param ctx the parse tree
+	 */
+	void enterClass_name_reference(BladeAntlrParser.Class_name_referenceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#class_name_reference}.
+	 * @param ctx the parse tree
+	 */
+	void exitClass_name_reference(BladeAntlrParser.Class_name_referenceContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#method_call}.
 	 * @param ctx the parse tree
 	 */

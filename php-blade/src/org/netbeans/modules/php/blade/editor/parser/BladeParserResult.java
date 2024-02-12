@@ -58,6 +58,7 @@ public class BladeParserResult extends ParserResult {
     public final Map<OffsetRange, String> phpFunctionOccurences = new TreeMap<>();
     public final Map<OffsetRange, Reference> phpMethodOccurences = new TreeMap<>();
     public final Map<OffsetRange, String> phpConstantOccurences = new TreeMap<>();
+    public final Map<OffsetRange, String> phpNamespacePathOccurences = new TreeMap<>();
     public final Map<OffsetRange, Reference> customDirectivesReferences = new TreeMap<>();
     public final Map<OffsetRange, FieldAccessReference> fieldCallType = new TreeMap<>();
     public final Map<OffsetRange, Set<String>> scopedVariables = new TreeMap<>();
@@ -74,7 +75,8 @@ public class BladeParserResult extends ParserResult {
     public enum ReferenceType {
         YIELD, STACK, SECTION, PUSH, INCLUDE, EXTENDS, EACH, HAS_SECTION,
         SECTION_MISSING, USE, CUSTOM_DIRECTIVE,
-        PHP_FUNCTION, PHP_CLASS, PHP_METHOD, PHP_CONSTANT, STATIC_FIELD_ACCESS,
+        PHP_FUNCTION, PHP_CLASS, PHP_METHOD, PHP_CONSTANT, PHP_NAMESPACE, PHP_NAMESPACE_PATH,
+        STATIC_FIELD_ACCESS,
         TEMPLATE_PATH,
     }
 
@@ -128,7 +130,7 @@ public class BladeParserResult extends ParserResult {
             parser.addErrorListener(createErrorListener());
 //            parser.addParseListener(createFoldListener());
             parser.addParseListener(createDeclarationReferencesListener());
-            parser.addParseListener(createPhpClassOccurencesListener());
+            parser.addParseListener(createPhpElementsOccurencesListener());
             parser.addParseListener(createVariableListener());
             parser.addParseListener(createLayoutTreeListener());
             parser.addParseListener(createStructureListener());
@@ -299,7 +301,7 @@ public class BladeParserResult extends ParserResult {
         };
     }
 
-    private ParseTreeListener createPhpClassOccurencesListener() {
+    private ParseTreeListener createPhpElementsOccurencesListener() {
         return new BladeAntlrParserBaseListener() {
             /**
              * handling isolated PHP_IDENTIFIER to reference them as possible
@@ -307,14 +309,46 @@ public class BladeParserResult extends ParserResult {
              */
             @Override
             public void exitComposed_php_expression(BladeAntlrParser.Composed_php_expressionContext ctx) {
-                if (ctx.PHP_IDENTIFIER() == null || ctx.PHP_IDENTIFIER().getSymbol() == null) {
+                if (ctx.PHP_IDENTIFIER() != null && ctx.PHP_IDENTIFIER().getSymbol() != null) {
+                    String identifierString = ctx.PHP_IDENTIFIER().getSymbol().getText();
+                    if (identifierString != null && org.netbeans.modules.php.blade.syntax.StringUtils.isUpperCase(identifierString)) {
+                        OffsetRange range = new OffsetRange(ctx.PHP_IDENTIFIER().getSymbol().getStartIndex(), ctx.PHP_IDENTIFIER().getSymbol().getStopIndex() + 1);
+                        phpConstantOccurences.put(range, identifierString);
+                    }
+                }
+                if (ctx.PHP_NAMESPACE_PATH() != null && ctx.PHP_NAMESPACE_PATH().getSymbol() != null) {
+                    String identifierString = ctx.PHP_NAMESPACE_PATH().getSymbol().getText();
+                    if (identifierString != null && org.netbeans.modules.php.blade.syntax.StringUtils.isUpperCase(identifierString)) {
+                        OffsetRange range = new OffsetRange(ctx.PHP_NAMESPACE_PATH().getSymbol().getStartIndex(), ctx.PHP_NAMESPACE_PATH().getSymbol().getStopIndex() + 1);
+                        phpNamespacePathOccurences.put(range, identifierString);
+                    }
+                } else if (ctx.PHP_NAMESPACE() != null && ctx.PHP_NAMESPACE().getSymbol() != null) {
+                    String identifierString = ctx.PHP_NAMESPACE().getSymbol().getText();
+                    if (identifierString != null && org.netbeans.modules.php.blade.syntax.StringUtils.isUpperCase(identifierString)) {
+                        OffsetRange range = new OffsetRange(ctx.PHP_NAMESPACE().getSymbol().getStartIndex(), ctx.PHP_NAMESPACE().getSymbol().getStopIndex() + 1);
+                        phpNamespacePathOccurences.put(range, identifierString);
+                    }
+                }
+            }
+
+            @Override
+            public void exitClass_name_reference(BladeAntlrParser.Class_name_referenceContext ctx) {
+                if (ctx.class_name == null || ctx.class_name.getText() == null) {
                     return;
                 }
-                String identifierString = ctx.PHP_IDENTIFIER().getSymbol().getText();
-                if (identifierString != null && org.netbeans.modules.php.blade.syntax.StringUtils.isUpperCase(identifierString)) {
-                    OffsetRange range = new OffsetRange(ctx.PHP_IDENTIFIER().getSymbol().getStartIndex(), ctx.PHP_IDENTIFIER().getSymbol().getStopIndex() + 1);
-                    phpConstantOccurences.put(range, identifierString);
+                String className = ctx.class_name.getText();
+                OffsetRange range = new OffsetRange(ctx.class_name.getStartIndex(), ctx.class_name.getStopIndex() + 1);
+                phpClassOccurences.put(range, className);
+            }
+
+            @Override
+            public void exitClass_instance(BladeAntlrParser.Class_instanceContext ctx) {
+                if (ctx.class_name == null || ctx.class_name.getText() == null) {
+                    return;
                 }
+                String className = ctx.class_name.getText();
+                OffsetRange range = new OffsetRange(ctx.class_name.getStartIndex(), ctx.class_name.getStopIndex() + 1);
+                phpClassOccurences.put(range, className);
             }
 
             //this will be always static
@@ -330,7 +364,7 @@ public class BladeParserResult extends ParserResult {
                 int start = ctx.PHP_STATIC_ACCESS().getSymbol().getStartIndex();
                 String fieldName = null;
                 FieldType fieldType = null;
-                if (ctx.static_property != null){
+                if (ctx.static_property != null) {
                     //constants
                     callRange = new OffsetRange(start, ctx.static_property.getStopIndex() + 1);
                     fieldName = ctx.static_property.getText();
@@ -344,7 +378,7 @@ public class BladeParserResult extends ParserResult {
                     phpMethodOccurences.put(functionRange, new Reference(ReferenceType.PHP_METHOD, fieldName, range, className));
                 }
 
-                if (callRange != null){
+                if (callRange != null) {
                     FieldAccessReference fieldAccess = new FieldAccessReference(
                             ReferenceType.STATIC_FIELD_ACCESS,
                             className,
@@ -506,7 +540,6 @@ public class BladeParserResult extends ParserResult {
             }
         }
 
-
         for (Map.Entry<OffsetRange, String> entry : phpClassOccurences.entrySet()) {
             OffsetRange range = entry.getKey();
 
@@ -519,7 +552,7 @@ public class BladeParserResult extends ParserResult {
                 return new Reference(ReferenceType.PHP_CLASS, entry.getValue(), range);
             }
         }
-                
+
         for (Map.Entry<OffsetRange, Reference> entry : phpMethodOccurences.entrySet()) {
             OffsetRange range = entry.getKey();
 
@@ -532,7 +565,7 @@ public class BladeParserResult extends ParserResult {
                 return entry.getValue();
             }
         }
-        
+
         for (Map.Entry<OffsetRange, String> entry : phpConstantOccurences.entrySet()) {
             OffsetRange range = entry.getKey();
 
@@ -543,6 +576,19 @@ public class BladeParserResult extends ParserResult {
 
             if (range.containsInclusive(offset)) {
                 return new Reference(ReferenceType.PHP_CONSTANT, entry.getValue(), range);
+            }
+        }
+        
+        for (Map.Entry<OffsetRange, String> entry : phpNamespacePathOccurences.entrySet()) {
+            OffsetRange range = entry.getKey();
+
+            if (offset < range.getStart()) {
+                //excedeed the offset range
+                break;
+            }
+
+            if (range.containsInclusive(offset)) {
+                return new Reference(ReferenceType.PHP_NAMESPACE_PATH, entry.getValue(), range);
             }
         }
 
@@ -682,7 +728,7 @@ public class BladeParserResult extends ParserResult {
             return bladeIndex;
         }
         Project project = ProjectUtils.getMainOwner(this.getFileObject());
-        
+
         try {
             bladeIndex = BladeIndex.get(project);
         } catch (IOException ex) {
@@ -744,7 +790,7 @@ public class BladeParserResult extends ParserResult {
         public final String name;
         public final String ownerClass;
         public final OffsetRange defOffset;
-        
+
         public Reference(ReferenceType type, String name, OffsetRange defOffset, String ownerClass) {
             this.type = type;
             this.name = name;
@@ -759,19 +805,20 @@ public class BladeParserResult extends ParserResult {
             this.ownerClass = null;
         }
     }
-    
+
     public enum FieldType {
         PROPERTY,
         CONSTANT,
         METHOD;
     }
-    
+
     public static class FieldAccessReference {
+
         public final ReferenceType type;
         public final String ownerClass;
         public final String fieldName;
         public final FieldType fieldType;
-        
+
         public FieldAccessReference(ReferenceType type, String ownerClass, String fieldName, FieldType fieldType) {
             this.type = type;
             this.ownerClass = ownerClass;

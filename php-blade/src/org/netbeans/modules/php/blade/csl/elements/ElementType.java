@@ -13,6 +13,7 @@ public enum ElementType {
     PATH,
     VARIABLE,
     PHP_CLASS,
+    PHP_NAMESPACE,
     PHP_FUNCTION,
     PHP_CONSTANT,
     STACK_ID,

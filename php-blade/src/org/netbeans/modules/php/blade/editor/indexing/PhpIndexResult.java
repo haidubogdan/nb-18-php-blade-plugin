@@ -14,6 +14,7 @@ public class PhpIndexResult {
     public static enum Type{
         CLASS,
         FUNCTION,
+        NAMESPACE,
         CONSTANT
     };
 

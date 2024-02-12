@@ -44,13 +44,9 @@ public class BladeProjectSupport extends ProjectOpenedHook implements Preference
         //
     }
 
-    /**
-     * not sure how we diferentiate with nested project?
-     */
     @Override
     protected void projectOpened() {
         BladeProjectProperties.getInstance(project);
-        PhpProjectIndex.getInstance(project);
         //TODO errors while loading properties
         //CustomDirectives.getInstance();
     }

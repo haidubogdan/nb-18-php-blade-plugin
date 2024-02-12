@@ -6,16 +6,12 @@ package org.netbeans.modules.php.blade.editor.path;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.parsing.api.indexing.IndexingManager;
 import org.netbeans.modules.php.blade.project.BladeProjectProperties;
 import org.netbeans.modules.php.blade.project.ProjectUtils;
+import org.netbeans.spi.project.ui.support.ProjectConvertors;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -72,7 +68,7 @@ public class PathUtils {
      */
     public static List<FileObject> findFileObjectsForBladePath(FileObject contextFile, String bladePath) {
         List<FileObject> list = new ArrayList<>();
-        Project project = FileOwnerQuery.getOwner(contextFile);
+        Project project = ProjectConvertors.getNonConvertorOwner(contextFile);
 
         if (project == null) {
             return list;
@@ -108,8 +104,8 @@ public class PathUtils {
             String prefixPath) {
         List<FileObject> list = new ArrayList<>();
         //this should be a fallback
-        Project project = FileOwnerQuery.getOwner(contextFile);
-
+        Project project = ProjectConvertors.getNonConvertorOwner(contextFile);
+        
         if (project == null) {
             return list;
         }

@@ -84,7 +84,6 @@ public final class BladeOptionsPanel extends javax.swing.JPanel {
      
     public void storeData(){
         bladeProperties.storeViewsPaths();
-        bladeProperties.setEnableAutoFormatting(bladeAutoFormattingCheckbox.isSelected());
     }
       
     public void addChangeListener(ChangeListener listener) {
