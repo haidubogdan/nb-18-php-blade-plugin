@@ -318,14 +318,8 @@ public class BladeParserResult extends ParserResult {
                 }
                 if (ctx.PHP_NAMESPACE_PATH() != null && ctx.PHP_NAMESPACE_PATH().getSymbol() != null) {
                     String identifierString = ctx.PHP_NAMESPACE_PATH().getSymbol().getText();
-                    if (identifierString != null && org.netbeans.modules.php.blade.syntax.StringUtils.isUpperCase(identifierString)) {
+                    if (identifierString != null) {
                         OffsetRange range = new OffsetRange(ctx.PHP_NAMESPACE_PATH().getSymbol().getStartIndex(), ctx.PHP_NAMESPACE_PATH().getSymbol().getStopIndex() + 1);
-                        phpNamespacePathOccurences.put(range, identifierString);
-                    }
-                } else if (ctx.PHP_NAMESPACE() != null && ctx.PHP_NAMESPACE().getSymbol() != null) {
-                    String identifierString = ctx.PHP_NAMESPACE().getSymbol().getText();
-                    if (identifierString != null && org.netbeans.modules.php.blade.syntax.StringUtils.isUpperCase(identifierString)) {
-                        OffsetRange range = new OffsetRange(ctx.PHP_NAMESPACE().getSymbol().getStartIndex(), ctx.PHP_NAMESPACE().getSymbol().getStopIndex() + 1);
                         phpNamespacePathOccurences.put(range, identifierString);
                     }
                 }
@@ -333,32 +327,40 @@ public class BladeParserResult extends ParserResult {
 
             @Override
             public void exitClass_name_reference(BladeAntlrParser.Class_name_referenceContext ctx) {
-                if (ctx.class_name == null || ctx.class_name.getText() == null) {
+                if (ctx.class_identifier() == null || ctx.class_identifier().class_name == null) {
                     return;
                 }
-                String className = ctx.class_name.getText();
-                OffsetRange range = new OffsetRange(ctx.class_name.getStartIndex(), ctx.class_name.getStopIndex() + 1);
+                Token classIdentifier = ctx.class_identifier().class_name;
+                String className = classIdentifier.getText();
+                OffsetRange range = new OffsetRange(classIdentifier.getStartIndex(), classIdentifier.getStopIndex() + 1);
                 phpClassOccurences.put(range, className);
             }
 
             @Override
             public void exitClass_instance(BladeAntlrParser.Class_instanceContext ctx) {
-                if (ctx.class_name == null || ctx.class_name.getText() == null) {
+                if (ctx.class_identifier() == null || ctx.class_identifier().class_name == null) {
                     return;
                 }
-                String className = ctx.class_name.getText();
-                OffsetRange range = new OffsetRange(ctx.class_name.getStartIndex(), ctx.class_name.getStopIndex() + 1);
+                Token classIdentifier = ctx.class_identifier().class_name;
+                String className =classIdentifier.getText();
+                OffsetRange range = new OffsetRange(classIdentifier.getStartIndex(), classIdentifier.getStopIndex() + 1);
                 phpClassOccurences.put(range, className);
             }
 
             //this will be always static
             @Override
             public void exitStatic_direct_class_access(BladeAntlrParser.Static_direct_class_accessContext ctx) {
-                if (ctx.class_name == null || ctx.class_name.getText() == null) {
+                if (ctx.class_identifier() == null || ctx.class_identifier().class_name == null) {
                     return;
                 }
-                String className = ctx.class_name.getText();
-                OffsetRange range = new OffsetRange(ctx.class_name.getStartIndex(), ctx.class_name.getStopIndex() + 1);
+
+                if (ctx.class_identifier().namespace != null){
+                    //??
+                }
+
+                Token classIdentifier = ctx.class_identifier().class_name;
+                String className = classIdentifier.getText();
+                OffsetRange range = new OffsetRange(classIdentifier.getStartIndex(), classIdentifier.getStopIndex() + 1);
                 phpClassOccurences.put(range, className);
                 OffsetRange callRange = null;
                 int start = ctx.PHP_STATIC_ACCESS().getSymbol().getStartIndex();

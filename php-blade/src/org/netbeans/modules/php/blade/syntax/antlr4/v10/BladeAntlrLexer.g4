@@ -17,7 +17,6 @@ tokens {
    PHP_NEW,
    PHP_WS,
    PHP_IDENTIFIER,
-   PHP_NAMESPACE,
    PHP_NAMESPACE_PATH, 
    PHP_STATIC_ACCESS,
    PHP_CLASS_KEYWORD,
@@ -163,7 +162,7 @@ mode ESCAPED_ECHO;
 ESCAPED_ECHO_PHP_VAR : PhpVariable->type(PHP_VARIABLE);
 ESCAPED_ECHO_KEYWORD : PhpKeyword->type(PHP_KEYWORD);
 //we will need to make logic like PHP_NAMESPACE_PATH \\ IDENTIFIER
-ESCAPED_PHP_NAMESPACE : ('\\'? (NameString '\\')+ NameString)->type(PHP_NAMESPACE);
+//ESCAPED_PHP_NAMESPACE : ('\\'? (NameString '\\')+ NameString)->type(PHP_NAMESPACE);
 ESCAPED_PHP_NAMESPACE_PATH : ('\\'? (NameString '\\')+)->type(PHP_NAMESPACE_PATH);
 ESCAPED_ECHO_PHP_IDENTIFIER : NameString->type(PHP_IDENTIFIER);
 ESCAPED_ECHO_STATIC_ACCESS : '::'->type(PHP_STATIC_ACCESS);
@@ -178,7 +177,7 @@ mode NE_ECHO;
 
 NE_ECHO_PHP_VAR : PhpVariable->type(PHP_VARIABLE);
 NE_ECHO_KEYWORD : PhpKeyword->type(PHP_KEYWORD);
-NE_ECHO_PHP_NAMESPACE : ('\\'? (NameString '\\')+ NameString)->type(PHP_NAMESPACE);
+//NE_ECHO_PHP_NAMESPACE : ('\\'? (NameString '\\')+ NameString)->type(PHP_NAMESPACE);
 NE_ECHO_PHP_NAMESPACE_PATH : ('\\'? (NameString '\\')+)->type(PHP_NAMESPACE_PATH);
 NE_ECHO_PHP_IDENTIFIER : NameString->type(PHP_IDENTIFIER);
 NE_ECHO_STATIC_ACCESS : '::'->type(PHP_STATIC_ACCESS);
@@ -305,6 +304,7 @@ BL_PARAM_EXIT_EOF : EOF->type(ERROR),popMode;
 mode BLADE_INLINE_PHP;
 
 D_ENDPHP : '@endphp'->popMode;
+PHP_D_UNKNOWN : '@'->type(HTML),popMode;
 
 //hack to merge all php inputs into one token
 PHP_D_EXPR_SQ_LPAREN : '[' ->type(PHP_EXPRESSION);
@@ -322,6 +322,9 @@ PHP_D_NEW : 'new' {this._input.LA(1) == ' '}? ->type(PHP_NEW);
 PHP_D_CLASS : 'class' ->type(PHP_CLASS_KEYWORD);
 
 PHP_D_COMPOSED_PHP_KEYWORD : PhpKeyword->type(PHP_KEYWORD);
+
+PHP_D_NAMESPACE_PATH : ('\\'? (NameString '\\')+)->type(PHP_NAMESPACE_PATH);
+
 PHP_D_COMPOSED_EXPR_PHP_IDENTIFIER : NameString->type(PHP_IDENTIFIER);
 PHP_D_COMPOSED_EXPR_STATIC_ACCESS : '::'->type(PHP_STATIC_ACCESS);
 

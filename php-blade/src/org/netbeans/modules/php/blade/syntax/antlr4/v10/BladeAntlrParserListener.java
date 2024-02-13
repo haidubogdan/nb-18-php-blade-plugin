@@ -438,16 +438,6 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitClass_instance(BladeAntlrParser.Class_instanceContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BladeAntlrParser#namespace_class_name_reference}.
-	 * @param ctx the parse tree
-	 */
-	void enterNamespace_class_name_reference(BladeAntlrParser.Namespace_class_name_referenceContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BladeAntlrParser#namespace_class_name_reference}.
-	 * @param ctx the parse tree
-	 */
-	void exitNamespace_class_name_reference(BladeAntlrParser.Namespace_class_name_referenceContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#class_name_reference}.
 	 * @param ctx the parse tree
 	 */
@@ -457,6 +447,16 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitClass_name_reference(BladeAntlrParser.Class_name_referenceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrParser#class_identifier}.
+	 * @param ctx the parse tree
+	 */
+	void enterClass_identifier(BladeAntlrParser.Class_identifierContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrParser#class_identifier}.
+	 * @param ctx the parse tree
+	 */
+	void exitClass_identifier(BladeAntlrParser.Class_identifierContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#method_call}.
 	 * @param ctx the parse tree

@@ -150,20 +150,20 @@ echo_ne : NE_ECHO_START echo_expr* NE_ECHO_END;
 
 echo_expr : composed_php_expression;
 
-class_expr_usage: namespace_class_name_reference
-| class_name_reference 
+class_expr_usage: class_name_reference 
 | class_alias_static_access 
 | static_direct_class_access 
 | class_instance;
 
 class_alias_static_access : class_name=PHP_VARIABLE PHP_STATIC_ACCESS static_property=PHP_IDENTIFIER;
-static_direct_class_access : class_name=PHP_IDENTIFIER PHP_STATIC_ACCESS method_call
-    | class_name=PHP_IDENTIFIER PHP_STATIC_ACCESS static_property=PHP_IDENTIFIER
+static_direct_class_access : class_identifier PHP_STATIC_ACCESS method_call
+    | class_identifier PHP_STATIC_ACCESS static_property=PHP_IDENTIFIER
     ;
 
-class_instance : PHP_NEW PHP_WS+ class_name=PHP_IDENTIFIER BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
-namespace_class_name_reference : namespace=PHP_NAMESPACE PHP_STATIC_ACCESS PHP_CLASS_KEYWORD;
-class_name_reference : class_name=PHP_IDENTIFIER PHP_STATIC_ACCESS PHP_CLASS_KEYWORD;
+class_instance : PHP_NEW PHP_WS+ class_identifier BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
+class_name_reference : class_identifier PHP_STATIC_ACCESS PHP_CLASS_KEYWORD;
+
+class_identifier : namespace=PHP_NAMESPACE_PATH? class_name=PHP_IDENTIFIER;
 method_call : func_name=PHP_IDENTIFIER BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
 function_call : func_name=PHP_IDENTIFIER BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
 
@@ -174,7 +174,7 @@ loop_expression : simple_foreach_expr
 
 main_php_expression : BLADE_EXPR_LPAREN composed_php_expression+ BLADE_EXPR_RPAREN;
 
-composed_php_expression : class_expr_usage | function_call | PHP_VARIABLE | PHP_NAMESPACE 
+composed_php_expression : class_expr_usage | function_call | PHP_VARIABLE 
 | PHP_NAMESPACE_PATH | PHP_IDENTIFIER | EXPR_STRING |
  PHP_KEYWORD | PHP_EXPRESSION+ | PHP_WS | PHP_STATIC_ACCESS | PHP_CLASS_KEYWORD
 | PHP_INSTANCE_ACCESS | BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN | PHP_EXPR_STRING;

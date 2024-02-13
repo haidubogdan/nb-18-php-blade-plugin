@@ -74,7 +74,6 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
 
         switch (currentToken.getType()) {
             case PHP_IDENTIFIER:
-            case PHP_NAMESPACE:
             case PHP_NAMESPACE_PATH:
                 completePhpElements(completionProposals, parserResult, completionContext.getCaretOffset(), currentToken);
                 break;
@@ -103,7 +102,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         FieldAccessReference fieldAccessReference = parserResult.findFieldAccessRefrence(offset);
 
         if (fieldAccessReference != null) {
-            completeClassConstants(prefix, offset, completionProposals, parserResult);
+            completeClassConstants(prefix, fieldAccessReference.ownerClass, offset, completionProposals, parserResult);
             completeClassMethods(prefix, fieldAccessReference, offset, completionProposals, parserResult);
             return;
         }
@@ -121,12 +120,13 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         switch (elementReference.type) {
             case PHP_CONSTANT:
             case PHP_CLASS:
+                completeNamespace(prefix, offset, completionProposals, parserResult);
                 completePhpClasses(prefix, offset, completionProposals, parserResult);
                 completeConstants(prefix, offset, completionProposals, parserResult);
                 break;
-            case PHP_NAMESPACE:
             case PHP_NAMESPACE_PATH:
                 completeNamespace(prefix, offset, completionProposals, parserResult);
+                completeNamespacedPhpClasses(prefix, offset, completionProposals, parserResult);
                 break;
         }
     }
@@ -143,6 +143,21 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         request.anchorOffset = offset - prefix.length();
         request.carretOffset = offset;
         request.prefix = prefix;
+        for (PhpIndexResult indexResult : indexClassResults) {
+            NamedElement classElement = new NamedElement(indexResult.name, indexResult.declarationFile, ElementType.PHP_CLASS);
+            completionProposals.add(new BladeCompletionItem.ClassItem(classElement, request, indexResult.name));
+        }
+    }
+
+    private void completeNamespacedPhpClasses(String namespace,
+            int offset, final List<CompletionProposal> completionProposals,
+            BladeParserResult parserResult) {
+        Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryNamespaceClasses(
+                parserResult.getSnapshot().getSource().getFileObject(), namespace);
+        CompletionRequest request = new CompletionRequest();
+        request.anchorOffset = offset - namespace.length();
+        request.carretOffset = offset;
+        request.prefix = namespace;
         for (PhpIndexResult indexResult : indexClassResults) {
             NamedElement classElement = new NamedElement(indexResult.name, indexResult.declarationFile, ElementType.PHP_CLASS);
             completionProposals.add(new BladeCompletionItem.ClassItem(classElement, request, indexResult.name));
@@ -198,7 +213,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
             final List<CompletionProposal> completionProposals,
             BladeParserResult parserResult) {
         Project projectOwner = ProjectConvertors.getNonConvertorOwner(parserResult.getSnapshot().getSource().getFileObject());
-        if (projectOwner == null){
+        if (projectOwner == null) {
             return;
         }
         Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryNamespace(
@@ -234,11 +249,11 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         }
     }
 
-    private void completeClassConstants(String prefix, int offset,
+    private void completeClassConstants(String prefix, String ownerClass, int offset,
             final List<CompletionProposal> completionProposals,
             BladeParserResult parserResult) {
         Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryClassConstants(
-                parserResult.getSnapshot().getSource().getFileObject(), prefix);
+                parserResult.getSnapshot().getSource().getFileObject(), prefix, ownerClass);
         if (indexClassResults.isEmpty()) {
             return;
         }

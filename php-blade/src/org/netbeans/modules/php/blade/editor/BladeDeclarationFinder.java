@@ -25,6 +25,7 @@ import org.netbeans.modules.php.blade.editor.indexing.PhpIndexResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexUtils;
 import org.netbeans.modules.php.blade.editor.indexing.QueryUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
+import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.FieldAccessReference;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
 import static org.netbeans.modules.php.blade.editor.parser.BladeParserResult.ReferenceType.PHP_CONSTANT;
 import static org.netbeans.modules.php.blade.editor.parser.BladeParserResult.ReferenceType.PHP_FUNCTION;
@@ -79,7 +80,6 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 case D_CUSTOM:
                 case PHP_IDENTIFIER:
                 case PHP_NAMESPACE_PATH:
-                case PHP_NAMESPACE:
                     return new OffsetRange(nt.getStartIndex(), nt.getStopIndex() + 1);
             }
 
@@ -107,14 +107,37 @@ public class BladeDeclarationFinder implements DeclarationFinder {
     public DeclarationLocation findDeclaration(ParserResult info, int caretOffset) {
         BladeParserResult parserResult = (BladeParserResult) info;
 
-        Reference reference = parserResult.findOccuredRefrence(caretOffset);
+        FileObject currentFile = parserResult.getFileObject();
         DeclarationLocation location = DeclarationLocation.NONE;
+
+        FieldAccessReference fieldAccessReference = parserResult.findFieldAccessRefrence(caretOffset);
+
+        if (fieldAccessReference != null) {
+            switch (fieldAccessReference.type) {
+                case STATIC_FIELD_ACCESS:
+                    switch (fieldAccessReference.fieldType) {
+                        case CONSTANT:
+                            Collection<PhpIndexResult> indexConstantsResults = PhpIndexUtils.queryExactClassConstants(
+                                    currentFile, fieldAccessReference.fieldName, fieldAccessReference.ownerClass);
+                            for (PhpIndexResult indexResult : indexConstantsResults) {
+                                NamedElement resultHandle = new NamedElement(fieldAccessReference.fieldName, indexResult.declarationFile, ElementType.PHP_CONSTANT);
+                                DeclarationLocation constantLocation = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
+                                if (location.equals(DeclarationLocation.NONE)) {
+                                    location = constantLocation;
+                                }
+                                location.addAlternative(new AlternativeLocationImpl(constantLocation));
+                            }
+                            return location;
+                    }
+            }
+        }
+
+        Reference reference = parserResult.findOccuredRefrence(caretOffset);
 
         if (reference == null) {
             return location;
         }
 
-        FileObject currentFile = parserResult.getFileObject();
         Project projectOwner = ProjectConvertors.getNonConvertorOwner(currentFile);
 
         if (projectOwner == null) {
@@ -268,8 +291,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                     location.addAlternative(new AlternativeLocationImpl(constantLocation));
                 }
                 return location;
-            case PHP_NAMESPACE_PATH:    
-            case PHP_NAMESPACE:
+            case PHP_NAMESPACE_PATH:
                 //just for test
                 //an exact query must be implemented
                 Collection<PhpIndexResult> indexNamespaceResults = PhpIndexUtils.queryNamespace(

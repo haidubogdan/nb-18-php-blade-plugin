@@ -147,8 +147,12 @@ public class BladeCompletionItem implements CompletionProposal {
             return ElementKind.PACKAGE;
         }
 
+        @Override
+        public int getSortPrioOverride() {
+            return -50;//priority
+        }
     }
-    
+
     public static class ClassItem extends PhpElementItem {
 
         public ClassItem(ElementHandle element, CompletionRequest request, String previewValue) {
@@ -160,6 +164,10 @@ public class BladeCompletionItem implements CompletionProposal {
             return ElementKind.CLASS;
         }
 
+        @Override
+        public int getSortPrioOverride() {
+            return 10;//priority
+        }
     }
 
     public static class FunctionItem extends PhpElementItem {
@@ -173,6 +181,10 @@ public class BladeCompletionItem implements CompletionProposal {
             return ElementKind.METHOD;
         }
 
+        @Override
+        public int getSortPrioOverride() {
+            return 20;//priority
+        }
     }
 
     public static class ConstantItem extends PhpElementItem {

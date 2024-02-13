@@ -531,18 +531,6 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNamespace_class_name_reference(BladeAntlrParser.Namespace_class_name_referenceContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNamespace_class_name_reference(BladeAntlrParser.Namespace_class_name_referenceContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterClass_name_reference(BladeAntlrParser.Class_name_referenceContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -550,6 +538,18 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitClass_name_reference(BladeAntlrParser.Class_name_referenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterClass_identifier(BladeAntlrParser.Class_identifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitClass_identifier(BladeAntlrParser.Class_identifierContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
