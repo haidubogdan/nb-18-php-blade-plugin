@@ -283,6 +283,7 @@ public class PhpIndexUtils {
     public static Collection<PhpIndexResult> queryNamespace(FileObject fo, String prefix) {
         QuerySupport phpindex = QuerySupportFactory.get(fo);
         Collection<PhpIndexResult> results = new ArrayList<>();
+        Collection<String> namespaces = new ArrayList<>();
         //subfolders with lowercase ; rootFolder
         //third signature namespace
         //the first el is the folder
@@ -302,7 +303,7 @@ public class PhpIndexUtils {
             prefix = prefix.substring(0, prefix.length() - 2);
         }
 
-        String queryPrefix = lastSlashIndex > 0 && prefix.length() > lastSlashIndex ? prefix.substring(0, lastSlashIndex).toLowerCase() : prefix.toLowerCase();
+        String queryPrefix = lastSlashIndex > 0 && prefix.length() > lastSlashIndex ? prefix.substring(0, lastSlashIndex - 1).toLowerCase() : prefix.toLowerCase();
 
         try {
             Collection<? extends IndexResult> indexResults = phpindex.query(
@@ -331,27 +332,11 @@ public class PhpIndexUtils {
                     fullNamespace += name;
 
                     //just one namespace is enough
-                    if (fullNamespace.startsWith(originalPrefix)){
+                    if (fullNamespace.startsWith(originalPrefix) && !namespaces.contains(fullNamespace)){
+                        namespaces.add(fullNamespace);
                         results.add(new PhpIndexResult(fullNamespace,  indexFile, PhpIndexResult.Type.NAMESPACE, new OffsetRange(0, 1)));
-                        break;
                     }
                 }
-
-//                String[] values = indexResult.getValues(PHPIndexer.FIELD_NAMESPACE);
-//                for (String value : values) {
-//                    Signature sig = Signature.get(value);
-//                    String name = sig.string(1);
-//                    String namespace = sig.string(2);
-//                    String fullNamespace = namespace + "\\" + name;
-//                    String classNamespacePath = fullNamespace + "\\" +  indexFile.getName();
-//
-//                    //the indexing of namespace is quite complex
-//                    if (classNamespacePath.startsWith(originalPrefix)) {
-//                        results.add(new PhpIndexResult(fullNamespace + "\\" +  indexFile.getName(),  indexFile, PhpIndexResult.Type.NAMESPACE, new OffsetRange(0, 1)));
-//                    } else if (fullNamespace.startsWith(originalPrefix)){
-//                        results.add(new PhpIndexResult(fullNamespace,  indexFile, PhpIndexResult.Type.NAMESPACE, new OffsetRange(0, 1)));
-//                    }
-//                }
             }
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);

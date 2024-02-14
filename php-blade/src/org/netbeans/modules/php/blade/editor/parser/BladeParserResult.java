@@ -326,6 +326,19 @@ public class BladeParserResult extends ParserResult {
             }
 
             @Override
+            public void exitNamespacePath(BladeAntlrParser.NamespacePathContext ctx) {
+                if (ctx.PHP_IDENTIFIER() == null || ctx.PHP_NAMESPACE_PATH() == null) {
+                    return;
+                }
+                String namespace = ctx.PHP_NAMESPACE_PATH().getSymbol().getText();
+                Token classIdentifier = ctx.PHP_IDENTIFIER().getSymbol();
+                String className = classIdentifier.getText();
+                OffsetRange classRange = new OffsetRange(classIdentifier.getStartIndex(), classIdentifier.getStopIndex() + 1);
+                OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
+                occurancesForDeclaration.put(range, new Reference(ReferenceType.PHP_NAMESPACE_PATH, className, classRange, null, namespace));
+            }
+            
+            @Override
             public void exitClass_name_reference(BladeAntlrParser.Class_name_referenceContext ctx) {
                 if (ctx.class_identifier() == null || ctx.class_identifier().class_name == null) {
                     return;
@@ -791,6 +804,7 @@ public class BladeParserResult extends ParserResult {
         public final ReferenceType type;
         public final String name;
         public final String ownerClass;
+        public final String namespace;
         public final OffsetRange defOffset;
 
         public Reference(ReferenceType type, String name, OffsetRange defOffset, String ownerClass) {
@@ -798,6 +812,15 @@ public class BladeParserResult extends ParserResult {
             this.name = name;
             this.defOffset = defOffset;
             this.ownerClass = ownerClass;
+            this.namespace = null;
+        }
+        
+        public Reference(ReferenceType type, String name, OffsetRange defOffset, String ownerClass, String namespace) {
+            this.type = type;
+            this.name = name;
+            this.defOffset = defOffset;
+            this.ownerClass = ownerClass;
+            this.namespace = namespace;
         }
 
         public Reference(ReferenceType type, String name, OffsetRange defOffset) {
@@ -805,6 +828,7 @@ public class BladeParserResult extends ParserResult {
             this.name = name;
             this.defOffset = defOffset;
             this.ownerClass = null;
+            this.namespace = null;
         }
     }
 

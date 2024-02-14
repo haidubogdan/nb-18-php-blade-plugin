@@ -35,6 +35,7 @@ public class BladePhpCompletionProvider implements CompletionProvider {
     public int getAutoQueryTypes(JTextComponent component, String typedText) {
         FileObject fo = EditorDocumentUtils.getFileObject(component.getDocument());
         
+        //only blade files
         if (fo == null || !fo.getMIMEType().equals(BladeLanguage.MIME_TYPE)) {
             return 0;
         }
@@ -51,6 +52,7 @@ public class BladePhpCompletionProvider implements CompletionProvider {
         char lastChar = typedText.charAt(typedText.length() - 1);
         switch (lastChar) {
             case ')':
+            case '\\':    
             case '\n':
             case '<':
             case '>':

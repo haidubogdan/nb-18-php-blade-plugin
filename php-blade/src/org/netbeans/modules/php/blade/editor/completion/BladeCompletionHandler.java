@@ -126,7 +126,14 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
                 break;
             case PHP_NAMESPACE_PATH:
                 completeNamespace(prefix, offset, completionProposals, parserResult);
-                completeNamespacedPhpClasses(prefix, offset, completionProposals, parserResult);
+                //do to add the namespace
+
+                completePhpClasses(prefix, offset, completionProposals, parserResult);
+                String classQuery = prefix;
+                if (elementReference.namespace != null){
+                    classQuery = elementReference.namespace + "\\" + prefix;
+                }
+                completeNamespacedPhpClasses(classQuery, offset, completionProposals, parserResult);
                 break;
         }
     }
