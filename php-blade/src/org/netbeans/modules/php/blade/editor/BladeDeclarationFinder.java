@@ -1,12 +1,12 @@
 package org.netbeans.modules.php.blade.editor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.antlr.v4.runtime.CharStreams;
-import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.DeclarationFinder;
 import org.netbeans.modules.csl.api.OffsetRange;
@@ -35,7 +35,6 @@ import org.netbeans.spi.lexer.antlr4.AntlrTokenSequence;
 import org.openide.filesystems.FileObject;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
-import org.netbeans.modules.php.editor.lexer.PHPTokenId;
 import org.netbeans.spi.project.ui.support.ProjectConvertors;
 import org.openide.filesystems.FileUtil;
 
@@ -229,7 +228,18 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 }
                 return dlcustomDirective;
             case PHP_CLASS:
-                Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryExactClass(sourceFolder, reference.name);
+                Collection<PhpIndexResult> indexClassResults;
+                String namespace = reference.namespace;
+
+                if (namespace != null && reference.namespace.length() > 2){
+                    indexClassResults = PhpIndexUtils.queryExactNamespaceClasses(
+                            reference.name,
+                            reference.namespace.substring(0, reference.namespace.length() - 1),
+                            sourceFolder
+                    );
+                } else {
+                    indexClassResults = PhpIndexUtils.queryExactClass(sourceFolder, reference.name);
+                }
 
                 for (PhpIndexResult indexResult : indexClassResults) {
                     NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_CLASS);

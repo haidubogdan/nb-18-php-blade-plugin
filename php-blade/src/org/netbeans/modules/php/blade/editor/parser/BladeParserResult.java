@@ -337,7 +337,7 @@ public class BladeParserResult extends ParserResult {
                 OffsetRange range = new OffsetRange(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex() + 1);
                 occurancesForDeclaration.put(range, new Reference(ReferenceType.PHP_NAMESPACE_PATH, className, classRange, null, namespace));
             }
-            
+
             @Override
             public void exitClass_name_reference(BladeAntlrParser.Class_name_referenceContext ctx) {
                 if (ctx.class_identifier() == null || ctx.class_identifier().class_name == null) {
@@ -346,7 +346,17 @@ public class BladeParserResult extends ParserResult {
                 Token classIdentifier = ctx.class_identifier().class_name;
                 String className = classIdentifier.getText();
                 OffsetRange range = new OffsetRange(classIdentifier.getStartIndex(), classIdentifier.getStopIndex() + 1);
-                phpClassOccurences.put(range, className);
+
+                if (ctx.class_identifier().namespace != null) {
+                    occurancesForDeclaration.put(range, new Reference(
+                            ReferenceType.PHP_CLASS,
+                            className, range,
+                            null,
+                            ctx.class_identifier().namespace.getText())
+                    );
+                } else {
+                    phpClassOccurences.put(range, className);
+                }
             }
 
             @Override
@@ -355,9 +365,20 @@ public class BladeParserResult extends ParserResult {
                     return;
                 }
                 Token classIdentifier = ctx.class_identifier().class_name;
-                String className =classIdentifier.getText();
+                String className = classIdentifier.getText();
                 OffsetRange range = new OffsetRange(classIdentifier.getStartIndex(), classIdentifier.getStopIndex() + 1);
                 phpClassOccurences.put(range, className);
+
+                if (ctx.class_identifier().namespace != null) {
+                    occurancesForDeclaration.put(range, new Reference(
+                            ReferenceType.PHP_CLASS,
+                            className, range,
+                            null,
+                            ctx.class_identifier().namespace.getText())
+                    );
+                } else {
+                    phpClassOccurences.put(range, className);
+                }
             }
 
             //this will be always static
@@ -367,14 +388,21 @@ public class BladeParserResult extends ParserResult {
                     return;
                 }
 
-                if (ctx.class_identifier().namespace != null){
-                    //??
-                }
-
                 Token classIdentifier = ctx.class_identifier().class_name;
                 String className = classIdentifier.getText();
                 OffsetRange range = new OffsetRange(classIdentifier.getStartIndex(), classIdentifier.getStopIndex() + 1);
-                phpClassOccurences.put(range, className);
+
+                if (ctx.class_identifier().namespace != null) {
+                    occurancesForDeclaration.put(range, new Reference(
+                            ReferenceType.PHP_CLASS,
+                            className, range,
+                            null,
+                            ctx.class_identifier().namespace.getText())
+                    );
+                } else {
+                    phpClassOccurences.put(range, className);
+                }
+
                 OffsetRange callRange = null;
                 int start = ctx.PHP_STATIC_ACCESS().getSymbol().getStartIndex();
                 String fieldName = null;
@@ -593,7 +621,7 @@ public class BladeParserResult extends ParserResult {
                 return new Reference(ReferenceType.PHP_CONSTANT, entry.getValue(), range);
             }
         }
-        
+
         for (Map.Entry<OffsetRange, String> entry : phpNamespacePathOccurences.entrySet()) {
             OffsetRange range = entry.getKey();
 
@@ -814,7 +842,7 @@ public class BladeParserResult extends ParserResult {
             this.ownerClass = ownerClass;
             this.namespace = null;
         }
-        
+
         public Reference(ReferenceType type, String name, OffsetRange defOffset, String ownerClass, String namespace) {
             this.type = type;
             this.name = name;

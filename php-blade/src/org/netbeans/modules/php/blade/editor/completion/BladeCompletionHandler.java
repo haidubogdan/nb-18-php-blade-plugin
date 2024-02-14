@@ -126,14 +126,16 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
                 break;
             case PHP_NAMESPACE_PATH:
                 completeNamespace(prefix, offset, completionProposals, parserResult);
-                //do to add the namespace
 
-                completePhpClasses(prefix, offset, completionProposals, parserResult);
-                String classQuery = prefix;
+                //we are after '\'
                 if (elementReference.namespace != null){
-                    classQuery = elementReference.namespace + "\\" + prefix;
+                    String classQuery = prefix;
+                    String namespace = elementReference.namespace;
+                    namespace = namespace.substring(0, namespace.length() - 1);
+                    //completion offset : subtract prefix length + last slash
+                    int offsetNamespace = offset -(prefix.length() + 1);
+                    completeNamespacedPhpClasses(classQuery, namespace, offsetNamespace, completionProposals, parserResult);
                 }
-                completeNamespacedPhpClasses(classQuery, offset, completionProposals, parserResult);
                 break;
         }
     }
@@ -156,11 +158,11 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         }
     }
 
-    private void completeNamespacedPhpClasses(String namespace,
+    private void completeNamespacedPhpClasses(String prefix, String namespace,
             int offset, final List<CompletionProposal> completionProposals,
             BladeParserResult parserResult) {
         Collection<PhpIndexResult> indexClassResults = PhpIndexUtils.queryNamespaceClasses(
-                parserResult.getSnapshot().getSource().getFileObject(), namespace);
+               prefix, namespace,  parserResult.getSnapshot().getSource().getFileObject());
         CompletionRequest request = new CompletionRequest();
         request.anchorOffset = offset - namespace.length();
         request.carretOffset = offset;
