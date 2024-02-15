@@ -368,25 +368,25 @@ public interface BladeAntlrParserListener extends ParseTreeListener {
 	 */
 	void exitPhpInline(BladeAntlrParser.PhpInlineContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BladeAntlrParser#echo}.
+	 * Enter a parse tree produced by {@link BladeAntlrParser#regular_echo}.
 	 * @param ctx the parse tree
 	 */
-	void enterEcho(BladeAntlrParser.EchoContext ctx);
+	void enterRegular_echo(BladeAntlrParser.Regular_echoContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BladeAntlrParser#echo}.
+	 * Exit a parse tree produced by {@link BladeAntlrParser#regular_echo}.
 	 * @param ctx the parse tree
 	 */
-	void exitEcho(BladeAntlrParser.EchoContext ctx);
+	void exitRegular_echo(BladeAntlrParser.Regular_echoContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BladeAntlrParser#echo_ne}.
+	 * Enter a parse tree produced by {@link BladeAntlrParser#raw_echo}.
 	 * @param ctx the parse tree
 	 */
-	void enterEcho_ne(BladeAntlrParser.Echo_neContext ctx);
+	void enterRaw_echo(BladeAntlrParser.Raw_echoContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BladeAntlrParser#echo_ne}.
+	 * Exit a parse tree produced by {@link BladeAntlrParser#raw_echo}.
 	 * @param ctx the parse tree
 	 */
-	void exitEcho_ne(BladeAntlrParser.Echo_neContext ctx);
+	void exitRaw_echo(BladeAntlrParser.Raw_echoContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrParser#echo_expr}.
 	 * @param ctx the parse tree

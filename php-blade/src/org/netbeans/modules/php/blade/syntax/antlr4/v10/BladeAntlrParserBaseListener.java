@@ -447,25 +447,25 @@ public class BladeAntlrParserBaseListener implements BladeAntlrParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEcho(BladeAntlrParser.EchoContext ctx) { }
+	@Override public void enterRegular_echo(BladeAntlrParser.Regular_echoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEcho(BladeAntlrParser.EchoContext ctx) { }
+	@Override public void exitRegular_echo(BladeAntlrParser.Regular_echoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEcho_ne(BladeAntlrParser.Echo_neContext ctx) { }
+	@Override public void enterRaw_echo(BladeAntlrParser.Raw_echoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEcho_ne(BladeAntlrParser.Echo_neContext ctx) { }
+	@Override public void exitRaw_echo(BladeAntlrParser.Raw_echoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

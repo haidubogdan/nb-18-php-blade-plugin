@@ -19,12 +19,16 @@ import org.netbeans.api.project.Project;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.php.blade.editor.BladeLanguage;
 import org.netbeans.modules.php.blade.editor.ResourceUtilities;
+import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex;
 import org.netbeans.modules.php.blade.editor.indexing.BladeIndex.IndexedReferenceId;
 import org.netbeans.modules.php.blade.editor.path.PathUtils;
 import org.netbeans.modules.php.blade.project.ProjectUtils;
+import org.netbeans.modules.php.blade.syntax.annotation.Directive;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
+import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrParser.CONTENT_TAG_OPEN;
+import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrParser.RAW_TAG_CLOSE;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionProvider;
@@ -42,8 +46,7 @@ import org.openide.util.Exceptions;
  * @author bhaidu
  */
 @MimeRegistrations(value = {
-    @MimeRegistration(mimeType = BladeLanguage.MIME_TYPE, service = CompletionProvider.class),
-})
+    @MimeRegistration(mimeType = BladeLanguage.MIME_TYPE, service = CompletionProvider.class),})
 public class BladeCompletionProvider implements CompletionProvider {
 
     private static final Logger LOGGER = Logger.getLogger(BladeCompletionProvider.class.getName());
@@ -78,7 +81,7 @@ public class BladeCompletionProvider implements CompletionProvider {
         char lastChar = typedText.charAt(typedText.length() - 1);
         switch (lastChar) {
             case ')':
-            case '\\':    
+            case '\\':
             case '\n':
             case '<':
             case '>':
@@ -106,7 +109,6 @@ public class BladeCompletionProvider implements CompletionProvider {
                     return;
                 }
 
-                String prefix;
                 String lineText = "";
                 adoc.readLock();
                 AntlrTokenSequence tokens;
@@ -129,24 +131,8 @@ public class BladeCompletionProvider implements CompletionProvider {
                     tokens.seekTo(caretOffset);
                 }
 
-                String closeTag = null;
-
                 if (tokens.hasNext()) {
                     Token nt = tokens.next().get();
-
-                    switch (nt.getType()) {
-                        case ESCAPED_ECHO_START:
-                            closeTag = "}}"; //NOI18N
-                            break;
-                        case NE_ECHO_START:
-                            closeTag = "!!}"; //NOI18N
-                            break;
-                    }
-
-                    if (closeTag != null) {
-                        completeCloseTag(nt, doc, closeTag, caretOffset, resultSet);
-                        return;
-                    }
 
                     if (!tokens.hasPrevious()) {
                         return;
@@ -155,13 +141,25 @@ public class BladeCompletionProvider implements CompletionProvider {
 //                    Token pt = null;
                     switch (nt.getType()) {
                         case BLADE_COMMENT:
-                        case ESCAPED_ECHO_END:
+                        case RAW_TAG_CLOSE:
                             return;
                         case PHP_EXPRESSION:
                             return;
                     }
 
                     switch (nt.getType()) {
+                        case CONTENT_TAG_OPEN:
+                        case RAW_TAG_OPEN:
+                            completeBladeTags(nt.getText(), nt, tokens, doc, caretOffset, resultSet);
+                            break;
+                        case HTML:
+                            String nText = nt.getText();
+                            if (nText.startsWith("@")) {
+                                completeDirectives(nText, doc, caretOffset, resultSet);
+                            } else if (nText.startsWith("{")) {
+                                completeBladeTags(nText, nt, tokens, doc, caretOffset, resultSet);
+                            }
+                            break;
                         case BL_PARAM_STRING: {
                             String pathName = nt.getText().substring(1, nt.getText().length() - 1);
                             List<Integer> tokensMatch = Arrays.asList(new Integer[]{
@@ -212,17 +210,18 @@ public class BladeCompletionProvider implements CompletionProvider {
                             }
                             break;
                         }
+                        /*
                         case BLADE_PHP_ECHO_EXPR: {
                             //completion {{ }} {!! !!}
-                            List<Integer> tokensMatch = Arrays.asList(new Integer[]{ESCAPED_ECHO_START, NE_ECHO_START});
-                            List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML, ESCAPED_ECHO_END, NE_ECHO_END});
+                            List<Integer> tokensMatch = Arrays.asList(new Integer[]{CONTENT_TAG_OPEN, RAW_TAG_OPEN});
+                            List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML, CONTENT_TAG_CLOSE, RAW_TAG_CLOSE});
                             Token curlyStartToken = BladeAntlrUtils.findBackward(tokens, tokensMatch, tokensStop);
                             if (curlyStartToken != null) {
                                 switch (curlyStartToken.getType()) {
-                                    case ESCAPED_ECHO_START:
+                                    case CONTENT_TAG_OPEN:
                                         closeTag = "}}"; //NOI18N
                                         break;
-                                    case NE_ECHO_START:
+                                    case RAW_TAG_OPEN:
                                         closeTag = "!!}"; //NOI18N
                                         break;
                                 }
@@ -248,7 +247,7 @@ public class BladeCompletionProvider implements CompletionProvider {
                                 }
                             }
                             break;
-                        }
+                        }*/
                         default:
                             break;
                     }
@@ -261,6 +260,70 @@ public class BladeCompletionProvider implements CompletionProvider {
                 resultSet.finish();
             }
         }
+    }
+
+    private void completeBladeTags(String tag, Token currentToken,
+            AntlrTokenSequence tokens,
+            Document doc, int carretOffset, CompletionResultSet resultSet) {
+
+        switch (tag) {
+            case "{":
+                completeBladeTag(currentToken, doc, "{", "}}", -50, carretOffset, "regular echo", resultSet);
+                completeBladeTag(currentToken, doc, "!!", "!!}", -40, carretOffset, "raw echo", resultSet);
+                completeBladeTag(currentToken, doc, "{--", "--}}", -30, carretOffset, "comment", resultSet);
+                break;
+            case "{!":
+                completeBladeTag(currentToken, doc, "!", "!!}", -40, carretOffset, "raw echo", resultSet);
+                break;
+            case "{{":
+                completeCloseTag(currentToken, doc, "}}", carretOffset, resultSet);
+                break;
+            case "{!!":
+                completeCloseTag(currentToken, doc, "!!}", carretOffset, resultSet);
+                break;
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private void completeDirectives(String prefix, Document doc, int carretOffset, CompletionResultSet resultSet) {
+        int startOffset = carretOffset - prefix.length();
+        DirectiveCompletionList completionList = new DirectiveCompletionList();
+
+        for (Directive directive : completionList.getDirectives()) {
+            String directiveName = directive.name();
+            if (directiveName.startsWith(prefix)) {
+                if (directive.params()) {
+                    resultSet.addItem(DirectiveCompletionBuilder.itemWithArg(
+                            startOffset, carretOffset, prefix, directiveName, directive.description(), doc));
+                    if (!directive.endtag().isEmpty()) {
+                        resultSet.addItem(DirectiveCompletionBuilder.itemWithArg(
+                                startOffset, carretOffset, prefix, directiveName, directive.endtag(), directive.description(), doc));
+                    }
+                } else {
+                    resultSet.addItem(DirectiveCompletionBuilder.simpleItem(
+                            startOffset, directiveName, directive.description()));
+                    if (!directive.endtag().isEmpty()) {
+                        resultSet.addItem(DirectiveCompletionBuilder.simpleItem(
+                                startOffset, carretOffset, prefix, directiveName, directive.endtag(), directive.description(), doc));
+                    }
+                }
+
+            }
+        }
+
+        FileObject fo = EditorDocumentUtils.getFileObject(doc);
+        Project project = ProjectUtils.getMainOwner(fo);
+
+        CustomDirectives.getInstance(project).filterAction(new CustomDirectives.FilterCallback() {
+            @Override
+            public void filterDirectiveName(String directiveName, FileObject file) {
+                if (directiveName.startsWith(prefix)) {
+                    resultSet.addItem(DirectiveCompletionBuilder.itemWithArg(
+                            startOffset, carretOffset, prefix, directiveName,
+                            "custom directive", doc, file));
+                }
+            }
+        });
     }
 
     private void completeYieldIdFromIndex(String prefixIdentifier, FileObject fo,
@@ -278,6 +341,34 @@ public class BladeCompletionProvider implements CompletionProvider {
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
+    }
+
+    private void completeBladeTag(Token curlyStartToken, Document doc, String openTag, String closeTag,
+            int caretOffset, int priority, String description, CompletionResultSet resultSet) {
+        final String finalCloseTag = closeTag;
+        CompletionItem item = CompletionUtilities.newCompletionItemBuilder(closeTag)
+                .iconResource(getReferenceIcon())
+                .startOffset(caretOffset)
+                .leftHtmlText(openTag + " " + closeTag)
+                .rightHtmlText(description)
+                .sortPriority(priority)
+                .onSelect(ctx -> {
+                    try {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(openTag);
+                        sb.append(" ");
+                        sb.append("${cursor} ");
+                        sb.append(finalCloseTag);
+                        CodeTemplateManager.get(doc).createTemporary(sb.toString()).insert(ctx.getComponent());
+                        if (curlyStartToken.getStopIndex() == (caretOffset - 1)) {
+                            doc.insertString(caretOffset, " ", null);
+                        }
+                    } catch (BadLocationException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                })
+                .build();
+        resultSet.addItem(item);
     }
 
     private void completeCloseTag(Token curlyStartToken, Document doc, String closeTag,

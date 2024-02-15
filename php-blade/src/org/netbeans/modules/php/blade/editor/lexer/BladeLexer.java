@@ -88,13 +88,10 @@ public class BladeLexer extends AbstractAntlrLexerBridge<BladeAntlrColoringLexer
             case BladeAntlrColoringLexer.D_ENDPHP:
             case BladeAntlrColoringLexer.D_CUSTOM:
                 return token(BLADE_DIRECTIVE);
-            case BladeAntlrColoringLexer.ESCAPED_ECHO_START:
-            case BladeAntlrColoringLexer.RAW_ECHO_START:
+            case BladeAntlrColoringLexer.RAW_TAG:
+            case BladeAntlrColoringLexer.CONTENT_TAG:
                 return token(BLADE_ECHO_DELIMITOR);
-            case BladeAntlrColoringLexer.ESCAPED_ECHO_END:
-            case BladeAntlrColoringLexer.RAW_ECHO_END:
-                return token(BLADE_ECHO_DELIMITOR);
-            case BladeAntlrColoringLexer.BLADE_PHP_ECHO_EXPR:
+             case BladeAntlrColoringLexer.BLADE_PHP_ECHO_EXPR:
                 return token(PHP_BLADE_ECHO_EXPR);
             case BladeAntlrColoringLexer.ERROR:
             case BladeAntlrColoringLexer.WS_EXPR:

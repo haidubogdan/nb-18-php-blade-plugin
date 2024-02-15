@@ -30,7 +30,6 @@ tokens {
    BL_SQ_LRAREN,
    BL_PARAM_STRING,
    BL_PARAM_ASSIGN,
-   BLADE_PHP_ECHO_EXPR,
    BL_COMMA,
    BL_PARAM_COMMA,
    PHP_EXPR_STRING,
@@ -140,10 +139,12 @@ D_CUSTOM : ('@' NameString {this._input.LA(1) == '(' ||
 
 D_UNKNOWN : '@' NameString->type(HTML);
 //display
-ESCAPED_ECHO_START : '{{' ->pushMode(ESCAPED_ECHO);
-NE_ECHO_START : '{!!' ->pushMode(NE_ECHO);
+CONTENT_TAG_OPEN : '{{' ->pushMode(INSIDE_REGULAR_ECHO);
+RAW_TAG_OPEN : '{!!' ->pushMode(INSIDE_RAW_ECHO);
 
-AT : '@';
+AT : '@'->type(HTML);
+//for completion
+RAW_TAG_START : '{!'->type(HTML);
 
 PHP_INLINE_START : ('<?php' | '<?=')->pushMode(INSIDE_PHP_INLINE);
 
@@ -157,35 +158,34 @@ OTHER : . ->type(HTML);
 *
 */
 
-mode ESCAPED_ECHO;
+// {{  }}
+mode INSIDE_REGULAR_ECHO;
 
-ESCAPED_ECHO_PHP_VAR : PhpVariable->type(PHP_VARIABLE);
-ESCAPED_ECHO_KEYWORD : PhpKeyword->type(PHP_KEYWORD);
-//we will need to make logic like PHP_NAMESPACE_PATH \\ IDENTIFIER
-//ESCAPED_PHP_NAMESPACE : ('\\'? (NameString '\\')+ NameString)->type(PHP_NAMESPACE);
-ESCAPED_PHP_NAMESPACE_PATH : ('\\'? (NameString '\\')+)->type(PHP_NAMESPACE_PATH);
-ESCAPED_ECHO_PHP_IDENTIFIER : NameString->type(PHP_IDENTIFIER);
-ESCAPED_ECHO_STATIC_ACCESS : '::'->type(PHP_STATIC_ACCESS);
-ESCAPED_ECHO_END : ('}}')->popMode;
-ESCAPED_ECHO_LPAREN : '(' ->type(BLADE_EXPR_LPAREN);
-ESCAPED_ECHO_RPAREN : ')' ->type(BLADE_EXPR_RPAREN);
-ESCAPED_ECHO_EXPR_MORE : . ->type(PHP_EXPRESSION);
-EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
+REGULAR_ECHO_PHP_VAR : PhpVariable->type(PHP_VARIABLE);
+REGULAR_ECHO_KEYWORD : PhpKeyword->type(PHP_KEYWORD);
 
-//not escaped blade echo
-mode NE_ECHO;
+REGULAR_PHP_NAMESPACE_PATH : ('\\'? (NameString '\\')+)->type(PHP_NAMESPACE_PATH);
+REGULAR_ECHO_PHP_IDENTIFIER : NameString->type(PHP_IDENTIFIER);
+REGULAR_ECHO_STATIC_ACCESS : '::'->type(PHP_STATIC_ACCESS);
+CONTENT_TAG_CLOSE : ('}}')->popMode;
+REGULAR_ECHO_LPAREN : '(' ->type(BLADE_EXPR_LPAREN);
+REGULAR_ECHO_RPAREN : ')' ->type(BLADE_EXPR_RPAREN);
+REGULAR_ECHO_EXPR_MORE : . ->type(PHP_EXPRESSION);
+EXIT_REGULAR_ECHO_EOF : EOF->type(ERROR),popMode;
 
-NE_ECHO_PHP_VAR : PhpVariable->type(PHP_VARIABLE);
-NE_ECHO_KEYWORD : PhpKeyword->type(PHP_KEYWORD);
-//NE_ECHO_PHP_NAMESPACE : ('\\'? (NameString '\\')+ NameString)->type(PHP_NAMESPACE);
-NE_ECHO_PHP_NAMESPACE_PATH : ('\\'? (NameString '\\')+)->type(PHP_NAMESPACE_PATH);
-NE_ECHO_PHP_IDENTIFIER : NameString->type(PHP_IDENTIFIER);
-NE_ECHO_STATIC_ACCESS : '::'->type(PHP_STATIC_ACCESS);
-NE_ECHO_END : ('!!}')->popMode;
-NE_ECHO_LPAREN : '(' ->type(BLADE_EXPR_LPAREN);
-NE_ECHO_RPAREN : ')' ->type(BLADE_EXPR_RPAREN);
-NE_ECHO_EXPR_MORE : . ->type(PHP_EXPRESSION);
-EXIT_NE_ECHO_EOF : EOF->type(ERROR),popMode;
+// {!!  !!}
+mode INSIDE_RAW_ECHO;
+
+RAW_ECHO_PHP_VAR : PhpVariable->type(PHP_VARIABLE);
+RAW_ECHO_KEYWORD : PhpKeyword->type(PHP_KEYWORD);
+RAW_ECHO_PHP_NAMESPACE_PATH : ('\\'? (NameString '\\')+)->type(PHP_NAMESPACE_PATH);
+RAW_ECHO_PHP_IDENTIFIER : NameString->type(PHP_IDENTIFIER);
+RAW_ECHO_STATIC_ACCESS : '::'->type(PHP_STATIC_ACCESS);
+RAW_TAG_CLOSE : ('!!}')->popMode;
+RAW_ECHO_LPAREN : '(' ->type(BLADE_EXPR_LPAREN);
+RAW_ECHO_RPAREN : ')' ->type(BLADE_EXPR_RPAREN);
+RAW_ECHO_EXPR_MORE : . ->type(PHP_EXPRESSION);
+EXIT_RAW_ECHO_EOF : EOF->type(ERROR),popMode;
 
 mode LOOK_FOR_PHP_EXPRESSION;
 

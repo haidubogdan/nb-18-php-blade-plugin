@@ -16,6 +16,8 @@ tokens {
  DIRECTIVE,
  PHP_EXPRESSION,
  BLADE_PHP_ECHO_EXPR,
+ RAW_TAG,
+ CONTENT_TAG,
  HTML,
  ERROR
 }
@@ -118,8 +120,8 @@ D_CUSTOM : ('@' NameString {this._input.LA(1) == '(' ||
         (this._input.LA(1) == ' ' && this._input.LA(2) == '(')}? ) ->pushMode(LOOK_FOR_PHP_EXPRESSION);
 
 //display
-ESCAPED_ECHO_START : '{{' ->pushMode(ESCAPED_ECHO);
-RAW_ECHO_START : '{!!' ->pushMode(RAW_ECHO);
+CONTENT_TAG_OPEN : '{{' ->pushMode(INSIDE_REGULAR_ECHO),type(CONTENT_TAG);
+RAW_TAG_OPEN : '{!!' ->pushMode(INSIDE_RAW_ECHO),type(RAW_TAG);
 
 HTML_CLOSE_TAG : '<' '/'?  NameString [ ]* '>'->type(HTML); 
 
@@ -136,26 +138,26 @@ HTML : ~[<?@{!]+;
 OTHER : . ->type(HTML);
 
 // {{  }}
-mode ESCAPED_ECHO;
+mode INSIDE_REGULAR_ECHO;
 
-ESCAPED_ECHO_END : ('}}')->popMode;
+CONTENT_TAG_CLOSE : ('}}')->popMode,type(CONTENT_TAG);
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
 ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH {this.consumeEscapedEchoToken();};
 ECHO_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT | DOUBLE_QUOTED_STRING_FRAGMENT_WITH_PHP) {this.consumeEscapedEchoToken();};
 ECHO_PHP_FREEZE_SYNTAX : (':)' | ':') ->skip;
 
-GREEDY_ESCAPED_ECHO_EXPR : ~[ ':{}]+ {this.consumeEscapedEchoToken();};
+GREEDY_REGULAR_ECHO_EXPR : ~[ ':{}]+ {this.consumeEscapedEchoToken();};
 
 ESCAPED_ECHO_EXPR : . [ ]* {this.consumeEscapedEchoToken();};
-EXIT_ESCAPED_ECHO_EOF : EOF->type(ERROR),popMode;
+EXIT_ECHO_EOF : EOF->type(ERROR),popMode;
 
 // {!!  !!}
-mode RAW_ECHO;
+mode INSIDE_RAW_ECHO;
 
-RAW_ECHO_END : ('!!}')->popMode;
+RAW_TAG_CLOSE : ('!!}')->popMode, type(RAW_TAG);
 //hack due to a netbeans php embedding issue when adding or deleting ':' chars
 RAW_ECHO_DOUBLE_NEKODU : NEKUDO_WHITELIST_MATCH {this.consumeNotEscapedEchoToken();};
-RAW_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT | DOUBLE_QUOTED_STRING_FRAGMENT_WITH_PHP) {this.consumeNotEscapedEchoToken();};
+RAW_ECHO_STRING_LITERAL : (SINGLE_QUOTED_STRING_FRAGMENT | DOUBLE_QUOTED_STRING_FRAGMENT_WITH_PHP) {this.consumeNotEscapedEchoToken();};
 RAW_ECHO_PHP_FREEZE_SYNTAX : (':)' | ':') ->skip;
 RAW_ECHO_EXPR : ~[ ':!{}]+ {this.consumeNotEscapedEchoToken();};
 RAW_ECHO_EXPR_MORE : . [ ]* {this.consumeNotEscapedEchoToken();};

@@ -6,7 +6,6 @@ import java.net.URL;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.netbeans.junit.NbTestCase;
-import static org.netbeans.modules.php.blade.editor.lexer.BladeTokenId.PHP_BLADE_ECHO_EXPR;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrColoringLexer.*;
 
 /**
@@ -59,8 +58,8 @@ public class BladeAntlrColoringLexerTestBase extends NbTestCase {
                 case HTML:
                     result.append("HTML ");
                     break;
-                case ESCAPED_ECHO_END:
-                    result.append("ESCAPED_ECHO_END ");
+                case RAW_TAG:
+                    result.append("RAW_TAG ");
                     break;
                 case PHP_EXPRESSION:
                     result.append("PHP_EXPRESSION ");

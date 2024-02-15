@@ -45,6 +45,7 @@ VERSION_WITH_AT: '@' (Digit '.'?)+->type(HTML);
 //escapes
 D_ESCAPES 
     : (
+      '{{{'
       '@@' '@'?
     | '@{' '{'?
     | '@media' [ ]*

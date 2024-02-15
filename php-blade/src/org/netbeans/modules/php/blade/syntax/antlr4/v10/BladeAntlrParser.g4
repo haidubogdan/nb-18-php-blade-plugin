@@ -23,8 +23,8 @@ general_statement: inline_statement
 
 inline_statement: 
     inline_directive
-    | echo
-    | echo_ne
+    | regular_echo
+    | raw_echo
     | phpInline
     | BLADE_COMMENT_START BLADE_COMMENT* BLADE_COMMENT_END
     ;
@@ -145,8 +145,8 @@ php_blade : D_PHP composed_php_expression+ D_ENDPHP | D_PHP main_php_expression;
 phpInline : PHP_INLINE_START composed_php_expression+ PHP_EXIT;
 //echo
 
-echo : ESCAPED_ECHO_START echo_expr* ESCAPED_ECHO_END;
-echo_ne : NE_ECHO_START echo_expr* NE_ECHO_END;
+regular_echo : CONTENT_TAG_OPEN echo_expr* CONTENT_TAG_CLOSE;
+raw_echo : RAW_TAG_OPEN echo_expr* RAW_TAG_CLOSE;
 
 echo_expr : composed_php_expression;
 

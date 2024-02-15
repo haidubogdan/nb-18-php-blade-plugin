@@ -288,14 +288,14 @@ public class BladeAntlrUtils {
 
     public static int getTagPairTokenType(int tokenType) {
         switch (tokenType) {
-            case ESCAPED_ECHO_START:
-                return ESCAPED_ECHO_END;
-            case ESCAPED_ECHO_END:
-                return ESCAPED_ECHO_START;
-            case NE_ECHO_START:
-                return NE_ECHO_END;
-            case NE_ECHO_END:
-                return NE_ECHO_START;
+            case CONTENT_TAG_OPEN:
+                return CONTENT_TAG_CLOSE;
+            case CONTENT_TAG_CLOSE:
+                return CONTENT_TAG_OPEN;
+            case RAW_TAG_OPEN:
+                return RAW_TAG_CLOSE;
+            case RAW_TAG_CLOSE:
+                return RAW_TAG_OPEN;
             default:
                 return -1;
         }
