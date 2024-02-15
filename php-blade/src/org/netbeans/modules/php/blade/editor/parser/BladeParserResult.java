@@ -509,6 +509,10 @@ public class BladeParserResult extends ParserResult {
                         if (start < end) {
                             end = ctx.getStop().getStopIndex() + 1;
                         }
+                        
+                        if (start > end){
+                            return;
+                        }
                         OffsetRange range = new OffsetRange(start, end);
                         if (!folds.contains(range)) {
                             folds.add(range);
