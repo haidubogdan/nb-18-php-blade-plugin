@@ -46,7 +46,10 @@ import org.openide.util.Exceptions;
  * @author bhaidu
  */
 @MimeRegistrations(value = {
-    @MimeRegistration(mimeType = BladeLanguage.MIME_TYPE, service = CompletionProvider.class),})
+    @MimeRegistration(mimeType = BladeLanguage.MIME_TYPE, service = CompletionProvider.class),
+    //nb18 compatibility
+    @MimeRegistration(mimeType = "text/html", service = CompletionProvider.class)
+})
 public class BladeCompletionProvider implements CompletionProvider {
 
     private static final Logger LOGGER = Logger.getLogger(BladeCompletionProvider.class.getName());
@@ -109,12 +112,11 @@ public class BladeCompletionProvider implements CompletionProvider {
                     return;
                 }
 
-                String lineText = "";
                 adoc.readLock();
                 AntlrTokenSequence tokens;
                 try {
-                    lineText = doc.getText(0, doc.getLength());
-                    tokens = new AntlrTokenSequence(new BladeAntlrLexer(CharStreams.fromString(lineText)));
+                    String docText = doc.getText(0, doc.getLength());
+                    tokens = new AntlrTokenSequence(new BladeAntlrLexer(CharStreams.fromString(docText)));
                 } catch (BadLocationException ex) {
                     return;
                 } finally {
@@ -125,92 +127,106 @@ public class BladeCompletionProvider implements CompletionProvider {
                     return;
                 }
 
-                if (lineText.endsWith("\n") && caretOffset > 1) {
+                if (caretOffset > 1){
                     tokens.seekTo(caretOffset - 1);
                 } else {
                     tokens.seekTo(caretOffset);
                 }
 
-                if (tokens.hasNext()) {
-                    Token nt = tokens.next().get();
+                Token currentToken;
+                
+                if (!tokens.hasNext() && tokens.hasPrevious()) {
+                    //the carret got too far
+                    currentToken = tokens.previous().get();
+                } else if (tokens.hasNext()){
+                    currentToken = tokens.next().get();
+                } else {
+                    return;
+                }
+                
+                if (currentToken == null){
+                    return;
+                }
 
-                    if (!tokens.hasPrevious()) {
+                int start = currentToken.getStartIndex();
+                int end = currentToken.getStopIndex();
+
+                if (currentToken.getText().trim().length() == 0){
+                    return;
+                }
+
+                switch (currentToken.getType()) {
+                    case BLADE_COMMENT:
+                    case RAW_TAG_CLOSE:
                         return;
-                    }
+                    case PHP_EXPRESSION:
+                        return;
+                }
 
-//                    Token pt = null;
-                    switch (nt.getType()) {
-                        case BLADE_COMMENT:
-                        case RAW_TAG_CLOSE:
-                            return;
-                        case PHP_EXPRESSION:
-                            return;
-                    }
-
-                    switch (nt.getType()) {
-                        case CONTENT_TAG_OPEN:
-                        case RAW_TAG_OPEN:
-                            completeBladeTags(nt.getText(), nt, tokens, doc, caretOffset, resultSet);
-                            break;
-                        case HTML:
-                            String nText = nt.getText();
-                            if (nText.startsWith("@")) {
-                                completeDirectives(nText, doc, caretOffset, resultSet);
-                            } else if (nText.startsWith("{")) {
-                                completeBladeTags(nText, nt, tokens, doc, caretOffset, resultSet);
-                            }
-                            break;
-                        case BL_PARAM_STRING: {
-                            String pathName = nt.getText().substring(1, nt.getText().length() - 1);
-                            List<Integer> tokensMatch = Arrays.asList(new Integer[]{
-                                D_EXTENDS, D_INCLUDE, D_SECTION, D_HAS_SECTION,
-                                D_INCLUDE_IF, D_INCLUDE_WHEN, D_INCLUDE_UNLESS, D_INCLUDE_FIRST,
-                                D_EACH, D_PUSH
-                            });     //todo 
-                            //we should have the stop tokens depending on context
-                            List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML, BL_COMMA, BL_PARAM_CONCAT_OPERATOR});
-                            Token directiveToken = BladeAntlrUtils.findBackward(tokens, tokensMatch, tokensStop);
-                            if (directiveToken == null) {
-                                return;
-                            }
-                            switch (directiveToken.getType()) {
-                                case D_EXTENDS:
-                                case D_INCLUDE:
-                                case D_INCLUDE_IF:
-                                case D_INCLUDE_WHEN:
-                                case D_INCLUDE_UNLESS:
-                                case D_EACH:
-
-                                    int lastDotPos;
-
-                                    if (pathName.endsWith(".")) {
-                                        lastDotPos = pathName.length();
-                                    } else {
-                                        lastDotPos = pathName.lastIndexOf(".");
-                                    }
-                                    int pathOffset;
-
-                                    if (lastDotPos > 0) {
-                                        pathOffset = caretOffset - pathName.length() + lastDotPos;
-                                    } else {
-                                        pathOffset = caretOffset - pathName.length();
-                                    }
-                                    List<FileObject> childrenFiles = PathUtils.getParentChildrenFromPrefixPath(fo, pathName);
-                                    for (FileObject file : childrenFiles) {
-                                        String pathFileName = file.getName();
-                                        if (!file.isFolder()) {
-                                            pathFileName = pathFileName.replace(".blade", "");
-                                        }
-                                        completeBladePath(pathFileName, file, pathOffset, resultSet);
-                                    }
-                                    return;
-                                case D_SECTION:
-                                case D_HAS_SECTION:
-                                    completeYieldIdFromIndex(pathName, fo, caretOffset, resultSet);
-                            }
-                            break;
+                switch (currentToken.getType()) {
+                    case CONTENT_TAG_OPEN:
+                    case RAW_TAG_OPEN:
+                        completeBladeTags(currentToken.getText(), currentToken, tokens, doc, caretOffset, resultSet);
+                        break;
+                    case HTML:
+                        String nText = currentToken.getText();
+                        if (nText.startsWith("@")) {
+                            completeDirectives(nText, doc, caretOffset, resultSet);
+                        } else if (nText.startsWith("{")) {
+                            completeBladeTags(nText, currentToken, tokens, doc, caretOffset, resultSet);
                         }
-                        /*
+                        break;
+                    case BL_PARAM_STRING: {
+                        String pathName = currentToken.getText().substring(1, currentToken.getText().length() - 1);
+                        List<Integer> tokensMatch = Arrays.asList(new Integer[]{
+                            D_EXTENDS, D_INCLUDE, D_SECTION, D_HAS_SECTION,
+                            D_INCLUDE_IF, D_INCLUDE_WHEN, D_INCLUDE_UNLESS, D_INCLUDE_FIRST,
+                            D_EACH, D_PUSH
+                        });     //todo 
+                        //we should have the stop tokens depending on context
+                        List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML, BL_COMMA, BL_PARAM_CONCAT_OPERATOR});
+                        Token directiveToken = BladeAntlrUtils.findBackward(tokens, tokensMatch, tokensStop);
+                        if (directiveToken == null) {
+                            return;
+                        }
+                        switch (directiveToken.getType()) {
+                            case D_EXTENDS:
+                            case D_INCLUDE:
+                            case D_INCLUDE_IF:
+                            case D_INCLUDE_WHEN:
+                            case D_INCLUDE_UNLESS:
+                            case D_EACH:
+
+                                int lastDotPos;
+
+                                if (pathName.endsWith(".")) {
+                                    lastDotPos = pathName.length();
+                                } else {
+                                    lastDotPos = pathName.lastIndexOf(".");
+                                }
+                                int pathOffset;
+
+                                if (lastDotPos > 0) {
+                                    pathOffset = caretOffset - pathName.length() + lastDotPos;
+                                } else {
+                                    pathOffset = caretOffset - pathName.length();
+                                }
+                                List<FileObject> childrenFiles = PathUtils.getParentChildrenFromPrefixPath(fo, pathName);
+                                for (FileObject file : childrenFiles) {
+                                    String pathFileName = file.getName();
+                                    if (!file.isFolder()) {
+                                        pathFileName = pathFileName.replace(".blade", "");
+                                    }
+                                    completeBladePath(pathFileName, file, pathOffset, resultSet);
+                                }
+                                return;
+                            case D_SECTION:
+                            case D_HAS_SECTION:
+                                completeYieldIdFromIndex(pathName, fo, caretOffset, resultSet);
+                        }
+                        break;
+                    }
+                    /*
                         case BLADE_PHP_ECHO_EXPR: {
                             //completion {{ }} {!! !!}
                             List<Integer> tokensMatch = Arrays.asList(new Integer[]{CONTENT_TAG_OPEN, RAW_TAG_OPEN});
@@ -248,9 +264,8 @@ public class BladeCompletionProvider implements CompletionProvider {
                             }
                             break;
                         }*/
-                        default:
-                            break;
-                    }
+                    default:
+                        break;
                 }
             } finally {
                 if (LOGGER.isLoggable(Level.FINE)) {

@@ -122,7 +122,7 @@ public class BladeBracesMatcher implements BracesMatcher {
             return BraceDirectionType.CURLY_END_TO_START;
         }
 
-        if (tokenText.startsWith("@end")) {
+        if (tokenText.startsWith("@end") || tokenText.equals("@show")) {
             return BraceDirectionType.END_TO_START;
         }
 

@@ -50,6 +50,8 @@ public class BladeDirectivesUtils {
                 return new String[]{"@if", "@hasSection"};
             case "@endsection":
                 return new String[]{"@section"};
+            case "@show":
+                return new String[]{"@section"};
             case "@endonce":
                 return new String[]{"@once"};
             case "@endforeach":

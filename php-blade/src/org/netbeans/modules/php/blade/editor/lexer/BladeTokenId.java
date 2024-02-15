@@ -60,16 +60,16 @@ import org.openide.util.Lookup;
  * @author bogdan
  */
 public enum BladeTokenId implements TokenId {
-    BLADE_COMMENT_START("comment"),
-    BLADE_COMMENT("comment"),
-    BLADE_COMMENT_END("comment"),
+    BLADE_COMMENT_START("blade_comment"),
+    BLADE_COMMENT("blade_comment"),
+    BLADE_COMMENT_END("blade_comment"),
     BLADE_DIRECTIVE("blade_directive"),
     BLADE_ECHO_DELIMITOR("blade_echo_delimiters"),
     HTML("html"),
     WS_D("html"),
-    PHP_BLADE_EXPRESSION("php"),
-    PHP_BLADE_ECHO_EXPR("php"),
-    PHP_BLADE_INLINE_CODE("php"),
+    PHP_BLADE_EXPRESSION("blade_php"),
+    PHP_BLADE_ECHO_EXPR("blade_php"),
+    PHP_BLADE_INLINE_CODE("blade_php"),
     PHP_INLINE("php"),
     OTHER("error");
     private final String category;

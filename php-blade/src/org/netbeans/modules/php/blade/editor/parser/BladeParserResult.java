@@ -504,11 +504,8 @@ public class BladeParserResult extends ParserResult {
                             structure.add(blockItem);
                         }
                         //folds
-                        int start = ctx.getStart().getStartIndex() + 1;
+                        int start = ctx.getStart().getStartIndex() + 1 + directiveName.length();
                         int end = ctx.getStop().getStartIndex();//the start of the close directive
-                        if (start < end) {
-                            end = ctx.getStop().getStopIndex() + 1;
-                        }
                         
                         if (start > end){
                             return;

@@ -1,7 +1,11 @@
 package org.netbeans.modules.php.blade.editor.ui.customizer;
 
+import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import javax.swing.ListModel;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
@@ -10,6 +14,7 @@ import org.netbeans.modules.php.blade.project.BladeProjectProperties;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.ChangeSupport;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -23,6 +28,7 @@ public class BladeDirectives extends javax.swing.JPanel {
 
     /**
      * Creates new form CustomizerIncludePath
+     *
      * @param project
      */
     public BladeDirectives(Project project) {
@@ -61,7 +67,7 @@ public class BladeDirectives extends javax.swing.JPanel {
         customDirectivePathList = new javax.swing.JList<>();
         removePathButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
         org.openide.awt.Mnemonics.setLocalizedText(includePathLabel, org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.includePathLabel.text_1")); // NOI18N
 
@@ -85,7 +91,13 @@ public class BladeDirectives extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.jLabel1.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.jLabel2.text")); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(0, 51, 255));
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(BladeDirectives.class, "BladeDirectives.jLabel3.text")); // NOI18N
+        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel3MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -105,10 +117,10 @@ public class BladeDirectives extends javax.swing.JPanel {
                             .addComponent(includePathLabel)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(10, 10, 10)
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel2)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel1))))
+                        .addGap(0, 306, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -117,10 +129,10 @@ public class BladeDirectives extends javax.swing.JPanel {
                 .addGap(20, 20, 20)
                 .addComponent(includePathLabel)
                 .addGap(15, 15, 15)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
-                .addGap(42, 42, 42)
+                .addComponent(jLabel1)
+                .addGap(8, 8, 8)
+                .addComponent(jLabel3)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
@@ -153,12 +165,21 @@ public class BladeDirectives extends javax.swing.JPanel {
 
     }//GEN-LAST:event_removePathButtonActionPerformed
 
+    private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
+        try {
+            Desktop.getDesktop().browse(new URI("https://laravel.com/docs/10.x/blade#extending-blade"));
+        } catch (URISyntaxException | IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+    }//GEN-LAST:event_jLabel3MouseClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton compilerPathFileButton;
     private javax.swing.JList<String> customDirectivePathList;
     private javax.swing.JLabel includePathLabel;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton removePathButton;
     // End of variables declaration//GEN-END:variables

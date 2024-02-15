@@ -6,10 +6,19 @@
             <folder name="x-blade">
                 <attr name="displayName" stringvalue="Blade"/>
                 <folder name="FontsColors">
+                    <folder name="FlatLafDark">
+                        <folder name="NetBeans">
+                            <folder name="Defaults">
+                                <file name="FontAndColors.xml" url="FlatLafDark-FontAndColors.xml">
+                                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.blade.resources.Bundle"/>
+                                </file>
+                            </folder>
+                        </folder>
+                    </folder>
                     <folder name="NetBeans">
                         <folder name="Defaults">
                             <file name="FontAndColors.xml" url="FontAndColors.xml">
-                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.blade.resources.Bundle" />
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.blade.resources.Bundle"/>
                             </file>
                         </folder>
                     </folder>
