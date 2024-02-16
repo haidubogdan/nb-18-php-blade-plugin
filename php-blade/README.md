@@ -73,6 +73,7 @@ This will help the yielid and view path completion
 ### Known issues
 
 > [!WARNING]
+> .
 
 - The duplicate file process can create a "blade_1.php" file because by default the extension of a file is the last ".*" element. So for "blade.php" the extension found is ".php"
 - HTML join embedding breaks indentation especially in `<script>` and `<style>` context
