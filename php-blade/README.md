@@ -36,18 +36,25 @@ For more information refer yourself to: http://platform.netbeans.org/tutorials/n
 ### Features
 
 - Blade syntax coloring
-  ![syntax coloring](resources/syntax_coloring.png)
+
+![syntax coloring](resources/syntax_coloring.png)
+
 - Declaration finder for 
     - php elements
     - included paths
     - yield ids (section)
     - stack elements
 - Php code completion inside expressions, and echo tags
-  ![completion](resources/completion.png)
+
+![completion](resources/completion.png)
+
 - Brace matcher and folding
-  ![folding](resources/folding.png)
+
+![folding](resources/folding.png)
+
 - Find template usage (only in the blade files context)
-  ![template usage](resources/template_usage.png)
+
+![template usage](resources/template_usage.png)
 
 **Custom directives**
 
