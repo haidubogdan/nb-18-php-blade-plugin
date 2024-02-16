@@ -29,7 +29,7 @@ public class BladeUtils {
     }
 
     public static CommonTokenStream getTokenStream(String content) {
-        CharStream stream = new ANTLRInputStream(content);
+        CharStream stream = CharStreams.fromString(content);
         BladeAntlrLexer lexer = new BladeAntlrLexer(stream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         tokens.fill();
@@ -37,7 +37,7 @@ public class BladeUtils {
     }
     
     public static CommonTokenStream getColoringTokenStream(String content) {
-        CharStream stream = new ANTLRInputStream(content);
+        CharStream stream = CharStreams.fromString(content);
         BladeAntlrColoringLexer lexer = new BladeAntlrColoringLexer(stream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         tokens.fill();

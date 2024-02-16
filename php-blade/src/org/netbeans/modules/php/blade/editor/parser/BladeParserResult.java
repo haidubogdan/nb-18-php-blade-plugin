@@ -660,7 +660,8 @@ public class BladeParserResult extends ParserResult {
         includeBladeOccurences.computeIfAbsent(refName, s -> new ArrayList<>()).add(or);
     }
 
-    public Collection<? extends OffsetRange> getOccurrences(String refName) {
+    //not used so far
+    public Collection<? extends OffsetRange> findIncludeOccurrence(String refName) {
         ArrayList<OffsetRange> ret = new ArrayList<>();
         if (includeBladeOccurences.containsKey(refName)) {
             ret.addAll(includeBladeOccurences.get(refName));
