@@ -72,7 +72,9 @@ This will help the yielid and view path completion
 
 ### Known issues
 
-- The duplicate file process can create a "blade_1.php" file due to the fact that the extension is considered "php" and not "blade.php"
+> [!WARNING]
+
+- The duplicate file process can create a "blade_1.php" file because by default the extension of a file is the last ".*" element. So for "blade.php" the extension found is ".php"
 - HTML join embedding breaks indentation especially in `<script>` and `<style>` context
 
 ### Why Netbeans 18+ requirement ?
