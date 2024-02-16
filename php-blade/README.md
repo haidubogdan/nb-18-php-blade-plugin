@@ -89,4 +89,5 @@ Some features are not implemented in this plugin version :
 
 - variable completion from controller
 - no code reformat action
-- components completion and declaration finder 
+- components completion and declaration finder
+- error diagnostics for inline php code
