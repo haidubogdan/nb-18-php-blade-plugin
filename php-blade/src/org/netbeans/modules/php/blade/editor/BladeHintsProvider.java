@@ -62,10 +62,11 @@ public class BladeHintsProvider implements HintsProvider {
                     continue;
                 }
                 for (OffsetRange range : entry.getValue()) {
+                    OffsetRange hintRange = new OffsetRange(range.getStart(), range.getEnd() + 1);
                     hints.add(new Hint(new BladeRule(HintSeverity.WARNING),
                             "Blade path not found. In case of custom blade context You can try to set the root folder using Project -> Properties -> Laravel Blade -> Views Folder",
                             context.parserResult.getSnapshot().getSource().getFileObject(),
-                            range,
+                            hintRange,
                             Collections.emptyList(),
                             10));
                 }

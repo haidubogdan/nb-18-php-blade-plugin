@@ -113,7 +113,7 @@ public class PathUtils {
             FileObject includedFile = viewRoot.getFileObject(sanitizedBladePath, true);
 
             if (includedFile != null && includedFile.isValid()) {
-                return res;
+                return includedFile;
             }
         }
 
