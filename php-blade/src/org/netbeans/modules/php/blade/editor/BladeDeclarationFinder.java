@@ -86,7 +86,8 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
             if (nt.getType() == BL_PARAM_STRING) {
                 List<Integer> tokensMatch = Arrays.asList(new Integer[]{
-                    D_EXTENDS, D_INCLUDE, D_INCLUDE_IF, D_EACH, D_SECTION, D_HAS_SECTION, D_SECTION_MISSING, D_PUSH, D_USE
+                    D_EXTENDS, D_INCLUDE, D_INCLUDE_IF, D_EACH, D_SECTION, D_HAS_SECTION, D_SECTION_MISSING,
+                    D_PUSH, D_PUSH_IF, D_PREPEND, D_USE, D_INJECT
                 });
                 List<Integer> tokensStop = Arrays.asList(new Integer[]{HTML});
                 org.antlr.v4.runtime.Token matchedToken = BladeAntlrUtils.findBackward(tokens, tokensMatch, tokensStop);
@@ -187,6 +188,8 @@ public class BladeDeclarationFinder implements DeclarationFinder {
 
                 return location;
             case PUSH:
+            case PUSH_IF:    
+            case PREPEND:      
                 String stackId = reference.name;
                 List<BladeIndex.IndexedReference> stacks = QueryUtils.getStacksReferences(stackId, currentFile);
 
@@ -301,10 +304,9 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                     location.addAlternative(new AlternativeLocationImpl(constantLocation));
                 }
                 return location;
+            case USE:
+            case INJECT:
             case PHP_NAMESPACE_PATH:
-                //just for test
-                //an exact query must be implemented
-
                 Collection<PhpIndexResult> indexNamespaceResults;
                 if (reference.namespace != null) {
                     indexNamespaceResults = PhpIndexUtils.queryExactNamespaceClasses(
