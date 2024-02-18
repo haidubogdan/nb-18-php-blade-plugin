@@ -146,7 +146,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
         switch (reference.type) {
             case EXTENDS:
             case INCLUDE:
-            case INCLUDE_IF:   
+            case INCLUDE_IF:
             case EACH:
                 String bladePath = reference.name;
                 List<FileObject> includedFiles = PathUtils.findFileObjectsForBladePath(currentFile, bladePath);
@@ -231,7 +231,7 @@ public class BladeDeclarationFinder implements DeclarationFinder {
                 Collection<PhpIndexResult> indexClassResults;
                 String namespace = reference.namespace;
 
-                if (namespace != null && reference.namespace.length() > 2){
+                if (namespace != null && reference.namespace.length() > 2) {
                     indexClassResults = PhpIndexUtils.queryExactNamespaceClasses(
                             reference.name,
                             reference.namespace.substring(0, reference.namespace.length() - 1),
@@ -304,16 +304,34 @@ public class BladeDeclarationFinder implements DeclarationFinder {
             case PHP_NAMESPACE_PATH:
                 //just for test
                 //an exact query must be implemented
-                Collection<PhpIndexResult> indexNamespaceResults = PhpIndexUtils.queryNamespace(
-                        sourceFolder, reference.name);
 
-                for (PhpIndexResult indexResult : indexNamespaceResults) {
-                    NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_NAMESPACE);
-                    DeclarationLocation constantLocation = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
-                    if (location.equals(DeclarationLocation.NONE)) {
-                        location = constantLocation;
+                Collection<PhpIndexResult> indexNamespaceResults;
+                if (reference.namespace != null) {
+                    indexNamespaceResults = PhpIndexUtils.queryExactNamespaceClasses(
+                            reference.name,
+                            reference.namespace.substring(0, reference.namespace.length() - 1),
+                            sourceFolder
+                    );
+                    for (PhpIndexResult indexResult : indexNamespaceResults) {
+                        NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_CLASS);
+                        DeclarationLocation classLocation = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
+                        if (location.equals(DeclarationLocation.NONE)) {
+                            location = classLocation;
+                        }
+                        location.addAlternative(new AlternativeLocationImpl(classLocation));
                     }
-                    location.addAlternative(new AlternativeLocationImpl(constantLocation));
+                } else {
+                    indexNamespaceResults = PhpIndexUtils.queryNamespace(
+                            sourceFolder, reference.name);
+
+                    for (PhpIndexResult indexResult : indexNamespaceResults) {
+                        NamedElement resultHandle = new NamedElement(reference.name, indexResult.declarationFile, ElementType.PHP_NAMESPACE);
+                        DeclarationLocation constantLocation = new DeclarationFinder.DeclarationLocation(indexResult.declarationFile, indexResult.getStartOffset(), resultHandle);
+                        if (location.equals(DeclarationLocation.NONE)) {
+                            location = constantLocation;
+                        }
+                        location.addAlternative(new AlternativeLocationImpl(constantLocation));
+                    }
                 }
                 return location;
         }
