@@ -286,4 +286,21 @@ public class PathUtils {
 
         return path;
     }
+    
+    public static String getRelativeProjectPath(FileObject currentFile){
+        Project projectOwner = ProjectConvertors.getNonConvertorOwner(currentFile);
+        if (projectOwner == null){
+            return "";
+        }
+        
+        String dirPath = projectOwner.getProjectDirectory().getPath();
+        String relativePath = currentFile.getPath().replace(dirPath, "");
+
+        //only if we found the relative project path
+        if (currentFile.getPath().length() > relativePath.length()){
+            return relativePath;
+        }
+        
+        return "";
+    }
 }

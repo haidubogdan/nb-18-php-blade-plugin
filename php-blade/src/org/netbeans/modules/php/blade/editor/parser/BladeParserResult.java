@@ -554,6 +554,8 @@ public class BladeParserResult extends ParserResult {
                 return ReferenceType.EXTENDS;
             case INCLUDE:
                 return ReferenceType.INCLUDE;
+            case INCLUDE_IF:
+                return ReferenceType.INCLUDE_IF;
             case YIELD:
                 return ReferenceType.YIELD;
             case STACK:
