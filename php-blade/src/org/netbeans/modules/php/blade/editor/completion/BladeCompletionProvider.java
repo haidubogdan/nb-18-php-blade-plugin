@@ -164,11 +164,13 @@ public class BladeCompletionProvider implements CompletionProvider {
                     case RAW_TAG_OPEN:
                         completeBladeTags(currentToken.getText(), currentToken, tokens, doc, caretOffset, resultSet);
                         break;
+                    case AT_REFERENCE:
+                        String dText = currentToken.getText();
+                        completeDirectives(dText, doc, caretOffset, resultSet);
+                        break;
                     case HTML:
                         String nText = currentToken.getText();
-                        if (nText.startsWith("@")) {
-                            completeDirectives(nText, doc, caretOffset, resultSet);
-                        } else if (nText.startsWith("{")) {
+                        if (nText.startsWith("{")) {
                             completeBladeTags(nText, currentToken, tokens, doc, caretOffset, resultSet);
                         }
                         break;

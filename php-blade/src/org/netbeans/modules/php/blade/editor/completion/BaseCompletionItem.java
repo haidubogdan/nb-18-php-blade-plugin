@@ -11,6 +11,8 @@ import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.api.HtmlFormatter;
 import org.netbeans.modules.csl.api.Modifier;
+import org.netbeans.modules.php.blade.editor.ResourceUtilities;
+import org.netbeans.modules.php.blade.syntax.annotation.Directive;
 
 import org.openide.filesystems.FileObject;
 
@@ -18,17 +20,14 @@ import org.openide.filesystems.FileObject;
  *
  * @author bogdan
  */
-public class BladeCompletionItem implements CompletionProposal {
+abstract public class BaseCompletionItem implements CompletionProposal {
 
-    //@StaticResource
     final CompletionRequest request;
     private final ElementHandle element;
-    final String previewValue;
 
-    public BladeCompletionItem(ElementHandle element, CompletionRequest request, String previewValue) {
+    public BaseCompletionItem(ElementHandle element, CompletionRequest request) {
         this.element = element;
         this.request = request;
-        this.previewValue = previewValue;
     }
 
     @Override
@@ -54,18 +53,6 @@ public class BladeCompletionItem implements CompletionProposal {
     @Override
     public int getSortPrioOverride() {
         return 0;
-    }
-
-    @Override
-    public String getLhsHtml(HtmlFormatter formatter) {
-        formatter.name(getKind(), true);
-        formatter.appendHtml("<font>");
-        formatter.appendHtml("<b>");
-        formatter.appendText(previewValue);
-        formatter.appendHtml("</b>");
-        formatter.appendHtml("</font>");
-        formatter.name(getKind(), false);
-        return formatter.getText();
     }
 
     @Override
@@ -115,6 +102,80 @@ public class BladeCompletionItem implements CompletionProposal {
         return true;
     }
 
+    public static class BladeCompletionItem extends BaseCompletionItem {
+
+        final String previewValue;
+
+        public BladeCompletionItem(ElementHandle element, CompletionRequest request, String previewValue) {
+            super(element, request);
+            this.previewValue = previewValue;
+        }
+
+        @Override
+        public String getLhsHtml(HtmlFormatter formatter) {
+            formatter.name(getKind(), true);
+            formatter.appendHtml("<font>");
+            formatter.appendHtml("<b>");
+            formatter.appendText(previewValue);
+            formatter.appendHtml("</b>");
+            formatter.appendHtml("</font>");
+            formatter.name(getKind(), false);
+            return formatter.getText();
+        }
+    }
+
+    public static class DirectiveItem extends BaseCompletionItem {
+
+        Directive directive;
+
+        public DirectiveItem(Directive directive, ElementHandle element, CompletionRequest request) {
+            super(element, request);
+            this.directive = directive;
+        }
+
+        @Override
+        public ImageIcon getIcon() {
+            return ResourceUtilities.loadResourceIcon("icons/at.png");
+        }
+
+        @Override
+        public String getLhsHtml(HtmlFormatter formatter) {
+            formatter.name(getKind(), true);
+            formatter.appendHtml("<font>");
+            formatter.appendHtml("<b>");
+            formatter.appendText(directive.name());
+            formatter.appendHtml("</b>");
+            formatter.appendHtml("</font>");
+            formatter.name(getKind(), false);
+            return formatter.getText();
+        }
+        
+        @Override
+        public String getCustomInsertTemplate() {
+            StringBuilder builder = new StringBuilder();
+            
+            if (!directive.parameters().isEmpty()){
+                builder.append(getName());
+                builder.append("(");
+                builder.append(directive.parameters());
+                builder.append(")");
+            }
+            
+            if (!directive.endtag().isEmpty()){
+                builder.append("\n");//after identation utils this can be removed
+                builder.append("${cursor}");
+                builder.append("\n");
+                builder.append(directive.endtag());
+            }
+            
+            if (builder.length() > 0){
+                return builder.toString();
+            }
+            
+            return getName();
+        }
+    }
+
     public static class PhpElementItem extends BladeCompletionItem {
 
         public PhpElementItem(ElementHandle element, CompletionRequest request, String previewValue) {
@@ -134,6 +195,7 @@ public class BladeCompletionItem implements CompletionProposal {
             }
             return formatter.getText();
         }
+
     }
 
     public static class NamespaceItem extends PhpElementItem {

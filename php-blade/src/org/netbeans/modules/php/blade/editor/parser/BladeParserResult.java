@@ -65,6 +65,7 @@ public class BladeParserResult extends ParserResult {
     public final List<BladeStructureItem> structure = new ArrayList<>();
     public final List<OffsetRange> folds = new ArrayList<>();
 
+
     protected PHPParseResult phpParserResult;
 
     protected BladeIndex bladeIndex = null;
@@ -942,4 +943,5 @@ public class BladeParserResult extends ParserResult {
         public String keyVariable;
         public String itemVariable;
     }
+
 }

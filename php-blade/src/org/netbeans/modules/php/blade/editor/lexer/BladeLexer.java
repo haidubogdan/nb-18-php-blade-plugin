@@ -65,7 +65,7 @@ public class BladeLexer extends AbstractAntlrLexerBridge<BladeAntlrColoringLexer
     @Override
     protected Token<BladeTokenId> mapToken(org.antlr.v4.runtime.Token antlrToken) {
         //debug text
-        //String text = antlrToken.getText();
+        String text = antlrToken.getText();
         int type = antlrToken.getType();
         //System.out.println(text + " " + type);
         switch (type) {
@@ -77,12 +77,17 @@ public class BladeLexer extends AbstractAntlrLexerBridge<BladeAntlrColoringLexer
                 return token(BLADE_COMMENT_END);
             case BladeAntlrColoringLexer.HTML:
                 return token(HTML);
+            case BladeAntlrColoringLexer.LAST_NL:
+                return token(WS);   
             case BladeAntlrColoringLexer.PHP_INLINE:
                 return token(PHP_INLINE);
             case BladeAntlrColoringLexer.PHP_EXPRESSION:
                 return token(PHP_BLADE_EXPRESSION);
             case BladeAntlrColoringLexer.BLADE_PHP_INLINE:
                 return token(PHP_BLADE_INLINE_CODE);
+            case BladeAntlrColoringLexer.AT_REFERENCE:
+            case BladeAntlrColoringLexer.AT:
+                return token(AT_REFERENCE);
             case BladeAntlrColoringLexer.DIRECTIVE:
             case BladeAntlrColoringLexer.D_PHP:
             case BladeAntlrColoringLexer.D_ENDPHP:

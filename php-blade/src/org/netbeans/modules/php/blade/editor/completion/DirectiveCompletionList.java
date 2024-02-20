@@ -9,7 +9,7 @@ import org.netbeans.modules.php.blade.syntax.annotation.DirectiveRegister;
  */
 @DirectiveRegister({
     //conditionals
-    @Directive(name = "@if", params = true, endtag = "@endif"),
+    @Directive(name = "@if", params = true, parameters="$$${condition}", endtag = "@endif"),
     @Directive(name = "@elseif", params = true),
     @Directive(name = "@else"),
     @Directive(name = "@endif"),

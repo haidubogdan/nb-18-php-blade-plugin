@@ -27,6 +27,10 @@ fragment LineComment
     : '//' ~ [\r\n]*
     ;
 
+fragment PhpBlockComment
+    : '/*' .*? '*/'
+    ;
+
 fragment PhpVariable
     : '$' NameString;
 

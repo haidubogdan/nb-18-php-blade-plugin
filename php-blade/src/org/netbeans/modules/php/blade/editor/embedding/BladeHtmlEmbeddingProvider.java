@@ -66,7 +66,7 @@ public class BladeHtmlEmbeddingProvider extends EmbeddingProvider {
 
     @Override
     public int getPriority() {
-        return 210;
+        return 220;
     }
 
     @Override

@@ -46,4 +46,9 @@ public class BladeAntrlColoringLexerTest extends BladeAntlrColoringLexerTestBase
     public void test_html_parsing_error() throws Exception {
         performTest("coloring_lexer/html_lexer_error.blade.php");
     }
+    
+    @Test
+    public void test_html_embedding_error() throws Exception {
+        performTest("coloring_lexer/html_embedding.blade.php");
+    }
 }

@@ -11,6 +11,7 @@ import org.netbeans.editor.BaseDocument;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.antlr.v4.runtime.Token;
+import org.netbeans.api.editor.document.EditorDocumentUtils;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.CodeCompletionContext;
 import org.netbeans.modules.csl.api.CodeCompletionHandler2;
@@ -22,18 +23,24 @@ import org.netbeans.modules.csl.api.ParameterInfo;
 import org.netbeans.modules.csl.spi.DefaultCompletionResult;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.csl.spi.support.CancelSupport;
+import org.netbeans.modules.php.blade.csl.elements.DirectiveElement;
 import org.netbeans.modules.php.blade.csl.elements.ElementType;
 import org.netbeans.modules.php.blade.csl.elements.NamedElement;
 import org.netbeans.modules.php.blade.csl.elements.PhpFunctionElement;
-import org.netbeans.modules.php.blade.editor.completion.BladeCompletionItem.CompletionRequest;
+import org.netbeans.modules.php.blade.editor.completion.BaseCompletionItem.BladeCompletionItem;
+import org.netbeans.modules.php.blade.editor.completion.BaseCompletionItem.CompletionRequest;
+import org.netbeans.modules.php.blade.editor.directives.CustomDirectives;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexFunctionResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexResult;
 import org.netbeans.modules.php.blade.editor.indexing.PhpIndexUtils;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.FieldAccessReference;
 import org.netbeans.modules.php.blade.editor.parser.BladeParserResult.Reference;
+import org.netbeans.modules.php.blade.project.ProjectUtils;
+import org.netbeans.modules.php.blade.syntax.annotation.Directive;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrUtils;
 import static org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer.*;
+import org.netbeans.spi.editor.completion.CompletionResultSet;
 import org.netbeans.spi.project.ui.support.ProjectConvertors;
 import org.openide.filesystems.FileObject;
 
@@ -73,6 +80,9 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         }
 
         switch (currentToken.getType()) {
+//            case AT_REFERENCE:
+//                completeDirectives(completionProposals, parserResult, completionContext.getCaretOffset(), currentToken);
+//                break;
             case PHP_IDENTIFIER:
             case PHP_NAMESPACE_PATH:
                 completePhpElements(completionProposals, parserResult, completionContext.getCaretOffset(), currentToken);
@@ -317,9 +327,27 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
         }
     }
 
+    private void completeDirectives(final List<CompletionProposal> completionProposals,
+            BladeParserResult parserResult, int offset, Token currentToken) {
+        String prefix = currentToken.getText();
+        DirectiveCompletionList completionList = new DirectiveCompletionList();
+        CompletionRequest request = new CompletionRequest();
+        request.anchorOffset = offset - prefix.length();
+        request.carretOffset = offset;
+        request.prefix = prefix;
+
+        for (Directive directive : completionList.getDirectives()) {
+            String directiveName = directive.name();
+            if (directiveName.startsWith(prefix)) {
+                DirectiveElement directiveElement = new DirectiveElement(directiveName, null);
+                completionProposals.add(new BladeCompletionItem.DirectiveItem(directive, directiveElement, request));
+            }
+        }
+    }
+
     @Override
     public String document(ParserResult pr, ElementHandle eh) {
-        return null;
+        return "blade man";
     }
 
     @Override
@@ -351,7 +379,7 @@ public class BladeCompletionHandler implements CodeCompletionHandler2 {
     @Override
     @SuppressWarnings("rawtypes")
     public String resolveTemplateVariable(String string, ParserResult pr, int i, String string1, Map map) {
-        return null;
+        return "my template var";
     }
 
     @Override

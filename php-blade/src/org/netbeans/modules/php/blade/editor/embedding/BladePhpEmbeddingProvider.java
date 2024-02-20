@@ -66,7 +66,7 @@ public class BladePhpEmbeddingProvider extends EmbeddingProvider {
 
     @Override
     public int getPriority() {
-        return 210;
+        return 230;
     }
 
     @Override

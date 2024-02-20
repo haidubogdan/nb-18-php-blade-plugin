@@ -133,6 +133,8 @@ LAST_NL : [\r\n]+ EOF;
 
 HTML_X : ('<x-' BladeLabel)->type(HTML),pushMode(INSIDE_HTML_COMPONENT_TAG);
 
+AT_REFERENCE : '@' NameString;
+AT : '@';
 HTML : ~[<?@{!]+;
 
 OTHER : . ->type(HTML);

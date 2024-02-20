@@ -20,6 +20,7 @@ file : general_statement* EOF;
 
 general_statement: inline_statement
     | block_statement
+    | AT_REFERENCE //directives start
     | html
     ;
 
@@ -62,17 +63,17 @@ block_statement:
     | sectionMissing
     | push
     | pushIf
-    | D_ONCE general_statement+ D_ENDONCE
+    | D_ONCE general_statement* D_ENDONCE
     | prepend
     | fragmentD
     | if
     | elseif
     | else
     | switch
-    | D_ENV  singleArgWrapper general_statement+ D_ENDENV
-    | D_PRODUCTION general_statement+ D_ENDPRODUCTION
-    | D_EMPTY main_php_expression general_statement+ D_ENDEMPTY
-    | D_ERROR php_expression general_statement+ D_ENDERROR
+    | D_ENV  singleArgWrapper general_statement* D_ENDENV
+    | D_PRODUCTION general_statement* D_ENDPRODUCTION
+    | D_EMPTY main_php_expression general_statement* D_ENDEMPTY
+    | D_ERROR php_expression general_statement* D_ENDERROR
     //we can consider the statements not being empty
     | conditional_block
     | auth_block
@@ -92,29 +93,30 @@ non_blade_statement:
 extends : D_EXTENDS singleArgAndDefaultWrapper;
 section_inline: D_SECTION doubleArgWrapper;
 section : D_SECTION singleArgWrapper (general_statement | D_PARENT)* (D_SHOW | D_STOP | D_OVERWRITE | D_ENDSECTION);
-push : D_PUSH singleArgWrapper general_statement+ D_ENDPUSH;
-pushOnce : D_PUSH_ONCE singleArgWrapper general_statement+ D_ENDPUSH_ONCE;
-pushIf : D_PUSH_IF doubleIfArgWrapper general_statement+ D_ENDPUSH_IF;
-prepend : D_PREPEND singleArgWrapper general_statement+ D_ENDPREPEND;
-fragmentD locals [String version = "10"] : D_FRAGMENT composed_php_expression general_statement+ D_ENDFRAGMENT;
+push : D_PUSH singleArgWrapper general_statement* D_ENDPUSH;
+pushOnce : D_PUSH_ONCE singleArgWrapper general_statement* D_ENDPUSH_ONCE;
+pushIf : D_PUSH_IF doubleIfArgWrapper general_statement* D_ENDPUSH_IF;
+prepend : D_PREPEND singleArgWrapper general_statement* D_ENDPREPEND;
+fragmentD locals [String version = "10"] : D_FRAGMENT composed_php_expression general_statement* D_ENDFRAGMENT;
 
-if : D_IF main_php_expression general_statement+ endif?;
-elseif : D_ELSEIF main_php_expression general_statement+ endif?;
-else : D_ELSE general_statement+ endif?;
+//as we can have else endif tags it is easier to calculate then endif balance
+if : D_IF main_php_expression general_statement* endif?;
+elseif : D_ELSEIF main_php_expression general_statement* endif?;
+else : D_ELSE general_statement* endif?;
 endif: D_ENDIF;
 
 //the consistency for these blocks need to be checked inside the parser
-conditional_block : D_COND_BLOCK_START main_php_expression general_statement+ D_COND_BLOCK_END;
-auth_block : D_AUTH_START singleArgWrapper* general_statement+ D_AUTH_END;
+conditional_block : D_COND_BLOCK_START main_php_expression general_statement* D_COND_BLOCK_END;
+auth_block : D_AUTH_START singleArgWrapper* general_statement* D_AUTH_END;
 
 //no need to add complexity to parser
 switch: D_SWITCH php_expression (general_statement | D_BREAK)+ D_ENDSWITCH;
 
 //loops
-while : D_WHILE php_expression (general_statement)+ D_ENDWHILE;
-for : D_FOR php_expression (general_statement)+ D_ENDFOR;
-foreach : D_FOREACH FOREACH_LOOP_LPAREN loop_expression FOREACH_LOOP_RPAREN (general_statement)+ D_ENDFOREACH;
-forelse : D_FORELSE FOREACH_LOOP_LPAREN loop_expression FOREACH_LOOP_RPAREN (general_statement | D_EMPTY)+ D_ENDFORELSE;
+while : D_WHILE php_expression (general_statement)* D_ENDWHILE;
+for : D_FOR php_expression (general_statement)* D_ENDFOR;
+foreach : D_FOREACH FOREACH_LOOP_LPAREN loop_expression FOREACH_LOOP_RPAREN (general_statement)* D_ENDFOREACH;
+forelse : D_FORELSE FOREACH_LOOP_LPAREN loop_expression FOREACH_LOOP_RPAREN (general_statement | D_EMPTY)* D_ENDFORELSE;
 
 //layout
 yieldD : D_YIELD singleArgAndDefaultWrapper;
@@ -169,7 +171,7 @@ static_direct_class_access : class_identifier PHP_STATIC_ACCESS method_call
     | class_identifier PHP_STATIC_ACCESS static_property=PHP_IDENTIFIER
     ;
 
-class_instance : PHP_NEW PHP_WS+ class_identifier BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
+class_instance : PHP_NEW class_identifier BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN;
 class_name_reference : class_identifier PHP_STATIC_ACCESS PHP_CLASS_KEYWORD;
 
 class_identifier : namespace=PHP_NAMESPACE_PATH? class_name=PHP_IDENTIFIER;
@@ -186,28 +188,28 @@ main_php_expression : BLADE_EXPR_LPAREN composed_php_expression+ BLADE_EXPR_RPAR
 
 composed_php_expression : class_expr_usage | function_call | namespacePath | PHP_VARIABLE 
 | PHP_NAMESPACE_PATH | PHP_IDENTIFIER | EXPR_STRING |
- PHP_KEYWORD | PHP_EXPRESSION+ | PHP_WS | PHP_STATIC_ACCESS | PHP_CLASS_KEYWORD
+ PHP_KEYWORD | PHP_EXPRESSION+ | PHP_STATIC_ACCESS | PHP_CLASS_KEYWORD
 | PHP_INSTANCE_ACCESS | BLADE_EXPR_LPAREN composed_php_expression* BLADE_EXPR_RPAREN | PHP_EXPR_STRING;
 
 simple_foreach_expr: loop_array=PHP_VARIABLE FOREACH_AS key=PHP_VARIABLE (FOREACH_PARAM_ASSIGN item=PHP_VARIABLE)?;
 
 singleArgWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BLADE_PARAM_RPAREN;
-singleArgAndDefaultWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? (BL_COMMA BL_PARAM_WS*)? BLADE_PARAM_RPAREN;
+singleArgAndDefaultWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)? (BL_COMMA)? BLADE_PARAM_RPAREN;
 doubleArgWrapper:  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) BL_COMMA composedArgument BLADE_PARAM_RPAREN;
 doubleIfArgWrapper:  BLADE_PARAM_LPAREN composedArgument BL_COMMA (identifiableArgument | composedArgument) BLADE_PARAM_RPAREN;
 multiArgWrapper :  BLADE_PARAM_LPAREN (identifiableArgument | composedArgument) (BL_COMMA composedArgument)* BLADE_PARAM_RPAREN;
 
-identifiableArgument : BL_PARAM_WS* BL_PARAM_STRING BL_PARAM_WS*;
-composedArgument : BL_PARAM_WS* (phpExpr)+ BL_PARAM_WS*;
+identifiableArgument : BL_PARAM_STRING ;
+composedArgument : (phpExpr)+;
 
-phpExpr : identifiableArray | arrayDefine | BLADE_PARAM_EXTRA | PHP_VARIABLE | PHP_KEYWORD |  BL_PARAM_WS | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_PARAM_ASSIGN | BL_NAME_STRING | BL_PARAM_COMMA;
+phpExpr : identifiableArray | arrayDefine | BLADE_PARAM_EXTRA | PHP_VARIABLE | PHP_KEYWORD | BL_PARAM_CONCAT_OPERATOR | BL_PARAM_STRING | BL_PARAM_ASSIGN | BL_NAME_STRING | BL_PARAM_COMMA;
 
 //['key' => $value]
-identifiableArray : BL_SQ_LPAREN paramAssign (BL_PARAM_COMMA paramAssign)* BL_PARAM_COMMA? BL_SQ_RPAREN;
-arrayDefine : BL_SQ_LPAREN phpExpr+ BL_SQ_RPAREN
-| BL_SQ_LPAREN BL_SQ_RPAREN;
+identifiableArray : L_BRACKET paramAssign (BL_PARAM_COMMA paramAssign)* BL_PARAM_COMMA? R_BRACKET;
+arrayDefine : L_BRACKET phpExpr+ R_BRACKET
+| L_BRACKET R_BRACKET;
 
-paramAssign : BL_PARAM_STRING BL_PARAM_WS* BL_PARAM_ASSIGN BL_PARAM_WS* (PHP_VARIABLE | PHP_KEYWORD | BL_PARAM_STRING);
+paramAssign : BL_PARAM_STRING BL_PARAM_ASSIGN (PHP_VARIABLE | PHP_KEYWORD | BL_PARAM_STRING);
 verbatim_block : D_VERBATIM non_blade_statement+ D_ENDVERBATIM;
 
 loop_action : (D_LOOP_ACTION | D_BREAK) php_expression?;

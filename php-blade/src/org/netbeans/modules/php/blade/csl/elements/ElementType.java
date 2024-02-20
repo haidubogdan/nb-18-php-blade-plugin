@@ -10,6 +10,7 @@ package org.netbeans.modules.php.blade.csl.elements;
 public enum ElementType {
     NA,
     CUSTOM_DIRECTIVE,
+    DIRECTIVE,
     PATH,
     VARIABLE,
     PHP_CLASS,

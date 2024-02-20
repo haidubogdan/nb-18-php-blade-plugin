@@ -9,6 +9,7 @@ public @interface Directive {
     boolean params() default false;
     String endtag() default "";
     String[] endTags() default {};
+    String parameters() default "";
     String description() default "";
     String category() default "";
     int version() default 10;

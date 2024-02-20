@@ -44,6 +44,7 @@ package org.netbeans.modules.php.blade.editor.lexer;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.WeakHashMap;
+import org.netbeans.api.html.lexer.HTMLTokenId;
 import org.netbeans.api.lexer.InputAttributes;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.LanguagePath;
@@ -67,6 +68,8 @@ public enum BladeTokenId implements TokenId {
     BLADE_ECHO_DELIMITOR("blade_echo_delimiters"),
     HTML("html"),
     WS_D("html"),
+    WS("whitespace"),
+    AT_REFERENCE("html"),
     PHP_BLADE_EXPRESSION("blade_php"),
     PHP_BLADE_ECHO_EXPR("blade_php"),
     PHP_BLADE_INLINE_CODE("blade_php"),
@@ -85,9 +88,6 @@ public enum BladeTokenId implements TokenId {
 
     public static abstract class BladeLanguageHierarchy extends LanguageHierarchy<BladeTokenId> {
 
-        private final WeakHashMap<BladeTokenId, LanguageEmbedding<?>> tokenLangCache
-                = new WeakHashMap<>();
-
         @Override
         protected Collection<BladeTokenId> createTokenIds() {
             return EnumSet.allOf(BladeTokenId.class);
@@ -97,6 +97,7 @@ public enum BladeTokenId implements TokenId {
         protected LanguageEmbedding<? extends TokenId> embedding(Token<BladeTokenId> token,
                 LanguagePath languagePath, InputAttributes inputAttributes) {
             boolean joinHtml = true;
+
             switch (token.id()) {
                 case PHP_INLINE:
                     Language<? extends TokenId> phpLanguageCode = PHPTokenId.language();
@@ -107,27 +108,7 @@ public enum BladeTokenId implements TokenId {
                     Language<? extends TokenId> phpLanguage = PHPTokenId.languageInPHP();
                     return phpLanguage != null ? LanguageEmbedding.create(phpLanguage, 0, 0, false) : null;
                 case HTML:
-                    LanguageEmbedding<?> lang;
-
-                    if (tokenLangCache.containsKey(token.id())) {
-                        lang = tokenLangCache.get(token.id());
-                    } else {
-                        Language<? extends TokenId> htmlLanguage = null;
-
-                        @SuppressWarnings("unchecked")
-                        Collection<LanguageProvider> providers = (Collection<LanguageProvider>) Lookup.getDefault().lookupAll(LanguageProvider.class);
-                        for (LanguageProvider provider : providers) {
-                            htmlLanguage = (Language<? extends TokenId>) provider.findLanguage("text/html"); //NOI18N
-                            if (htmlLanguage != null) {
-                                break;
-                            }
-                        }
-
-                        lang = htmlLanguage != null ? LanguageEmbedding.create(htmlLanguage, 0, 0, joinHtml) : null;
-                        tokenLangCache.put(token.id(), lang);
-                    }
-
-                    return lang;
+                    return  LanguageEmbedding.create( HTMLTokenId.language(), 0, 0, joinHtml);
                 default:
                     return null;
             }

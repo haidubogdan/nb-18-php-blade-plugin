@@ -55,9 +55,7 @@ public class BladeAntlrCompilerParserTestBase extends NbTestCase {
 
     protected String getTestResult(String filename) throws Exception {
         String content = BladeUtils.getFileContent(new File(getDataDir(), "testfiles/" + filename));
-        CharStream stream = new ANTLRInputStream(content);
-        BladeAntlrCompilerLexer lexer = new BladeAntlrCompilerLexer(stream);
-        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+        CommonTokenStream tokenStream = BladeUtils.getTokenStream(content);
         tokenStream.fill();
         System.out.print("\n---Psrser scan for <<" + filename + ">>\n\n");
         BladeAntlrCompilerParser parser = new BladeAntlrCompilerParser(tokenStream);

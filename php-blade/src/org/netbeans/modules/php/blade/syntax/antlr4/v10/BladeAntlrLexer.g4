@@ -9,7 +9,7 @@ options {
     superClass = LexerAdaptor;
     caseInsensitive = true;
 }
- 
+
 tokens {
    PHP_EXPRESSION,
    PHP_VARIABLE,
@@ -26,8 +26,8 @@ tokens {
    BLADE_PARAM_RPAREN,
    BLADE_EXPR_LPAREN,
    BLADE_EXPR_RPAREN,
-   BL_SQ_LPAREN,
-   BL_SQ_LRAREN,
+   L_BRACKET,
+   R_BRACKET,
    BL_PARAM_STRING,
    BL_PARAM_ASSIGN,
    BL_COMMA,
@@ -36,7 +36,7 @@ tokens {
    ERROR
 }
  
-channels { COMMENT, PHP_CODE }
+channels { WS_HTML }
 
 //RULES
 
@@ -145,19 +145,25 @@ D_ENDVERBATIM : '@endverbatim';
 D_CUSTOM : ('@' NameString {this._input.LA(1) == '(' || 
         (this._input.LA(1) == ' ' && this._input.LA(2) == '(')}? ) ->pushMode(LOOK_FOR_BLADE_PARAMETERS);
 
-D_UNKNOWN : '@' NameString->type(HTML);
+AT_REFERENCE : '@' NameString;
+AT : '@'->type(AT_REFERENCE);
 //display
 CONTENT_TAG_OPEN : '{{' ->pushMode(INSIDE_REGULAR_ECHO);
 RAW_TAG_OPEN : '{!!' ->pushMode(INSIDE_RAW_ECHO);
 
-AT : '@'->type(HTML);
+
 //for completion
 RAW_TAG_START : '{!'->type(HTML);
 
 PHP_INLINE_START : ('<?php' | '<?=')->pushMode(INSIDE_PHP_INLINE);
 
-HTML_CLOSE_TAG : '<' '/'?  NameString '>'->type(HTML); 
-HTML : ~[<?@{!]+;
+HTML_CLOSE_TAG : '<' '/'?  NameString '>'->type(HTML);
+
+NL : [ \n\r]->channel(WS_HTML);
+WS_TAB : [\t]->channel(WS_HTML);
+WS : ' '->channel(WS_HTML);
+
+HTML : ~[ <?@{!]+;
 
 OTHER : . ->type(HTML);
 
@@ -277,10 +283,10 @@ FOREACH_EOF : EOF->type(ERROR),popMode;
 //( )
 mode INSIDE_BLADE_PARAMETERS;
 
-BL_PARAM_LINE_COMMENT : LineComment->channel(COMMENT);
+BL_PARAM_LINE_COMMENT : LineComment->skip;
 
-BL_SQ_LPAREN : '[' {this.squareParenBalance++;};
-BL_SQ_RPAREN : ']' {this.squareParenBalance--;};
+L_BRACKET : '[' {this.squareParenBalance++;};
+R_BRACKET : ']' {this.squareParenBalance--;};
 
 BL_CURLY_LPAREN : '{' {this.curlyParenBalance++;}->type(BLADE_PARAM_EXTRA);
 BL_CURLY_RPAREN : '}' {this.curlyParenBalance--;}->type(BLADE_PARAM_EXTRA);
@@ -300,7 +306,7 @@ BL_PARAM_CONCAT_OPERATOR : '.';
 
 BL_COMMA_EL : ','  {this.consumeBladeParamComma();};
 
-BL_PARAM_WS : [ \t\r\n]+;
+BL_PARAM_WS : [ \t\r\n]+->skip;
 
 BL_NAME_STRING : NameString;
 
@@ -311,7 +317,8 @@ BL_PARAM_EXIT_EOF : EOF->type(ERROR),popMode;
 //@php @endphp
 mode BLADE_INLINE_PHP;
 
-PHP_D_BLADE_COMMENT : ('//' ~[\n\r]+)->skip;
+PHP_D_BLADE_COMMENT : LineComment->skip;
+PHP_D_BLADE_ML_COMMENT : PhpBlockComment->skip;
 
 D_ENDPHP : '@endphp'->popMode;
 PHP_D_UNKNOWN : '@'->type(HTML),popMode;
@@ -340,7 +347,7 @@ PHP_D_COMPOSED_EXPR_STATIC_ACCESS : '::'->type(PHP_STATIC_ACCESS);
 
 PHP_D_COMPOSED_EXPR_LPAREN : '('->type(BLADE_EXPR_LPAREN);
 PHP_D_COMPOSED_EXPR_RPAREN : ')' ->type(BLADE_EXPR_RPAREN);
-PHP_D_WS : ' ' ->type(PHP_WS);
+PHP_D_WS : ' ' ->skip;
 PHP_D_PHP_COMPOSED_EXPRESSION : . ->type(PHP_EXPRESSION);
 
 PHP_D_EXIT_COMPOSED_EXPRESSION_EOF : EOF->type(ERROR),popMode;
@@ -351,7 +358,8 @@ mode INSIDE_PHP_INLINE;
 
 PHP_EXIT : '?>'->popMode;
 
-PHP_INLINE_COMMENT : ('//' ~[\n\r]+)->skip;
+PHP_INLINE_COMMENT : LineComment->skip;
+PHP_INLINE_ML_COMMENT : PhpBlockComment->skip;
 //hack to merge all php inputs into one token
 PHP_EXPR_SQ_LPAREN : '[' ->type(PHP_EXPRESSION);
 PHP_EXPR_SQ_RPAREN : ']' ->type(PHP_EXPRESSION);

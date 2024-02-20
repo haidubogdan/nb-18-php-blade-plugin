@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import org.antlr.v4.runtime.*;
+import org.netbeans.modules.php.blade.syntax.antlr4.formatter.BladeAntlrFormatterLexer;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrColoringLexer;
 import org.netbeans.modules.php.blade.syntax.antlr4.v10.BladeAntlrLexer;
 
@@ -35,10 +36,18 @@ public class BladeUtils {
         tokens.fill();
         return tokens;
     }
-    
+
     public static CommonTokenStream getColoringTokenStream(String content) {
         CharStream stream = CharStreams.fromString(content);
         BladeAntlrColoringLexer lexer = new BladeAntlrColoringLexer(stream);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        tokens.fill();
+        return tokens;
+    }
+
+    public static CommonTokenStream getFormatTokenStream(String content) {
+        CharStream stream = CharStreams.fromString(content);
+        BladeAntlrFormatterLexer lexer = new BladeAntlrFormatterLexer(stream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         tokens.fill();
         return tokens;
