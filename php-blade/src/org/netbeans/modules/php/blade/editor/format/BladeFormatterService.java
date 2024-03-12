@@ -88,6 +88,13 @@ public class BladeFormatterService {
         return new BladeAntlrFormatterParserBaseListener() {
             int indent = 0;
             int blockBalance = 0;
+            
+            @Override
+            public void enterHtml_open_tag(BladeAntlrFormatterParser.Html_open_tagContext ctx) {
+                Token start = ctx.getStart();
+                int line = start.getLine();
+                formattedLineIndentList.put(line, new FormatToken(start.getStartIndex(), indent, start.getText()));
+            }
 
             @Override
             public void exitBlock_start(BladeAntlrFormatterParser.Block_startContext ctx) {

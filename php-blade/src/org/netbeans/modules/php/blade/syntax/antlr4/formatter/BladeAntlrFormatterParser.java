@@ -21,18 +21,21 @@ public class BladeAntlrFormatterParser extends Parser {
 	public static final int
 		HTML=1, PHP_CODE=2, PHP_INLINE=3, D_IF=4, D_ENDIF=5, D_FOREACH=6, D_ENDFOREACH=7, 
 		NON_PARAM_DIRECTIVE=8, D_INLINE_DIRECTIVE=9, SG_QUOTE=10, DB_QUOTE=11, 
-		HTML_CLOSE_TAG=12, GT_SYMBOL=13, D_PHP=14, AT=15, WS=16, NL=17, OTHER=18, 
-		D_ARG_LPAREN=19, D_ARG_RPAREN=20, PHP_EXPR=21, EXIT_EOF=22, D_ENDPHP=23;
+		HTML_OPEN_TAG_START=12, IDENTIFIER=13, EQ=14, SIMPLE_STR=15, HTML_CLOSE_TAG=16, 
+		GT_SYMBOL=17, D_PHP=18, AT=19, WS=20, NL=21, OTHER=22, D_ARG_LPAREN=23, 
+		D_ARG_RPAREN=24, PHP_EXPR=25, EXIT_EOF=26, D_ENDPHP=27;
 	public static final int
-		RULE_file = 0, RULE_statement = 1, RULE_indetable_element = 2, RULE_html_indent = 3, 
-		RULE_block_start = 4, RULE_block_directive_name = 5, RULE_block_end = 6, 
-		RULE_inline_identable_element = 7, RULE_nl_with_space_before = 8, RULE_nl_with_space = 9, 
-		RULE_static_element = 10;
+		RULE_file = 0, RULE_statement = 1, RULE_indetable_element = 2, RULE_html_open_tag = 3, 
+		RULE_attr_assigment = 4, RULE_attr_value = 5, RULE_html_indent = 6, RULE_block_start = 7, 
+		RULE_block_directive_name = 8, RULE_block_end = 9, RULE_inline_identable_element = 10, 
+		RULE_nl_with_space_before = 11, RULE_nl_with_space = 12, RULE_ws = 13, 
+		RULE_static_element = 14;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"file", "statement", "indetable_element", "html_indent", "block_start", 
-			"block_directive_name", "block_end", "inline_identable_element", "nl_with_space_before", 
-			"nl_with_space", "static_element"
+			"file", "statement", "indetable_element", "html_open_tag", "attr_assigment", 
+			"attr_value", "html_indent", "block_start", "block_directive_name", "block_end", 
+			"inline_identable_element", "nl_with_space_before", "nl_with_space", 
+			"ws", "static_element"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -40,8 +43,8 @@ public class BladeAntlrFormatterParser extends Parser {
 	private static String[] makeLiteralNames() {
 		return new String[] {
 			null, null, null, null, null, "'@endif'", null, "'@endforeach'", null, 
-			null, "'''", "'\"'", null, "'>'", null, "'@'", null, null, null, "'('", 
-			"')'", null, null, "'@endphp'"
+			null, "'''", "'\"'", null, null, "'='", null, null, "'>'", null, "'@'", 
+			null, null, null, "'('", "')'", null, null, "'@endphp'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -49,8 +52,9 @@ public class BladeAntlrFormatterParser extends Parser {
 		return new String[] {
 			null, "HTML", "PHP_CODE", "PHP_INLINE", "D_IF", "D_ENDIF", "D_FOREACH", 
 			"D_ENDFOREACH", "NON_PARAM_DIRECTIVE", "D_INLINE_DIRECTIVE", "SG_QUOTE", 
-			"DB_QUOTE", "HTML_CLOSE_TAG", "GT_SYMBOL", "D_PHP", "AT", "WS", "NL", 
-			"OTHER", "D_ARG_LPAREN", "D_ARG_RPAREN", "PHP_EXPR", "EXIT_EOF", "D_ENDPHP"
+			"DB_QUOTE", "HTML_OPEN_TAG_START", "IDENTIFIER", "EQ", "SIMPLE_STR", 
+			"HTML_CLOSE_TAG", "GT_SYMBOL", "D_PHP", "AT", "WS", "NL", "OTHER", "D_ARG_LPAREN", 
+			"D_ARG_RPAREN", "PHP_EXPR", "EXIT_EOF", "D_ENDPHP"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -134,21 +138,21 @@ public class BladeAntlrFormatterParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(25);
+			setState(33);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (((_la) & ~0x3f) == 0 && ((1L << _la) & 491346L) != 0) {
+			while (((_la) & ~0x3f) == 0 && ((1L << _la) & 7806802L) != 0) {
 				{
 				{
-				setState(22);
+				setState(30);
 				statement();
 				}
 				}
-				setState(27);
+				setState(35);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(28);
+			setState(36);
 			match(EOF);
 			}
 		}
@@ -165,6 +169,9 @@ public class BladeAntlrFormatterParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class StatementContext extends ParserRuleContext {
+		public Html_open_tagContext html_open_tag() {
+			return getRuleContext(Html_open_tagContext.class,0);
+		}
 		public Html_indentContext html_indent() {
 			return getRuleContext(Html_indentContext.class,0);
 		}
@@ -205,48 +212,55 @@ public class BladeAntlrFormatterParser extends Parser {
 		enterRule(_localctx, 2, RULE_statement);
 		int _la;
 		try {
-			setState(39);
+			setState(48);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,1,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(30);
-				html_indent();
+				setState(38);
+				html_open_tag();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(31);
-				indetable_element();
+				setState(39);
+				html_indent();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(32);
-				inline_identable_element();
+				setState(40);
+				indetable_element();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(33);
-				static_element();
+				setState(41);
+				inline_identable_element();
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(34);
-				nl_with_space_before();
+				setState(42);
+				static_element();
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(35);
+				setState(43);
+				nl_with_space_before();
+				}
+				break;
+			case 7:
+				enterOuterAlt(_localctx, 7);
+				{
+				setState(44);
 				_la = _input.LA(1);
 				if ( !(_la==SG_QUOTE || _la==DB_QUOTE) ) {
 				_errHandler.recoverInline(this);
@@ -258,24 +272,24 @@ public class BladeAntlrFormatterParser extends Parser {
 				}
 				}
 				break;
-			case 7:
-				enterOuterAlt(_localctx, 7);
-				{
-				setState(36);
-				match(GT_SYMBOL);
-				}
-				break;
 			case 8:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(37);
-				match(HTML_CLOSE_TAG);
+				setState(45);
+				match(GT_SYMBOL);
 				}
 				break;
 			case 9:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(38);
+				setState(46);
+				match(HTML_CLOSE_TAG);
+				}
+				break;
+			case 10:
+				enterOuterAlt(_localctx, 10);
+				{
+				setState(47);
 				_la = _input.LA(1);
 				if ( !(_la==WS || _la==NL) ) {
 				_errHandler.recoverInline(this);
@@ -339,9 +353,9 @@ public class BladeAntlrFormatterParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(41);
+			setState(50);
 			block_start();
-			setState(43); 
+			setState(52); 
 			_errHandler.sync(this);
 			_alt = 1;
 			do {
@@ -349,7 +363,7 @@ public class BladeAntlrFormatterParser extends Parser {
 				case 1:
 					{
 					{
-					setState(42);
+					setState(51);
 					statement();
 					}
 					}
@@ -357,22 +371,256 @@ public class BladeAntlrFormatterParser extends Parser {
 				default:
 					throw new NoViableAltException(this);
 				}
-				setState(45); 
+				setState(54); 
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,2,_ctx);
 			} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
-			setState(48);
+			setState(57);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==NL) {
 				{
-				setState(47);
+				setState(56);
 				nl_with_space();
 				}
 			}
 
-			setState(50);
+			setState(59);
 			block_end();
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	@SuppressWarnings("CheckReturnValue")
+	public static class Html_open_tagContext extends ParserRuleContext {
+		public TerminalNode HTML_OPEN_TAG_START() { return getToken(BladeAntlrFormatterParser.HTML_OPEN_TAG_START, 0); }
+		public TerminalNode GT_SYMBOL() { return getToken(BladeAntlrFormatterParser.GT_SYMBOL, 0); }
+		public List<WsContext> ws() {
+			return getRuleContexts(WsContext.class);
+		}
+		public WsContext ws(int i) {
+			return getRuleContext(WsContext.class,i);
+		}
+		public List<Attr_assigmentContext> attr_assigment() {
+			return getRuleContexts(Attr_assigmentContext.class);
+		}
+		public Attr_assigmentContext attr_assigment(int i) {
+			return getRuleContext(Attr_assigmentContext.class,i);
+		}
+		public List<TerminalNode> IDENTIFIER() { return getTokens(BladeAntlrFormatterParser.IDENTIFIER); }
+		public TerminalNode IDENTIFIER(int i) {
+			return getToken(BladeAntlrFormatterParser.IDENTIFIER, i);
+		}
+		public Html_open_tagContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_html_open_tag; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BladeAntlrFormatterParserListener ) ((BladeAntlrFormatterParserListener)listener).enterHtml_open_tag(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BladeAntlrFormatterParserListener ) ((BladeAntlrFormatterParserListener)listener).exitHtml_open_tag(this);
+		}
+	}
+
+	public final Html_open_tagContext html_open_tag() throws RecognitionException {
+		Html_open_tagContext _localctx = new Html_open_tagContext(_ctx, getState());
+		enterRule(_localctx, 6, RULE_html_open_tag);
+		int _la;
+		try {
+			int _alt;
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(61);
+			match(HTML_OPEN_TAG_START);
+			setState(65);
+			_errHandler.sync(this);
+			_alt = getInterpreter().adaptivePredict(_input,4,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(62);
+					ws();
+					}
+					} 
+				}
+				setState(67);
+				_errHandler.sync(this);
+				_alt = getInterpreter().adaptivePredict(_input,4,_ctx);
+			}
+			setState(72);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			while (_la==IDENTIFIER) {
+				{
+				setState(70);
+				_errHandler.sync(this);
+				switch ( getInterpreter().adaptivePredict(_input,5,_ctx) ) {
+				case 1:
+					{
+					setState(68);
+					attr_assigment();
+					}
+					break;
+				case 2:
+					{
+					setState(69);
+					match(IDENTIFIER);
+					}
+					break;
+				}
+				}
+				setState(74);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+			}
+			setState(78);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			while (_la==WS || _la==NL) {
+				{
+				{
+				setState(75);
+				ws();
+				}
+				}
+				setState(80);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+			}
+			setState(81);
+			match(GT_SYMBOL);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	@SuppressWarnings("CheckReturnValue")
+	public static class Attr_assigmentContext extends ParserRuleContext {
+		public TerminalNode IDENTIFIER() { return getToken(BladeAntlrFormatterParser.IDENTIFIER, 0); }
+		public TerminalNode EQ() { return getToken(BladeAntlrFormatterParser.EQ, 0); }
+		public Attr_valueContext attr_value() {
+			return getRuleContext(Attr_valueContext.class,0);
+		}
+		public List<WsContext> ws() {
+			return getRuleContexts(WsContext.class);
+		}
+		public WsContext ws(int i) {
+			return getRuleContext(WsContext.class,i);
+		}
+		public Attr_assigmentContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_attr_assigment; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BladeAntlrFormatterParserListener ) ((BladeAntlrFormatterParserListener)listener).enterAttr_assigment(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BladeAntlrFormatterParserListener ) ((BladeAntlrFormatterParserListener)listener).exitAttr_assigment(this);
+		}
+	}
+
+	public final Attr_assigmentContext attr_assigment() throws RecognitionException {
+		Attr_assigmentContext _localctx = new Attr_assigmentContext(_ctx, getState());
+		enterRule(_localctx, 8, RULE_attr_assigment);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(83);
+			match(IDENTIFIER);
+			setState(87);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			while (_la==WS || _la==NL) {
+				{
+				{
+				setState(84);
+				ws();
+				}
+				}
+				setState(89);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+			}
+			setState(90);
+			match(EQ);
+			setState(94);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			while (_la==WS || _la==NL) {
+				{
+				{
+				setState(91);
+				ws();
+				}
+				}
+				setState(96);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+			}
+			setState(97);
+			attr_value();
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	@SuppressWarnings("CheckReturnValue")
+	public static class Attr_valueContext extends ParserRuleContext {
+		public TerminalNode SIMPLE_STR() { return getToken(BladeAntlrFormatterParser.SIMPLE_STR, 0); }
+		public Attr_valueContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_attr_value; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BladeAntlrFormatterParserListener ) ((BladeAntlrFormatterParserListener)listener).enterAttr_value(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BladeAntlrFormatterParserListener ) ((BladeAntlrFormatterParserListener)listener).exitAttr_value(this);
+		}
+	}
+
+	public final Attr_valueContext attr_value() throws RecognitionException {
+		Attr_valueContext _localctx = new Attr_valueContext(_ctx, getState());
+		enterRule(_localctx, 10, RULE_attr_value);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(99);
+			match(SIMPLE_STR);
 			}
 		}
 		catch (RecognitionException re) {
@@ -410,30 +658,30 @@ public class BladeAntlrFormatterParser extends Parser {
 
 	public final Html_indentContext html_indent() throws RecognitionException {
 		Html_indentContext _localctx = new Html_indentContext(_ctx, getState());
-		enterRule(_localctx, 6, RULE_html_indent);
+		enterRule(_localctx, 12, RULE_html_indent);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(52);
+			setState(101);
 			match(GT_SYMBOL);
-			setState(53);
+			setState(102);
 			match(NL);
-			setState(57);
+			setState(106);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,4,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,10,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(54);
+					setState(103);
 					match(WS);
 					}
 					} 
 				}
-				setState(59);
+				setState(108);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,4,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,10,_ctx);
 			}
 			}
 		}
@@ -475,26 +723,26 @@ public class BladeAntlrFormatterParser extends Parser {
 
 	public final Block_startContext block_start() throws RecognitionException {
 		Block_startContext _localctx = new Block_startContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_block_start);
+		enterRule(_localctx, 14, RULE_block_start);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(61);
+			setState(110);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==NL) {
 				{
-				setState(60);
+				setState(109);
 				((Block_startContext)_localctx).ws_before = nl_with_space_before();
 				}
 			}
 
-			setState(63);
+			setState(112);
 			block_directive_name();
-			setState(64);
+			setState(113);
 			match(D_ARG_LPAREN);
-			setState(65);
+			setState(114);
 			match(D_ARG_RPAREN);
 			}
 		}
@@ -529,12 +777,12 @@ public class BladeAntlrFormatterParser extends Parser {
 
 	public final Block_directive_nameContext block_directive_name() throws RecognitionException {
 		Block_directive_nameContext _localctx = new Block_directive_nameContext(_ctx, getState());
-		enterRule(_localctx, 10, RULE_block_directive_name);
+		enterRule(_localctx, 16, RULE_block_directive_name);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(67);
+			setState(116);
 			_la = _input.LA(1);
 			if ( !(_la==D_IF || _la==D_FOREACH) ) {
 			_errHandler.recoverInline(this);
@@ -577,12 +825,12 @@ public class BladeAntlrFormatterParser extends Parser {
 
 	public final Block_endContext block_end() throws RecognitionException {
 		Block_endContext _localctx = new Block_endContext(_ctx, getState());
-		enterRule(_localctx, 12, RULE_block_end);
+		enterRule(_localctx, 18, RULE_block_end);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(69);
+			setState(118);
 			_la = _input.LA(1);
 			if ( !(_la==D_ENDIF || _la==D_ENDFOREACH) ) {
 			_errHandler.recoverInline(this);
@@ -625,12 +873,12 @@ public class BladeAntlrFormatterParser extends Parser {
 
 	public final Inline_identable_elementContext inline_identable_element() throws RecognitionException {
 		Inline_identable_elementContext _localctx = new Inline_identable_elementContext(_ctx, getState());
-		enterRule(_localctx, 14, RULE_inline_identable_element);
+		enterRule(_localctx, 20, RULE_inline_identable_element);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(71);
+			setState(120);
 			_la = _input.LA(1);
 			if ( !(_la==NON_PARAM_DIRECTIVE || _la==D_INLINE_DIRECTIVE) ) {
 			_errHandler.recoverInline(this);
@@ -676,28 +924,28 @@ public class BladeAntlrFormatterParser extends Parser {
 
 	public final Nl_with_space_beforeContext nl_with_space_before() throws RecognitionException {
 		Nl_with_space_beforeContext _localctx = new Nl_with_space_beforeContext(_ctx, getState());
-		enterRule(_localctx, 16, RULE_nl_with_space_before);
+		enterRule(_localctx, 22, RULE_nl_with_space_before);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(73);
+			setState(122);
 			match(NL);
-			setState(77);
+			setState(126);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,6,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,12,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(74);
+					setState(123);
 					match(WS);
 					}
 					} 
 				}
-				setState(79);
+				setState(128);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,6,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,12,_ctx);
 			}
 			}
 		}
@@ -735,26 +983,74 @@ public class BladeAntlrFormatterParser extends Parser {
 
 	public final Nl_with_spaceContext nl_with_space() throws RecognitionException {
 		Nl_with_spaceContext _localctx = new Nl_with_spaceContext(_ctx, getState());
-		enterRule(_localctx, 18, RULE_nl_with_space);
+		enterRule(_localctx, 24, RULE_nl_with_space);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(80);
+			setState(129);
 			match(NL);
-			setState(84);
+			setState(133);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==WS) {
 				{
 				{
-				setState(81);
+				setState(130);
 				match(WS);
 				}
 				}
-				setState(86);
+				setState(135);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	@SuppressWarnings("CheckReturnValue")
+	public static class WsContext extends ParserRuleContext {
+		public TerminalNode NL() { return getToken(BladeAntlrFormatterParser.NL, 0); }
+		public TerminalNode WS() { return getToken(BladeAntlrFormatterParser.WS, 0); }
+		public WsContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_ws; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BladeAntlrFormatterParserListener ) ((BladeAntlrFormatterParserListener)listener).enterWs(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BladeAntlrFormatterParserListener ) ((BladeAntlrFormatterParserListener)listener).exitWs(this);
+		}
+	}
+
+	public final WsContext ws() throws RecognitionException {
+		WsContext _localctx = new WsContext(_ctx, getState());
+		enterRule(_localctx, 26, RULE_ws);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(136);
+			_la = _input.LA(1);
+			if ( !(_la==WS || _la==NL) ) {
+			_errHandler.recoverInline(this);
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
+				consume();
 			}
 			}
 		}
@@ -795,46 +1091,46 @@ public class BladeAntlrFormatterParser extends Parser {
 
 	public final Static_elementContext static_element() throws RecognitionException {
 		Static_elementContext _localctx = new Static_elementContext(_ctx, getState());
-		enterRule(_localctx, 20, RULE_static_element);
+		enterRule(_localctx, 28, RULE_static_element);
 		int _la;
 		try {
-			setState(96);
+			setState(147);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case D_PHP:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(87);
+				setState(138);
 				match(D_PHP);
-				setState(89); 
+				setState(140); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 					{
-					setState(88);
+					setState(139);
 					match(PHP_CODE);
 					}
 					}
-					setState(91); 
+					setState(142); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( _la==PHP_CODE );
-				setState(93);
+				setState(144);
 				match(D_ENDPHP);
 				}
 				break;
 			case HTML:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(94);
+				setState(145);
 				match(HTML);
 				}
 				break;
 			case OTHER:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(95);
+				setState(146);
 				match(OTHER);
 				}
 				break;
@@ -854,64 +1150,96 @@ public class BladeAntlrFormatterParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\u0004\u0001\u0017c\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
-		"\u0002\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004\u0002"+
-		"\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0002"+
-		"\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0001\u0000\u0005\u0000\u0018"+
-		"\b\u0000\n\u0000\f\u0000\u001b\t\u0000\u0001\u0000\u0001\u0000\u0001\u0001"+
+		"\u0004\u0001\u001b\u0096\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001"+
+		"\u0002\u0002\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004"+
+		"\u0002\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007"+
+		"\u0002\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b\u0007\u000b"+
+		"\u0002\f\u0007\f\u0002\r\u0007\r\u0002\u000e\u0007\u000e\u0001\u0000\u0005"+
+		"\u0000 \b\u0000\n\u0000\f\u0000#\t\u0000\u0001\u0000\u0001\u0000\u0001"+
 		"\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001"+
-		"\u0001\u0001\u0001\u0001\u0003\u0001(\b\u0001\u0001\u0002\u0001\u0002"+
-		"\u0004\u0002,\b\u0002\u000b\u0002\f\u0002-\u0001\u0002\u0003\u00021\b"+
-		"\u0002\u0001\u0002\u0001\u0002\u0001\u0003\u0001\u0003\u0001\u0003\u0005"+
-		"\u00038\b\u0003\n\u0003\f\u0003;\t\u0003\u0001\u0004\u0003\u0004>\b\u0004"+
-		"\u0001\u0004\u0001\u0004\u0001\u0004\u0001\u0004\u0001\u0005\u0001\u0005"+
-		"\u0001\u0006\u0001\u0006\u0001\u0007\u0001\u0007\u0001\b\u0001\b\u0005"+
-		"\bL\b\b\n\b\f\bO\t\b\u0001\t\u0001\t\u0005\tS\b\t\n\t\f\tV\t\t\u0001\n"+
-		"\u0001\n\u0004\nZ\b\n\u000b\n\f\n[\u0001\n\u0001\n\u0001\n\u0003\na\b"+
-		"\n\u0001\n\u0000\u0000\u000b\u0000\u0002\u0004\u0006\b\n\f\u000e\u0010"+
-		"\u0012\u0014\u0000\u0005\u0001\u0000\n\u000b\u0001\u0000\u0010\u0011\u0002"+
-		"\u0000\u0004\u0004\u0006\u0006\u0002\u0000\u0005\u0005\u0007\u0007\u0001"+
-		"\u0000\b\ti\u0000\u0019\u0001\u0000\u0000\u0000\u0002\'\u0001\u0000\u0000"+
-		"\u0000\u0004)\u0001\u0000\u0000\u0000\u00064\u0001\u0000\u0000\u0000\b"+
-		"=\u0001\u0000\u0000\u0000\nC\u0001\u0000\u0000\u0000\fE\u0001\u0000\u0000"+
-		"\u0000\u000eG\u0001\u0000\u0000\u0000\u0010I\u0001\u0000\u0000\u0000\u0012"+
-		"P\u0001\u0000\u0000\u0000\u0014`\u0001\u0000\u0000\u0000\u0016\u0018\u0003"+
-		"\u0002\u0001\u0000\u0017\u0016\u0001\u0000\u0000\u0000\u0018\u001b\u0001"+
-		"\u0000\u0000\u0000\u0019\u0017\u0001\u0000\u0000\u0000\u0019\u001a\u0001"+
-		"\u0000\u0000\u0000\u001a\u001c\u0001\u0000\u0000\u0000\u001b\u0019\u0001"+
-		"\u0000\u0000\u0000\u001c\u001d\u0005\u0000\u0000\u0001\u001d\u0001\u0001"+
-		"\u0000\u0000\u0000\u001e(\u0003\u0006\u0003\u0000\u001f(\u0003\u0004\u0002"+
-		"\u0000 (\u0003\u000e\u0007\u0000!(\u0003\u0014\n\u0000\"(\u0003\u0010"+
-		"\b\u0000#(\u0007\u0000\u0000\u0000$(\u0005\r\u0000\u0000%(\u0005\f\u0000"+
-		"\u0000&(\u0007\u0001\u0000\u0000\'\u001e\u0001\u0000\u0000\u0000\'\u001f"+
-		"\u0001\u0000\u0000\u0000\' \u0001\u0000\u0000\u0000\'!\u0001\u0000\u0000"+
-		"\u0000\'\"\u0001\u0000\u0000\u0000\'#\u0001\u0000\u0000\u0000\'$\u0001"+
-		"\u0000\u0000\u0000\'%\u0001\u0000\u0000\u0000\'&\u0001\u0000\u0000\u0000"+
-		"(\u0003\u0001\u0000\u0000\u0000)+\u0003\b\u0004\u0000*,\u0003\u0002\u0001"+
-		"\u0000+*\u0001\u0000\u0000\u0000,-\u0001\u0000\u0000\u0000-+\u0001\u0000"+
-		"\u0000\u0000-.\u0001\u0000\u0000\u0000.0\u0001\u0000\u0000\u0000/1\u0003"+
-		"\u0012\t\u00000/\u0001\u0000\u0000\u000001\u0001\u0000\u0000\u000012\u0001"+
-		"\u0000\u0000\u000023\u0003\f\u0006\u00003\u0005\u0001\u0000\u0000\u0000"+
-		"45\u0005\r\u0000\u000059\u0005\u0011\u0000\u000068\u0005\u0010\u0000\u0000"+
-		"76\u0001\u0000\u0000\u00008;\u0001\u0000\u0000\u000097\u0001\u0000\u0000"+
-		"\u00009:\u0001\u0000\u0000\u0000:\u0007\u0001\u0000\u0000\u0000;9\u0001"+
-		"\u0000\u0000\u0000<>\u0003\u0010\b\u0000=<\u0001\u0000\u0000\u0000=>\u0001"+
-		"\u0000\u0000\u0000>?\u0001\u0000\u0000\u0000?@\u0003\n\u0005\u0000@A\u0005"+
-		"\u0013\u0000\u0000AB\u0005\u0014\u0000\u0000B\t\u0001\u0000\u0000\u0000"+
-		"CD\u0007\u0002\u0000\u0000D\u000b\u0001\u0000\u0000\u0000EF\u0007\u0003"+
-		"\u0000\u0000F\r\u0001\u0000\u0000\u0000GH\u0007\u0004\u0000\u0000H\u000f"+
-		"\u0001\u0000\u0000\u0000IM\u0005\u0011\u0000\u0000JL\u0005\u0010\u0000"+
-		"\u0000KJ\u0001\u0000\u0000\u0000LO\u0001\u0000\u0000\u0000MK\u0001\u0000"+
-		"\u0000\u0000MN\u0001\u0000\u0000\u0000N\u0011\u0001\u0000\u0000\u0000"+
-		"OM\u0001\u0000\u0000\u0000PT\u0005\u0011\u0000\u0000QS\u0005\u0010\u0000"+
-		"\u0000RQ\u0001\u0000\u0000\u0000SV\u0001\u0000\u0000\u0000TR\u0001\u0000"+
-		"\u0000\u0000TU\u0001\u0000\u0000\u0000U\u0013\u0001\u0000\u0000\u0000"+
-		"VT\u0001\u0000\u0000\u0000WY\u0005\u000e\u0000\u0000XZ\u0005\u0002\u0000"+
-		"\u0000YX\u0001\u0000\u0000\u0000Z[\u0001\u0000\u0000\u0000[Y\u0001\u0000"+
-		"\u0000\u0000[\\\u0001\u0000\u0000\u0000\\]\u0001\u0000\u0000\u0000]a\u0005"+
-		"\u0017\u0000\u0000^a\u0005\u0001\u0000\u0000_a\u0005\u0012\u0000\u0000"+
-		"`W\u0001\u0000\u0000\u0000`^\u0001\u0000\u0000\u0000`_\u0001\u0000\u0000"+
-		"\u0000a\u0015\u0001\u0000\u0000\u0000\n\u0019\'-09=MT[`";
+		"\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0003\u00011\b\u0001\u0001"+
+		"\u0002\u0001\u0002\u0004\u00025\b\u0002\u000b\u0002\f\u00026\u0001\u0002"+
+		"\u0003\u0002:\b\u0002\u0001\u0002\u0001\u0002\u0001\u0003\u0001\u0003"+
+		"\u0005\u0003@\b\u0003\n\u0003\f\u0003C\t\u0003\u0001\u0003\u0001\u0003"+
+		"\u0005\u0003G\b\u0003\n\u0003\f\u0003J\t\u0003\u0001\u0003\u0005\u0003"+
+		"M\b\u0003\n\u0003\f\u0003P\t\u0003\u0001\u0003\u0001\u0003\u0001\u0004"+
+		"\u0001\u0004\u0005\u0004V\b\u0004\n\u0004\f\u0004Y\t\u0004\u0001\u0004"+
+		"\u0001\u0004\u0005\u0004]\b\u0004\n\u0004\f\u0004`\t\u0004\u0001\u0004"+
+		"\u0001\u0004\u0001\u0005\u0001\u0005\u0001\u0006\u0001\u0006\u0001\u0006"+
+		"\u0005\u0006i\b\u0006\n\u0006\f\u0006l\t\u0006\u0001\u0007\u0003\u0007"+
+		"o\b\u0007\u0001\u0007\u0001\u0007\u0001\u0007\u0001\u0007\u0001\b\u0001"+
+		"\b\u0001\t\u0001\t\u0001\n\u0001\n\u0001\u000b\u0001\u000b\u0005\u000b"+
+		"}\b\u000b\n\u000b\f\u000b\u0080\t\u000b\u0001\f\u0001\f\u0005\f\u0084"+
+		"\b\f\n\f\f\f\u0087\t\f\u0001\r\u0001\r\u0001\u000e\u0001\u000e\u0004\u000e"+
+		"\u008d\b\u000e\u000b\u000e\f\u000e\u008e\u0001\u000e\u0001\u000e\u0001"+
+		"\u000e\u0003\u000e\u0094\b\u000e\u0001\u000e\u0000\u0000\u000f\u0000\u0002"+
+		"\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016\u0018\u001a\u001c\u0000"+
+		"\u0005\u0001\u0000\n\u000b\u0001\u0000\u0014\u0015\u0002\u0000\u0004\u0004"+
+		"\u0006\u0006\u0002\u0000\u0005\u0005\u0007\u0007\u0001\u0000\b\t\u009f"+
+		"\u0000!\u0001\u0000\u0000\u0000\u00020\u0001\u0000\u0000\u0000\u00042"+
+		"\u0001\u0000\u0000\u0000\u0006=\u0001\u0000\u0000\u0000\bS\u0001\u0000"+
+		"\u0000\u0000\nc\u0001\u0000\u0000\u0000\fe\u0001\u0000\u0000\u0000\u000e"+
+		"n\u0001\u0000\u0000\u0000\u0010t\u0001\u0000\u0000\u0000\u0012v\u0001"+
+		"\u0000\u0000\u0000\u0014x\u0001\u0000\u0000\u0000\u0016z\u0001\u0000\u0000"+
+		"\u0000\u0018\u0081\u0001\u0000\u0000\u0000\u001a\u0088\u0001\u0000\u0000"+
+		"\u0000\u001c\u0093\u0001\u0000\u0000\u0000\u001e \u0003\u0002\u0001\u0000"+
+		"\u001f\u001e\u0001\u0000\u0000\u0000 #\u0001\u0000\u0000\u0000!\u001f"+
+		"\u0001\u0000\u0000\u0000!\"\u0001\u0000\u0000\u0000\"$\u0001\u0000\u0000"+
+		"\u0000#!\u0001\u0000\u0000\u0000$%\u0005\u0000\u0000\u0001%\u0001\u0001"+
+		"\u0000\u0000\u0000&1\u0003\u0006\u0003\u0000\'1\u0003\f\u0006\u0000(1"+
+		"\u0003\u0004\u0002\u0000)1\u0003\u0014\n\u0000*1\u0003\u001c\u000e\u0000"+
+		"+1\u0003\u0016\u000b\u0000,1\u0007\u0000\u0000\u0000-1\u0005\u0011\u0000"+
+		"\u0000.1\u0005\u0010\u0000\u0000/1\u0007\u0001\u0000\u00000&\u0001\u0000"+
+		"\u0000\u00000\'\u0001\u0000\u0000\u00000(\u0001\u0000\u0000\u00000)\u0001"+
+		"\u0000\u0000\u00000*\u0001\u0000\u0000\u00000+\u0001\u0000\u0000\u0000"+
+		"0,\u0001\u0000\u0000\u00000-\u0001\u0000\u0000\u00000.\u0001\u0000\u0000"+
+		"\u00000/\u0001\u0000\u0000\u00001\u0003\u0001\u0000\u0000\u000024\u0003"+
+		"\u000e\u0007\u000035\u0003\u0002\u0001\u000043\u0001\u0000\u0000\u0000"+
+		"56\u0001\u0000\u0000\u000064\u0001\u0000\u0000\u000067\u0001\u0000\u0000"+
+		"\u000079\u0001\u0000\u0000\u00008:\u0003\u0018\f\u000098\u0001\u0000\u0000"+
+		"\u00009:\u0001\u0000\u0000\u0000:;\u0001\u0000\u0000\u0000;<\u0003\u0012"+
+		"\t\u0000<\u0005\u0001\u0000\u0000\u0000=A\u0005\f\u0000\u0000>@\u0003"+
+		"\u001a\r\u0000?>\u0001\u0000\u0000\u0000@C\u0001\u0000\u0000\u0000A?\u0001"+
+		"\u0000\u0000\u0000AB\u0001\u0000\u0000\u0000BH\u0001\u0000\u0000\u0000"+
+		"CA\u0001\u0000\u0000\u0000DG\u0003\b\u0004\u0000EG\u0005\r\u0000\u0000"+
+		"FD\u0001\u0000\u0000\u0000FE\u0001\u0000\u0000\u0000GJ\u0001\u0000\u0000"+
+		"\u0000HF\u0001\u0000\u0000\u0000HI\u0001\u0000\u0000\u0000IN\u0001\u0000"+
+		"\u0000\u0000JH\u0001\u0000\u0000\u0000KM\u0003\u001a\r\u0000LK\u0001\u0000"+
+		"\u0000\u0000MP\u0001\u0000\u0000\u0000NL\u0001\u0000\u0000\u0000NO\u0001"+
+		"\u0000\u0000\u0000OQ\u0001\u0000\u0000\u0000PN\u0001\u0000\u0000\u0000"+
+		"QR\u0005\u0011\u0000\u0000R\u0007\u0001\u0000\u0000\u0000SW\u0005\r\u0000"+
+		"\u0000TV\u0003\u001a\r\u0000UT\u0001\u0000\u0000\u0000VY\u0001\u0000\u0000"+
+		"\u0000WU\u0001\u0000\u0000\u0000WX\u0001\u0000\u0000\u0000XZ\u0001\u0000"+
+		"\u0000\u0000YW\u0001\u0000\u0000\u0000Z^\u0005\u000e\u0000\u0000[]\u0003"+
+		"\u001a\r\u0000\\[\u0001\u0000\u0000\u0000]`\u0001\u0000\u0000\u0000^\\"+
+		"\u0001\u0000\u0000\u0000^_\u0001\u0000\u0000\u0000_a\u0001\u0000\u0000"+
+		"\u0000`^\u0001\u0000\u0000\u0000ab\u0003\n\u0005\u0000b\t\u0001\u0000"+
+		"\u0000\u0000cd\u0005\u000f\u0000\u0000d\u000b\u0001\u0000\u0000\u0000"+
+		"ef\u0005\u0011\u0000\u0000fj\u0005\u0015\u0000\u0000gi\u0005\u0014\u0000"+
+		"\u0000hg\u0001\u0000\u0000\u0000il\u0001\u0000\u0000\u0000jh\u0001\u0000"+
+		"\u0000\u0000jk\u0001\u0000\u0000\u0000k\r\u0001\u0000\u0000\u0000lj\u0001"+
+		"\u0000\u0000\u0000mo\u0003\u0016\u000b\u0000nm\u0001\u0000\u0000\u0000"+
+		"no\u0001\u0000\u0000\u0000op\u0001\u0000\u0000\u0000pq\u0003\u0010\b\u0000"+
+		"qr\u0005\u0017\u0000\u0000rs\u0005\u0018\u0000\u0000s\u000f\u0001\u0000"+
+		"\u0000\u0000tu\u0007\u0002\u0000\u0000u\u0011\u0001\u0000\u0000\u0000"+
+		"vw\u0007\u0003\u0000\u0000w\u0013\u0001\u0000\u0000\u0000xy\u0007\u0004"+
+		"\u0000\u0000y\u0015\u0001\u0000\u0000\u0000z~\u0005\u0015\u0000\u0000"+
+		"{}\u0005\u0014\u0000\u0000|{\u0001\u0000\u0000\u0000}\u0080\u0001\u0000"+
+		"\u0000\u0000~|\u0001\u0000\u0000\u0000~\u007f\u0001\u0000\u0000\u0000"+
+		"\u007f\u0017\u0001\u0000\u0000\u0000\u0080~\u0001\u0000\u0000\u0000\u0081"+
+		"\u0085\u0005\u0015\u0000\u0000\u0082\u0084\u0005\u0014\u0000\u0000\u0083"+
+		"\u0082\u0001\u0000\u0000\u0000\u0084\u0087\u0001\u0000\u0000\u0000\u0085"+
+		"\u0083\u0001\u0000\u0000\u0000\u0085\u0086\u0001\u0000\u0000\u0000\u0086"+
+		"\u0019\u0001\u0000\u0000\u0000\u0087\u0085\u0001\u0000\u0000\u0000\u0088"+
+		"\u0089\u0007\u0001\u0000\u0000\u0089\u001b\u0001\u0000\u0000\u0000\u008a"+
+		"\u008c\u0005\u0012\u0000\u0000\u008b\u008d\u0005\u0002\u0000\u0000\u008c"+
+		"\u008b\u0001\u0000\u0000\u0000\u008d\u008e\u0001\u0000\u0000\u0000\u008e"+
+		"\u008c\u0001\u0000\u0000\u0000\u008e\u008f\u0001\u0000\u0000\u0000\u008f"+
+		"\u0090\u0001\u0000\u0000\u0000\u0090\u0094\u0005\u001b\u0000\u0000\u0091"+
+		"\u0094\u0005\u0001\u0000\u0000\u0092\u0094\u0005\u0016\u0000\u0000\u0093"+
+		"\u008a\u0001\u0000\u0000\u0000\u0093\u0091\u0001\u0000\u0000\u0000\u0093"+
+		"\u0092\u0001\u0000\u0000\u0000\u0094\u001d\u0001\u0000\u0000\u0000\u0010"+
+		"!069AFHNW^jn~\u0085\u008e\u0093";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

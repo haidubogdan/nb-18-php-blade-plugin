@@ -55,6 +55,42 @@ public class BladeAntlrFormatterParserBaseListener implements BladeAntlrFormatte
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterHtml_open_tag(BladeAntlrFormatterParser.Html_open_tagContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitHtml_open_tag(BladeAntlrFormatterParser.Html_open_tagContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAttr_assigment(BladeAntlrFormatterParser.Attr_assigmentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAttr_assigment(BladeAntlrFormatterParser.Attr_assigmentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAttr_value(BladeAntlrFormatterParser.Attr_valueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAttr_value(BladeAntlrFormatterParser.Attr_valueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterHtml_indent(BladeAntlrFormatterParser.Html_indentContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -134,6 +170,18 @@ public class BladeAntlrFormatterParserBaseListener implements BladeAntlrFormatte
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNl_with_space(BladeAntlrFormatterParser.Nl_with_spaceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterWs(BladeAntlrFormatterParser.WsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWs(BladeAntlrFormatterParser.WsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

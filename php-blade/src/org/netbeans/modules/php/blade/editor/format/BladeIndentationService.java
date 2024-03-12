@@ -96,6 +96,11 @@ public class BladeIndentationService {
             int htmlIndent = 0;
 
             @Override
+            public void enterHtml_open_tag(BladeAntlrFormatterParser.Html_open_tagContext ctx) {
+                int x = 1;
+            }
+
+            @Override
             public void exitBlock_start(BladeAntlrFormatterParser.Block_startContext ctx) {
                 //we need to get the html indent
                 if (ctx.ws_before != null) {
@@ -170,12 +175,12 @@ public class BladeIndentationService {
 
             @Override
             public void exitHtml_indent(BladeAntlrFormatterParser.Html_indentContext ctx) {
-                if (ctx.WS() == null || ctx.WS().isEmpty()){
+                if (ctx.WS() == null || ctx.WS().isEmpty()) {
                     return;
                 }
-                
+
                 String ws = "";
-                for (TerminalNode wsNode : ctx.WS()){
+                for (TerminalNode wsNode : ctx.WS()) {
                     ws += wsNode.getText();
                 }
                 htmlIndent = ws.length() / 4;

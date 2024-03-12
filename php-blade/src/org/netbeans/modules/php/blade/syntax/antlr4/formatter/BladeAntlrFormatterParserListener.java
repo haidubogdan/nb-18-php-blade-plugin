@@ -40,6 +40,36 @@ public interface BladeAntlrFormatterParserListener extends ParseTreeListener {
 	 */
 	void exitIndetable_element(BladeAntlrFormatterParser.Indetable_elementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BladeAntlrFormatterParser#html_open_tag}.
+	 * @param ctx the parse tree
+	 */
+	void enterHtml_open_tag(BladeAntlrFormatterParser.Html_open_tagContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrFormatterParser#html_open_tag}.
+	 * @param ctx the parse tree
+	 */
+	void exitHtml_open_tag(BladeAntlrFormatterParser.Html_open_tagContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrFormatterParser#attr_assigment}.
+	 * @param ctx the parse tree
+	 */
+	void enterAttr_assigment(BladeAntlrFormatterParser.Attr_assigmentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrFormatterParser#attr_assigment}.
+	 * @param ctx the parse tree
+	 */
+	void exitAttr_assigment(BladeAntlrFormatterParser.Attr_assigmentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrFormatterParser#attr_value}.
+	 * @param ctx the parse tree
+	 */
+	void enterAttr_value(BladeAntlrFormatterParser.Attr_valueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrFormatterParser#attr_value}.
+	 * @param ctx the parse tree
+	 */
+	void exitAttr_value(BladeAntlrFormatterParser.Attr_valueContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BladeAntlrFormatterParser#html_indent}.
 	 * @param ctx the parse tree
 	 */
@@ -109,6 +139,16 @@ public interface BladeAntlrFormatterParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNl_with_space(BladeAntlrFormatterParser.Nl_with_spaceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BladeAntlrFormatterParser#ws}.
+	 * @param ctx the parse tree
+	 */
+	void enterWs(BladeAntlrFormatterParser.WsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BladeAntlrFormatterParser#ws}.
+	 * @param ctx the parse tree
+	 */
+	void exitWs(BladeAntlrFormatterParser.WsContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BladeAntlrFormatterParser#static_element}.
 	 * @param ctx the parse tree

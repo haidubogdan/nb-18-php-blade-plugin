@@ -56,8 +56,21 @@ D_INLINE_DIRECTIVE : '@' DirectiveLabel DirectiveArgLookup;
 SG_QUOTE : '\'';
 DB_QUOTE : '"';
 
+HTML_OPEN_TAG_START : '<' [a-z\u0080-\ufffe][a-z0-9_.\u0080-\ufffe]*;
+IDENTIFIER : [a-z\u0080-\ufffe][a-z0-9_.\u0080-\ufffe]*;
+EQ : '=';
+SIMPLE_STR : DOUBLE_QUOTED_STRING_FRAGMENT | SINGLE_QUOTED_STRING_FRAGMENT;
 HTML_CLOSE_TAG : '<' (' ')* '/' (' ')*  [a-z\u0080-\ufffe][a-z0-9_.\u0080-\ufffe]* (' ')* '>';
 GT_SYMBOL : '>';
+
+fragment ESC_DOUBLE_QUOTED_STRING 
+    : [\\"];
+
+fragment DOUBLE_QUOTED_STRING_FRAGMENT 
+    : '"' (ESC_DOUBLE_QUOTED_STRING | . )*? '"';
+
+fragment SINGLE_QUOTED_STRING_FRAGMENT 
+    : '\'' (~('\'' | '\\') | '\\' . )* '\'';
 
 D_PHP : '@php' {this._input.LA(1) == ' ' || this._input.LA(1) == '\n'}?->pushMode(BLADE_INLINE_PHP);
 
@@ -66,7 +79,7 @@ AT : '@' ->skip;
 WS : ((' ') | [\t])+;
 NL : [\r\n];
 
-
+//GROUP html block
 
 OTHER : . ->skip;
 

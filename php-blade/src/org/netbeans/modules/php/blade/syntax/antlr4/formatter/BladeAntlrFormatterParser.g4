@@ -9,7 +9,8 @@ options { tokenVocab = BladeAntlrFormatterLexer; }
 file : statement* EOF;
 
 statement:
-    html_indent
+    html_open_tag
+    | html_indent
     | indetable_element
     | inline_identable_element
     | static_element
@@ -24,6 +25,9 @@ indetable_element:
    block_start (statement)+ nl_with_space? block_end
  ;
 
+html_open_tag : HTML_OPEN_TAG_START ws* (attr_assigment | IDENTIFIER)* ws* GT_SYMBOL;
+attr_assigment : IDENTIFIER ws* EQ ws* attr_value;
+attr_value : SIMPLE_STR;
 html_indent : GT_SYMBOL NL WS*;
 block_start : ws_before=nl_with_space_before? block_directive_name  D_ARG_LPAREN D_ARG_RPAREN;
 block_directive_name : (D_IF | D_FOREACH);
@@ -32,6 +36,7 @@ inline_identable_element : D_INLINE_DIRECTIVE | NON_PARAM_DIRECTIVE;
 
 nl_with_space_before : NL WS*;
 nl_with_space : NL WS*;
+ws : (NL | WS);
 
 static_element : 
     D_PHP PHP_CODE+ D_ENDPHP
